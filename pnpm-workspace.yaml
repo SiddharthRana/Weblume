@@ -1,0 +1,15 @@
+packages:
+  - 'apps/web'
+  - 'apps/api'
+  - 'packages/*'
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - '@nestjs/core'
+  - esbuild
+  - sharp
+  - unrs-resolver
+
+# Telemetry postinstall shipped with swagger-ui; intentionally not run.
+ignoredBuiltDependencies:
+  - '@scarf/scarf'

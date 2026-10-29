@@ -1,0 +1,32 @@
+# Writing good alt text: a practical guide for site owners
+
+**Alternative text** ("alt text") is a short written description of an image, added with the `alt` attribute. Screen readers read it aloud to blind and low-vision visitors, and browsers show it when an image fails to load.
+
+## The one question to ask
+
+> If I replaced this image with a sentence, what would that sentence need to say?
+
+That sentence is your alt text.
+
+## Examples
+
+| Image         | Weak alt text      | Better alt text                                      |
+| ------------- | ------------------ | ---------------------------------------------------- |
+| Product photo | `alt="image1.jpg"` | `alt="Blue ceramic mug with a wooden handle"`        |
+| Team photo    | `alt="photo"`      | `alt="Our five-person team outside the Pune office"` |
+| Chart         | `alt="chart"`      | `alt="Bar chart: sales grew 40% from 2024 to 2026"`  |
+
+## Decorative images
+
+If an image is purely decorative — a background flourish, a divider — use an **empty** alt attribute: `alt=""`. This tells screen readers to skip it. Leaving `alt` out entirely is different: many screen readers will then read the file name.
+
+## Tips
+
+- Keep it short — usually under about 125 characters.
+- Don't start with "Image of…" — screen readers already announce it's an image.
+- If the image contains text, include that text.
+- For links that are images (like a logo linking home), describe the destination: `alt="Weblume home"`.
+
+## What automated tools can and can't tell you
+
+Automated checks, including Weblume's, can find images with **missing** alt text. They can't judge whether the alt text you wrote is **accurate or helpful** — that still needs a human.

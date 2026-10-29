@@ -1,0 +1,249 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "Health_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "Health_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "A dependency (database) is unavailable"
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/plans": {
+      "get": {
+        "operationId": "Plans_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "Me_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "account"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Weblume API",
+    "description": "Website audit API. All routes require a Supabase access token unless noted.",
+    "version": "1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "EntitlementsDto": {
+        "type": "object",
+        "properties": {
+          "scansPerPeriod": {
+            "type": "number"
+          },
+          "quotaPeriod": {
+            "type": "string",
+            "enum": [
+              "day",
+              "calendar_month",
+              "billing_period"
+            ]
+          },
+          "retentionDays": {
+            "type": "number"
+          },
+          "lighthouseData": {
+            "type": "boolean"
+          },
+          "comparison": {
+            "type": "boolean"
+          },
+          "pdfExport": {
+            "type": "boolean"
+          },
+          "shareLinks": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "scansPerPeriod",
+          "quotaPeriod",
+          "retentionDays",
+          "lighthouseData",
+          "comparison",
+          "pdfExport",
+          "shareLinks"
+        ]
+      },
+      "DisplayPriceDto": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "INR",
+              "USD"
+            ]
+          },
+          "monthly": {
+            "type": "number",
+            "description": "Monthly price in minor units (paise/cents)"
+          },
+          "annual": {
+            "type": "number",
+            "description": "Annual price in minor units (paise/cents)"
+          }
+        },
+        "required": [
+          "currency",
+          "monthly",
+          "annual"
+        ]
+      },
+      "PlanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "starter"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "entitlements": {
+            "$ref": "#/components/schemas/EntitlementsDto"
+          },
+          "displayPrices": {
+            "description": "Indicative prices only; the charged amount comes from the payment provider.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DisplayPriceDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "paid",
+          "entitlements"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    }
+  }
+}

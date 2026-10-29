@@ -1,0 +1,27 @@
+{
+  "@@locale": "en",
+  "appTitle": "Weblume",
+  "navDashboard": "Dashboard",
+  "navNewScan": "New scan",
+  "navHistory": "History",
+  "navAccount": "Account",
+  "dashboardTitle": "Dashboard",
+  "dashboardEmptyTitle": "No scans yet",
+  "dashboardEmptyBody": "Your recent scans and remaining usage will appear here.",
+  "newScanTitle": "New scan",
+  "newScanUnavailableTitle": "Scanning is coming soon",
+  "newScanUnavailableBody": "You’ll be able to audit any public web page from here in an upcoming version.",
+  "historyTitle": "Scan history",
+  "historyEmptyTitle": "Nothing here yet",
+  "historyEmptyBody": "Scans you run will be listed here so you can revisit and compare them.",
+  "accountTitle": "Account",
+  "accountSignedOutTitle": "Sign-in is coming soon",
+  "accountSignedOutBody": "Accounts and subscriptions will be available in an upcoming version.",
+  "accountPrivacy": "Privacy policy",
+  "accountTerms": "Terms of service",
+  "accountDeleteInfo": "How to delete your account",
+  "accountVersion": "Version {version}",
+  "@accountVersion": {
+    "placeholders": { "version": { "type": "String" } }
+  }
+}

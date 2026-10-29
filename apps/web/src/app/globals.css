@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+@import '@weblume/design-tokens/tokens.css';
+
+/* Map design tokens (CSS variables) into Tailwind's theme so utilities like bg-surface work. */
+@theme inline {
+  --color-bg: var(--wl-background);
+  --color-surface: var(--wl-surface);
+  --color-surface-muted: var(--wl-surface-muted);
+  --color-border: var(--wl-border);
+  --color-fg: var(--wl-text);
+  --color-fg-muted: var(--wl-text-muted);
+  --color-primary: var(--wl-primary);
+  --color-primary-hover: var(--wl-primary-hover);
+  --color-on-primary: var(--wl-on-primary);
+  --color-accent: var(--wl-accent);
+  --color-on-accent: var(--wl-on-accent);
+  --color-focus: var(--wl-focus);
+  --color-success: var(--wl-success);
+  --color-danger: var(--wl-danger);
+
+  --color-sev-critical: var(--wl-severity-critical-fg);
+  --color-sev-critical-bg: var(--wl-severity-critical-bg);
+  --color-sev-high: var(--wl-severity-high-fg);
+  --color-sev-high-bg: var(--wl-severity-high-bg);
+  --color-sev-medium: var(--wl-severity-medium-fg);
+  --color-sev-medium-bg: var(--wl-severity-medium-bg);
+  --color-sev-low: var(--wl-severity-low-fg);
+  --color-sev-low-bg: var(--wl-severity-low-bg);
+  --color-sev-info: var(--wl-severity-info-fg);
+  --color-sev-info-bg: var(--wl-severity-info-bg);
+
+  --font-sans: var(--font-inter), var(--wl-font-sans);
+  --font-mono: var(--font-jetbrains), var(--wl-font-mono);
+
+  --radius-sm: var(--wl-radius-sm);
+  --radius-md: var(--wl-radius-md);
+  --radius-lg: var(--wl-radius-lg);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--wl-background);
+    color: var(--wl-text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 2px solid var(--wl-focus);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Long-form content (blog, legal). */
+@layer components {
+  .prose {
+    max-width: 70ch;
+    font-size: 1.0625rem;
+  }
+  .prose h1 {
+    font-size: var(--wl-font-size-3xl);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+  }
+  .prose h2 {
+    font-size: var(--wl-font-size-2xl);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-top: 2.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose h3 {
+    font-size: var(--wl-font-size-xl);
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose p,
+  .prose ul,
+  .prose ol {
+    margin-bottom: 1rem;
+  }
+  .prose ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+  }
+  .prose ol {
+    list-style: decimal;
+    padding-left: 1.5rem;
+  }
+  .prose li {
+    margin-bottom: 0.375rem;
+  }
+  .prose a {
+    color: var(--wl-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--wl-surface-muted);
+    padding: 0.1em 0.35em;
+    border-radius: var(--wl-radius-sm);
+  }
+  .prose pre {
+    background: var(--wl-surface-muted);
+    padding: 1rem;
+    border-radius: var(--wl-radius-md);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .prose pre code {
+    background: none;
+    padding: 0;
+  }
+  .prose strong {
+    font-weight: 600;
+  }
+}

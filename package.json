@@ -1,0 +1,32 @@
+{
+  "name": "weblume",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter=./packages/* run build && pnpm -r --filter=./apps/* run build",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "tokens": "pnpm --filter @weblume/design-tokens run build",
+    "openapi": "pnpm --filter @weblume/api run openapi && pnpm --filter @weblume/api-client-ts run generate",
+    "openapi:check": "node scripts/check-generated.mjs",
+    "db:verify": "bash scripts/db-verify.sh",
+    "dev:web": "pnpm --filter @weblume/web dev",
+    "dev:api": "pnpm --filter @weblume/api dev",
+    "mobile:analyze": "cd apps/mobile && flutter analyze",
+    "mobile:test": "cd apps/mobile && flutter test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1"
+  }
+}

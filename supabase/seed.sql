@@ -1,0 +1,2 @@
+-- Local development seed data. Feature flags are seeded by the init migration.
+-- Users are created through Supabase Auth (Studio or the sign-up flow), not here.
