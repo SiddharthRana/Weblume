@@ -16,6 +16,8 @@ class SeverityBadge extends StatelessWidget {
     Severity.info: Icons.info_outline,
   };
 
+  static IconData iconFor(Severity s) => _icons[s]!;
+
   static String label(Severity s) => switch (s) {
     Severity.critical => 'Critical',
     Severity.high => 'High',

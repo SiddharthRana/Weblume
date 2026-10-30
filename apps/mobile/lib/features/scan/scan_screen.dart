@@ -11,6 +11,7 @@ import '../../l10n/app_localizations.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/status_views.dart';
+import '../../shared/widgets/surface.dart';
 import '../../router/app_router.dart';
 import '../../theme/tokens.g.dart';
 import '../reports/share_sheet.dart';
@@ -134,9 +135,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           const SizedBox(height: WlSpace.s6),
           Semantics(
             liveRegion: true,
-            child: Card(
+            child: WlCard(
+              gradientBorder: true,
               child: Padding(
-                padding: const EdgeInsets.all(WlSpace.s4),
+                padding: EdgeInsets.zero,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -246,9 +248,10 @@ class _OwnerActions extends ConsumerWidget {
     if (account == null) return const SizedBox.shrink();
     final e = account.entitlements;
     if (!e.shareLinks && !e.comparison) {
-      return Card(
+      return WlCard(
+        padding: EdgeInsets.zero,
         child: Padding(
-          padding: const EdgeInsets.all(WlSpace.s3),
+          padding: const EdgeInsets.fromLTRB(WlSpace.s3, WlSpace.s3, WlSpace.s3, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

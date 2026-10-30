@@ -835,4 +835,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get seePlans => 'See plans';
+
+  @override
+  String get newScanHeadline => 'Audit any website';
+
+  @override
+  String get newScanSubtitle => 'Performance, SEO, accessibility and technical health, explained in plain language.';
+
+  @override
+  String get whatWeCheck => 'What we check';
+
+  @override
+  String get starterTagline => 'For freelancers and agencies who send reports to clients.';
+
+  @override
+  String get choosePlan => 'Choose how to pay';
 }

@@ -10,6 +10,7 @@ import '../../data/providers.dart';
 import '../../router/app_router.dart';
 import '../billing/subscription_status.dart';
 import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/surface.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/usage_meter.dart';
@@ -95,21 +96,29 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final user = ref.watch(authRepositoryProvider).currentUser;
     final muted = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
 
-    Widget section(String title, List<Widget> children, {Color? border}) => Card(
-      shape: border == null
-          ? null
-          : RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(WlRadius.lg),
-              side: BorderSide(color: border, width: 2),
-            ),
-      child: Padding(
-        padding: const EdgeInsets.all(WlSpace.s4),
+    Widget section(String title, List<Widget> children, {Color? border, IconData? icon}) => Padding(
+      padding: const EdgeInsets.only(bottom: WlSpace.s4),
+      child: WlCard(
+        accent: border,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              header: true,
-              child: Text(title, style: theme.textTheme.titleLarge?.copyWith(color: border)),
+            Row(
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 20, color: border ?? theme.colorScheme.primary),
+                  const SizedBox(width: WlSpace.s2),
+                ],
+                Expanded(
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(color: border, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: WlSpace.s3),
             ...children,
@@ -134,9 +143,32 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               if (loaded.fromCache) const OfflineBanner(),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.all(WlSpace.s4),
+                  padding: const EdgeInsets.fromLTRB(WlSpace.s4, WlSpace.s5, WlSpace.s4, WlSpace.s8),
                   children: [
-                    section(l10n.profileSection, [
+                    FadeSlideIn(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: WlSpace.s5),
+                        child: Row(
+                          children: [
+                            GradientAvatar(label: a.displayName ?? user?.email ?? a.email ?? '?', size: 56),
+                            const SizedBox(width: WlSpace.s4),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    a.displayName ?? l10n.accountTitle,
+                                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                  Text(l10n.planName(a.plan.name), style: muted),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    section(l10n.profileSection, icon: Icons.person_outline, [
                       Text(l10n.signedInAs(user?.email ?? a.email ?? ''), style: muted),
                       const SizedBox(height: WlSpace.s3),
                       TextField(
@@ -151,8 +183,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       ],
                       OutlinedButton(onPressed: loaded.fromCache ? null : _saveName, child: Text(l10n.saveName)),
                     ]),
-                    const SizedBox(height: WlSpace.s4),
-                    section(l10n.planSection, [
+                    section(l10n.planSection, icon: Icons.bolt_outlined, [
                       Text(
                         '${a.plan.name} · ${l10n.planDetails(a.entitlements.scansPerPeriod)}',
                         style: theme.textTheme.titleMedium,
@@ -180,8 +211,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                           child: Text(l10n.manageSubscription),
                         ),
                     ]),
-                    const SizedBox(height: WlSpace.s4),
-                    section(l10n.dataSection, [
+                    section(l10n.dataSection, icon: Icons.download_outlined, [
                       Text(l10n.exportOnWeb, style: muted),
                       const SizedBox(height: WlSpace.s2),
                       OutlinedButton.icon(
@@ -190,8 +220,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         label: Text(l10n.openWebsite),
                       ),
                     ]),
-                    const SizedBox(height: WlSpace.s4),
-                    section(l10n.legalSection, [
+                    section(l10n.legalSection, icon: Icons.gavel_outlined, [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.privacy_tip_outlined),
@@ -207,10 +236,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         onTap: () => _open('/legal/terms'),
                       ),
                     ]),
-                    const SizedBox(height: WlSpace.s4),
                     OutlinedButton.icon(onPressed: _logOut, icon: const Icon(Icons.logout), label: Text(l10n.logOut)),
                     const SizedBox(height: WlSpace.s6),
-                    section(l10n.deleteSection, border: theme.colorScheme.error, [
+                    section(l10n.deleteSection, border: theme.colorScheme.error, icon: Icons.warning_amber_rounded, [
                       Text(l10n.deleteWarning, style: muted),
                       const SizedBox(height: WlSpace.s3),
                       TextField(
@@ -227,6 +255,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         style: FilledButton.styleFrom(
                           backgroundColor: theme.colorScheme.error,
                           foregroundColor: theme.colorScheme.onError,
+                          // Destructive: a plain red button, not the brand gradient.
+                          backgroundBuilder: (_, _, child) => child!,
                         ),
                         onPressed: _deleting || loaded.fromCache ? null : _delete,
                         child: Text(_deleting ? l10n.deleting : l10n.deleteButton),

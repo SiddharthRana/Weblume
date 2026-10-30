@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/generated/models.g.dart';
 import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/surface.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/scan_tile.dart';
@@ -98,11 +99,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       content = RefreshIndicator(
         onRefresh: _load,
         child: ListView(
+          padding: const EdgeInsets.fromLTRB(WlSpace.s4, 0, WlSpace.s4, WlSpace.s6),
           children: [
-            for (final s in _items!) ScanTile(scan: s),
+            for (final (i, s) in _items!.indexed)
+              FadeSlideIn(
+                index: i,
+                child: ScanTile(scan: s),
+              ),
             if (_cursor != null)
               Padding(
-                padding: const EdgeInsets.all(WlSpace.s4),
+                padding: const EdgeInsets.only(top: WlSpace.s2),
                 child: OutlinedButton(
                   onPressed: _loadingMore ? null : _more,
                   child: Text(_loadingMore ? l10n.loading : l10n.loadMore),

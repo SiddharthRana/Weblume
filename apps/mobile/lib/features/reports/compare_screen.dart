@@ -11,6 +11,7 @@ import '../../shared/labels.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/severity_badge.dart';
 import '../../shared/widgets/status_views.dart';
+import '../../shared/widgets/surface.dart';
 import '../../theme/tokens.g.dart';
 import '../scan/report_view.dart';
 
@@ -192,9 +193,9 @@ class _ComparisonView extends StatelessWidget {
         (l10n.scoreSeo, d.seo),
         (l10n.scoreBestPractices, d.bestPractices),
       ];
-      return Card(
-        child: Padding(
-          padding: const EdgeInsets.all(WlSpace.s3),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: WlSpace.s2),
+        child: WlCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -222,13 +223,23 @@ class _ComparisonView extends StatelessWidget {
         const SizedBox(height: WlSpace.s1),
         Text(l10n.compareRange(_when(c.base.createdAt), _when(c.target.createdAt)), style: muted),
         const SizedBox(height: WlSpace.s4),
-        Wrap(
-          spacing: WlSpace.s3,
-          runSpacing: WlSpace.s3,
+        Row(
           children: [
-            _Stat(label: l10n.compareResolved, value: c.resolvedFindings.length),
-            _Stat(label: l10n.compareNew, value: c.newFindings.length),
-            _Stat(label: l10n.compareStillOpen, value: c.unchangedFindings.length),
+            Expanded(
+              child: _Stat(label: l10n.compareResolved, value: c.resolvedFindings.length, tone: _Tone.good),
+            ),
+            const SizedBox(width: WlSpace.s2),
+            Expanded(
+              child: _Stat(
+                label: l10n.compareNew,
+                value: c.newFindings.length,
+                tone: c.newFindings.isEmpty ? _Tone.neutral : _Tone.bad,
+              ),
+            ),
+            const SizedBox(width: WlSpace.s2),
+            Expanded(
+              child: _Stat(label: l10n.compareStillOpen, value: c.unchangedFindings.length),
+            ),
           ],
         ),
         Padding(
@@ -262,25 +273,37 @@ class _ComparisonView extends StatelessWidget {
   }
 }
 
+enum _Tone { good, bad, neutral }
+
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
+  const _Stat({required this.label, required this.value, this.tone = _Tone.neutral});
 
   final String label;
   final int value;
+  final _Tone tone;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: WlSpace.s4, vertical: WlSpace.s3),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: theme.textTheme.bodyMedium),
-            Text('$value', style: theme.textTheme.headlineMedium),
-          ],
-        ),
+    final dark = theme.brightness == Brightness.dark;
+    final color = switch (tone) {
+      _Tone.good => dark ? WlColorsDark.success : WlColorsLight.success,
+      _Tone.bad => theme.colorScheme.error,
+      _Tone.neutral => theme.colorScheme.onSurface,
+    };
+    return WlCard(
+      padding: const EdgeInsets.symmetric(horizontal: WlSpace.s3, vertical: WlSpace.s3),
+      child: Column(
+        children: [
+          Text(
+            '$value',
+            style: theme.textTheme.headlineMedium?.copyWith(color: color, fontWeight: FontWeight.w800),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, style: theme.textTheme.bodyMedium),
+          ),
+        ],
       ),
     );
   }

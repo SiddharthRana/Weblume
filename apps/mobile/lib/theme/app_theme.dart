@@ -216,6 +216,13 @@ abstract final class AppTheme {
               IconThemeData(color: states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurfaceVariant),
         ),
       ),
+      chipTheme: ChipThemeData(
+        selectedColor: gradient.colors[1].withValues(alpha: brightness == Brightness.dark ? 0.32 : 0.14),
+        checkmarkColor: scheme.primary,
+        side: BorderSide(color: scheme.outline),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(WlRadius.full)),
+        labelStyle: text.labelLarge?.copyWith(color: scheme.onSurface),
+      ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: gradient.colors[1],
         foregroundColor: Colors.white,

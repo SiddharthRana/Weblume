@@ -1584,6 +1584,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See plans'**
   String get seePlans;
+
+  /// No description provided for @newScanHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit any website'**
+  String get newScanHeadline;
+
+  /// No description provided for @newScanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance, SEO, accessibility and technical health, explained in plain language.'**
+  String get newScanSubtitle;
+
+  /// No description provided for @whatWeCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'What we check'**
+  String get whatWeCheck;
+
+  /// No description provided for @starterTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'For freelancers and agencies who send reports to clients.'**
+  String get starterTagline;
+
+  /// No description provided for @choosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how to pay'**
+  String get choosePlan;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

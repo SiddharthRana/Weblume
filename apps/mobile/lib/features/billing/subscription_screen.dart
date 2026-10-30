@@ -8,6 +8,7 @@ import '../../billing/billing_gateway.dart';
 import '../../config/app_config.dart';
 import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
+import '../../shared/widgets/surface.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
 import '../../theme/tokens.g.dart';
@@ -75,41 +76,96 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           if (active.isNotEmpty)
             ..._manage(context, active, cfg)
           else ...[
-            if (starter != null) ...[
-              Text('Starter', style: theme.textTheme.headlineSmall),
-              const SizedBox(height: WlSpace.s2),
-              for (final f in [
-                l10n.planFeatureScans(starter.entitlements.scansPerPeriod),
-                l10n.planFeatureRetention,
-                l10n.planFeatureCompare,
-                l10n.planFeaturePdf,
-              ])
-                Padding(
-                  padding: const EdgeInsets.only(bottom: WlSpace.s1),
-                  child: Row(
+            if (starter != null)
+              FadeSlideIn(
+                child: GradientPanel(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(Icons.check, size: 18),
-                      const SizedBox(width: WlSpace.s2),
-                      Expanded(child: Text(f)),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Starter',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const Icon(Icons.workspace_premium_outlined),
+                        ],
+                      ),
+                      const SizedBox(height: WlSpace.s1),
+                      Text(l10n.starterTagline, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                      const SizedBox(height: WlSpace.s4),
+                      for (final f in [
+                        l10n.planFeatureScans(starter.entitlements.scansPerPeriod),
+                        l10n.planFeatureRetention,
+                        l10n.planFeatureCompare,
+                        l10n.planFeaturePdf,
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: WlSpace.s2),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.check, size: 14),
+                              ),
+                              const SizedBox(width: WlSpace.s3),
+                              Expanded(
+                                child: Text(f, style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white)),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
-              const SizedBox(height: WlSpace.s4),
-            ],
+              ),
+            if (billing.offers.isNotEmpty) SectionTitle(l10n.choosePlan),
             ..._status(l10n, billing),
-            for (final offer in billing.offers)
-              Card(
-                child: ListTile(
-                  minTileHeight: 64,
-                  title: Text(offer.interval == StoreInterval.annual ? l10n.offerAnnual : l10n.offerMonthly),
-                  subtitle: Text(
-                    offer.interval == StoreInterval.annual ? l10n.perYear(offer.price) : l10n.perMonth(offer.price),
-                  ),
-                  trailing: FilledButton(
-                    onPressed: billing.phase == PurchasePhase.ready || billing.phase == PurchasePhase.error
-                        ? () => ref.read(billingControllerProvider.notifier).buy(offer)
-                        : null,
-                    child: Text(l10n.subscribe),
+            for (final (i, offer) in billing.offers.indexed)
+              FadeSlideIn(
+                index: i + 1,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: WlSpace.s3),
+                  child: WlCard(
+                    gradientBorder: offer.interval == StoreInterval.annual,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                offer.interval == StoreInterval.annual ? l10n.offerAnnual : l10n.offerMonthly,
+                                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                offer.interval == StoreInterval.annual
+                                    ? l10n.perYear(offer.price)
+                                    : l10n.perMonth(offer.price),
+                                style: muted,
+                              ),
+                            ],
+                          ),
+                        ),
+                        FilledButton(
+                          onPressed: billing.phase == PurchasePhase.ready || billing.phase == PurchasePhase.error
+                              ? () => ref.read(billingControllerProvider.notifier).buy(offer)
+                              : null,
+                          child: Text(l10n.subscribe),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -160,7 +216,11 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
     final play = active.any((s) => s.provider == 'google_play');
     final web = active.any((s) => s.provider != 'google_play');
     return [
-      for (final s in active) SubscriptionStatusTile(subscription: s),
+      for (final s in active)
+        Padding(
+          padding: const EdgeInsets.only(bottom: WlSpace.s2),
+          child: WlCard(child: SubscriptionStatusTile(subscription: s)),
+        ),
       const SizedBox(height: WlSpace.s3),
       if (web) ...[
         Text(l10n.subscribedOnWeb),

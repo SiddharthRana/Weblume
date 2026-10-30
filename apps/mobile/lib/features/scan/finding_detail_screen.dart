@@ -3,6 +3,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/generated/models.g.dart';
 import '../../l10n/app_localizations.dart';
+import '../../theme/app_theme.dart';
+import '../../shared/widgets/surface.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/severity_badge.dart';
 import '../../theme/tokens.g.dart';
@@ -51,38 +53,70 @@ class FindingDetailScreen extends StatelessWidget {
     final muted = theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     final evidence = evidenceLines(finding);
 
-    Widget block(String title, Widget child) => Padding(
-      padding: const EdgeInsets.only(top: WlSpace.s6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Semantics(header: true, child: Text(title, style: theme.textTheme.titleMedium)),
-          const SizedBox(height: WlSpace.s2),
-          child,
-        ],
+    final sev = severityOf(finding.severity);
+    final sevFg = theme.extension<SeverityColors>()!.fg[sev]!;
+    var n = 0;
+    Widget block(String title, IconData icon, Widget child) => FadeSlideIn(
+      index: ++n,
+      child: Padding(
+        padding: const EdgeInsets.only(top: WlSpace.s3),
+        child: WlCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 18, color: theme.colorScheme.primary),
+                  const SizedBox(width: WlSpace.s2),
+                  Semantics(
+                    header: true,
+                    child: Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: WlSpace.s2),
+              child,
+            ],
+          ),
+        ),
       ),
     );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.category(finding.category))),
       body: ListView(
-        padding: const EdgeInsets.all(WlSpace.s4),
+        padding: const EdgeInsets.fromLTRB(WlSpace.s4, WlSpace.s4, WlSpace.s4, WlSpace.s8),
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SeverityBadge(severity: severityOf(finding.severity)),
+          FadeSlideIn(
+            child: WlCard(
+              accent: sevFg,
+              padding: const EdgeInsets.all(WlSpace.s5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SeverityBadge(severity: sev),
+                  const SizedBox(height: WlSpace.s3),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      finding.title,
+                      style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.3),
+                    ),
+                  ),
+                  const SizedBox(height: WlSpace.s1),
+                  Text(
+                    l10n.kind(finding.kind),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(height: WlSpace.s3),
-          Semantics(header: true, child: Text(finding.title, style: theme.textTheme.headlineSmall)),
-          const SizedBox(height: WlSpace.s1),
-          Text(
-            l10n.kind(finding.kind),
-            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          ),
-          block(l10n.whatItMeans, Text(finding.whatItMeans, style: muted)),
-          block(l10n.whyItMatters, Text(finding.whyItMatters, style: muted)),
+          block(l10n.whatItMeans, Icons.lightbulb_outline, Text(finding.whatItMeans, style: muted)),
+          block(l10n.whyItMatters, Icons.trending_up, Text(finding.whyItMatters, style: muted)),
           block(
             l10n.howToFix,
+            Icons.build_outlined,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -92,7 +126,17 @@ class FindingDetailScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('${i + 1}. ', style: muted),
+                        Container(
+                          width: 22,
+                          height: 22,
+                          margin: const EdgeInsets.only(right: WlSpace.s2, top: 1),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(gradient: brandGradient(theme.brightness), shape: BoxShape.circle),
+                          child: Text(
+                            '${i + 1}',
+                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                          ),
+                        ),
                         Expanded(child: Text(finding.howToFix[i], style: muted)),
                       ],
                     ),
@@ -103,6 +147,7 @@ class FindingDetailScreen extends StatelessWidget {
           if (evidence.isNotEmpty)
             block(
               l10n.whatWeFound,
+              Icons.manage_search,
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(WlSpace.s3),
@@ -117,7 +162,7 @@ class FindingDetailScreen extends StatelessWidget {
               ),
             ),
           if (finding.learnMoreUrl != null) ...[
-            const SizedBox(height: WlSpace.s6),
+            const SizedBox(height: WlSpace.s5),
             OutlinedButton.icon(
               onPressed: () => launchUrl(Uri.parse(finding.learnMoreUrl!), mode: LaunchMode.externalApplication),
               icon: const Icon(Icons.open_in_new),
