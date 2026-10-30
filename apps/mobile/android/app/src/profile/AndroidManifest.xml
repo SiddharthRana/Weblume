@@ -4,4 +4,7 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Development builds only: allow plain HTTP so the app can reach a local API and Supabase
+         (http://10.0.2.2 on the emulator, http://<LAN IP> on a phone). Release builds stay HTTPS-only. -->
+    <application android:usesCleartextTraffic="true" />
 </manifest>
