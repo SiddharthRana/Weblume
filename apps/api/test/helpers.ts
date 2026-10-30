@@ -11,6 +11,7 @@ import {
 } from '../src/auth/jwt-verifier';
 import { loadEnv } from '../src/config/env';
 import { Database } from '../src/database/database.module';
+import { SCAN_QUEUE } from '../src/scans/scan-queue';
 
 export const SUPABASE_URL = 'http://supabase.test';
 export const ISSUER = `${SUPABASE_URL}/auth/v1`;
@@ -86,6 +87,8 @@ export async function createTestApp(opts: {
         : opts.jwks(header, token)) satisfies KeyResolver)
     .overrideProvider(Database)
     .useValue({ ping: async () => opts.dbUp ?? true, onApplicationShutdown: async () => undefined })
+    .overrideProvider(SCAN_QUEUE)
+    .useValue({ enqueue: async () => undefined })
     .compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({
     bodyParser: false,

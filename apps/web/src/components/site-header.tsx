@@ -27,9 +27,10 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
-          <ButtonLink href="/sample-report" className="hidden md:inline-flex">
-            See a sample report
-          </ButtonLink>
+          {/* ButtonLink sets display itself, so visibility is controlled by a wrapper. */}
+          <div className="hidden md:block">
+            <ButtonLink href="/scan">Scan a website</ButtonLink>
+          </div>
           <MobileNav />
         </div>
       </Container>

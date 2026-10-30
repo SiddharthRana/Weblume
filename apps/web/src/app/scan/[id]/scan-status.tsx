@@ -1,0 +1,230 @@
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ScanReportDto } from '@weblume/shared';
+import { ReportView } from '@/components/report/report-view';
+import { api, errorMessage } from '@/lib/api';
+import { getLocalScan, saveLocalScan } from '@/lib/local-scans';
+
+const POLL_MS = 2_000;
+const GIVE_UP_MS = 5 * 60_000;
+
+type State =
+  | { kind: 'loading' }
+  | { kind: 'not_found' }
+  | { kind: 'error'; message: string }
+  | { kind: 'report'; report: ScanReportDto };
+
+export function ScanStatus({ id }: { id: string }) {
+  const router = useRouter();
+  const [state, setState] = useState<State>({ kind: 'loading' });
+  const [tooSlow, setTooSlow] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const startedAt = useRef(0);
+
+  const load = useCallback(async (): Promise<ScanReportDto | null | 'error'> => {
+    const token = getLocalScan(id)?.scanToken;
+    try {
+      const { data, error, response } = await api.GET('/v1/scans/{id}', {
+        params: { path: { id }, header: token ? { 'x-scan-token': token } : {} },
+      });
+      if (data) return data as ScanReportDto;
+      if (response.status === 404 || response.status === 400) return null;
+      setState({ kind: 'error', message: errorMessage(error) });
+      return 'error';
+    } catch {
+      setState({ kind: 'error', message: errorMessage(undefined) });
+      return 'error';
+    }
+  }, [id]);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+    startedAt.current = Date.now();
+    const tick = async () => {
+      const result = await load();
+      if (cancelled || result === 'error') return;
+      if (result === null) {
+        setState({ kind: 'not_found' });
+        return;
+      }
+      setState({ kind: 'report', report: result });
+      if (result.status === 'queued' || result.status === 'running') {
+        if (Date.now() - startedAt.current > GIVE_UP_MS) setTooSlow(true);
+        else timer = setTimeout(tick, POLL_MS);
+      }
+    };
+    void tick();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [load, attempt]);
+
+  async function retry() {
+    setRetrying(true);
+    setRetryError(null);
+    const local = getLocalScan(id);
+    try {
+      const { data, error } = await api.POST('/v1/scans/{id}/retry', {
+        params: {
+          path: { id },
+          header: local?.scanToken ? { 'x-scan-token': local.scanToken } : {},
+        },
+      });
+      if (!data) {
+        setRetryError(errorMessage(error));
+        return;
+      }
+      saveLocalScan({
+        id: data.scan.id,
+        url: data.scan.normalizedUrl,
+        createdAt: data.scan.createdAt,
+        scanToken: data.scanToken,
+      });
+      router.push(`/scan/${data.scan.id}`);
+    } catch {
+      setRetryError(errorMessage(undefined));
+    } finally {
+      setRetrying(false);
+    }
+  }
+
+  if (state.kind === 'loading') {
+    return (
+      <p role="status" className="py-16 text-center text-fg-muted">
+        Loading report…
+      </p>
+    );
+  }
+
+  if (state.kind === 'not_found') {
+    return (
+      <div className="py-16 text-center">
+        <h1 className="text-2xl font-bold text-fg">Report not available</h1>
+        <p className="mx-auto mt-3 max-w-xl text-fg-muted">
+          This report doesn’t exist, has expired, or can’t be opened here. Reports from guest scans
+          can only be opened on the device that started them and are kept for 24 hours.
+        </p>
+        <Link
+          href="/scan"
+          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+        >
+          Start a new scan
+        </Link>
+      </div>
+    );
+  }
+
+  if (state.kind === 'error') {
+    return (
+      <div role="alert" className="py-16 text-center">
+        <h1 className="text-2xl font-bold text-fg">Couldn’t load this report</h1>
+        <p className="mt-3 text-fg-muted">{state.message}</p>
+        <button
+          type="button"
+          onClick={() => {
+            setState({ kind: 'loading' });
+            setAttempt((a) => a + 1);
+          }}
+          className="mt-6 min-h-11 rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const r = state.report;
+
+  if (r.status === 'queued' || r.status === 'running') {
+    return (
+      <div className="mx-auto max-w-2xl py-12">
+        <p className="text-sm font-semibold uppercase tracking-wide text-primary">Scanning</p>
+        <h1 className="mt-1 break-all text-2xl font-bold text-fg">{r.normalizedUrl}</h1>
+        <div
+          role="status"
+          aria-live="polite"
+          className="mt-6 rounded-lg border border-border bg-surface p-6"
+        >
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="size-3 animate-pulse rounded-full bg-primary" />
+            <p className="font-semibold text-fg">
+              {r.status === 'queued' ? 'Waiting to start…' : 'Scan in progress…'}
+            </p>
+          </div>
+          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-fg-muted">
+            <li>Fetching the page and checking SEO, technical and accessibility basics</li>
+            <li>Checking up to 50 links, robots.txt and the sitemap</li>
+            <li>Measuring performance with Google PageSpeed Insights (mobile and desktop)</li>
+          </ul>
+          <p className="mt-4 text-sm text-fg-muted">
+            This usually takes under a minute. You can leave this page open.
+          </p>
+        </div>
+        {tooSlow && (
+          <p className="mt-4 text-sm text-fg-muted">
+            This is taking longer than expected.{' '}
+            <button
+              type="button"
+              onClick={() => setAttempt((a) => a + 1)}
+              className="font-medium text-primary underline"
+            >
+              Check again
+            </button>
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (r.status === 'failed') {
+    return (
+      <div className="mx-auto max-w-2xl py-12">
+        <p className="text-sm font-semibold uppercase tracking-wide text-danger">Scan failed</p>
+        <h1 className="mt-1 break-all text-2xl font-bold text-fg">{r.normalizedUrl}</h1>
+        <div
+          role="alert"
+          className="mt-6 rounded-lg border border-danger bg-sev-critical-bg p-6 text-sev-critical"
+        >
+          <p className="font-semibold">{r.failureMessage ?? 'The scan couldn’t be completed.'}</p>
+          <p className="mt-2 text-sm">
+            No report was produced, and no scores or findings have been estimated.
+          </p>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={retry}
+            disabled={retrying}
+            className="min-h-11 rounded-md bg-primary px-5 text-sm font-semibold text-on-primary disabled:opacity-70"
+          >
+            {retrying ? 'Retrying…' : 'Retry scan'}
+          </button>
+          <Link
+            href="/scan"
+            className="inline-flex min-h-11 items-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg"
+          >
+            Scan a different address
+          </Link>
+        </div>
+        {retryError && (
+          <p role="alert" className="mt-3 text-sm font-medium text-danger">
+            {retryError}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-12">
+      <ReportView report={r} />
+    </div>
+  );
+}

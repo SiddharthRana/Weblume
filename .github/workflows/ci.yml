@@ -16,7 +16,19 @@ jobs:
   typescript:
     name: TypeScript (web, api, packages)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DB_ADMIN_URL: postgres://postgres:postgres@localhost:5432/postgres
+      # Enables the database-backed API e2e tests (apps/api/test/scans.e2e.test.ts).
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/weblume_test
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -30,6 +42,8 @@ jobs:
       - run: pnpm format:check
       - run: pnpm lint
       - run: pnpm typecheck
+      - name: Create test database
+        run: bash scripts/db-test-setup.sh
       - run: pnpm test
       - name: Generated files are up to date (OpenAPI, API client, design tokens)
         run: pnpm openapi:check

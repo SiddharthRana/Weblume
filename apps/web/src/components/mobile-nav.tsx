@@ -72,10 +72,10 @@ export function MobileNav() {
             ))}
             <li className="mt-2">
               <Link
-                href="/sample-report"
+                href="/scan"
                 className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-on-primary"
               >
-                See a sample report
+                Scan a website
               </Link>
             </li>
           </ul>

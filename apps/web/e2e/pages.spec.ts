@@ -6,6 +6,7 @@ const pages = [
   { path: '/features', h1: /Everything you need/ },
   { path: '/how-it-works', h1: /From URL to action plan/ },
   { path: '/sample-report', h1: /bakery\.example/ },
+  { path: '/scan', h1: /Scan a website/ },
   { path: '/pricing', h1: /Simple pricing/ },
   { path: '/blog', h1: /Guides for healthier websites/ },
   { path: '/blog/what-is-largest-contentful-paint', h1: /Largest Contentful Paint/ },

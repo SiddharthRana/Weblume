@@ -68,6 +68,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/scans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Scans_list"];
+        put?: never;
+        post: operations["Scans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Scans_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Scans_retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -107,6 +155,174 @@ export interface components {
             /** Format: uuid */
             id: string;
             email?: string;
+        };
+        CreateScanBody: {
+            /** @example example.com */
+            url: string;
+            /** @description Cloudflare Turnstile token. Required for guest (signed-out) scans. */
+            turnstileToken?: string;
+        };
+        ScanSummaryDtoClass: {
+            /** Format: uuid */
+            id: string;
+            targetUrl: string;
+            normalizedUrl: string;
+            finalUrl: string | null;
+            /** @enum {string} */
+            status: "queued" | "running" | "completed" | "partial" | "failed";
+            /** @enum {string|null} */
+            failureCode: "invalid_url" | "blocked_destination" | "dns_failure" | "connection_failed" | "tls_error" | "timeout" | "too_many_redirects" | "response_too_large" | "not_html" | "http_error" | "internal_error" | "scan_timeout" | null;
+            failureMessage: string | null;
+            severityCounts: {
+                critical?: number;
+                high?: number;
+                medium?: number;
+                low?: number;
+                info?: number;
+            };
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            completedAt: string | null;
+        };
+        CreateScanResponse: {
+            scan: components["schemas"]["ScanSummaryDtoClass"];
+            /** @description Guest scans only: secret required to view the scan (send as X-Scan-Token). Shown once. */
+            scanToken?: string;
+            /** @description True when an identical recent scan was returned instead of starting a new one */
+            deduplicated: boolean;
+        };
+        ApiErrorDto: {
+            statusCode: number;
+            /** @example quota_exceeded */
+            code: string;
+            message: string;
+        };
+        ScanListResponse: {
+            items: components["schemas"]["ScanSummaryDtoClass"][];
+            /** Format: date-time */
+            nextCursor: string | null;
+        };
+        FindingDtoClass: {
+            /** Format: uuid */
+            id: string;
+            /** @description Stable check identifier, e.g. seo.title.missing or lighthouse.<audit-id> */
+            checkId: string;
+            /** @enum {string} */
+            category: "performance" | "seo" | "accessibility" | "technical";
+            /** @enum {string} */
+            severity: "critical" | "high" | "medium" | "low" | "info";
+            /** @enum {string} */
+            kind: "measured" | "detected" | "recommendation";
+            /** @enum {string} */
+            source: "page_fetch" | "psi_mobile" | "psi_desktop" | "link_check" | "robots_sitemap";
+            title: string;
+            whatItMeans: string;
+            whyItMatters: string;
+            howToFix: string[];
+            learnMoreUrl?: string;
+            details: {
+                [key: string]: unknown;
+            };
+        };
+        ScanReportDtoClass: {
+            /** Format: uuid */
+            id: string;
+            targetUrl: string;
+            normalizedUrl: string;
+            finalUrl: string | null;
+            /** @enum {string} */
+            status: "queued" | "running" | "completed" | "partial" | "failed";
+            /** @enum {string|null} */
+            failureCode: "invalid_url" | "blocked_destination" | "dns_failure" | "connection_failed" | "tls_error" | "timeout" | "too_many_redirects" | "response_too_large" | "not_html" | "http_error" | "internal_error" | "scan_timeout" | null;
+            failureMessage: string | null;
+            severityCounts: {
+                critical?: number;
+                high?: number;
+                medium?: number;
+                low?: number;
+                info?: number;
+            };
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            completedAt: string | null;
+            /** @description Outcome of each data source */
+            sources: {
+                page_fetch?: {
+                    /** @enum {string} */
+                    status: "ok" | "skipped" | "failed";
+                    /** @enum {string} */
+                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+                };
+                psi_mobile?: {
+                    /** @enum {string} */
+                    status: "ok" | "skipped" | "failed";
+                    /** @enum {string} */
+                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+                };
+                psi_desktop?: {
+                    /** @enum {string} */
+                    status: "ok" | "skipped" | "failed";
+                    /** @enum {string} */
+                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+                };
+                link_check?: {
+                    /** @enum {string} */
+                    status: "ok" | "skipped" | "failed";
+                    /** @enum {string} */
+                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+                };
+                robots_sitemap?: {
+                    /** @enum {string} */
+                    status: "ok" | "skipped" | "failed";
+                    /** @enum {string} */
+                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+                };
+            };
+            /** @description Lighthouse results from Google PageSpeed Insights; null when unavailable */
+            lighthouse: {
+                mobile?: {
+                    scores?: {
+                        performance?: number | null;
+                        accessibility?: number | null;
+                        seo?: number | null;
+                        bestPractices?: number | null;
+                    };
+                    metrics?: {
+                        firstContentfulPaint?: number;
+                        largestContentfulPaint?: number;
+                        totalBlockingTime?: number;
+                        cumulativeLayoutShift?: number;
+                        speedIndex?: number;
+                    };
+                    lighthouseVersion?: string;
+                    /** Format: date-time */
+                    fetchedAt?: string;
+                };
+                desktop?: {
+                    scores?: {
+                        performance?: number | null;
+                        accessibility?: number | null;
+                        seo?: number | null;
+                        bestPractices?: number | null;
+                    };
+                    metrics?: {
+                        firstContentfulPaint?: number;
+                        largestContentfulPaint?: number;
+                        totalBlockingTime?: number;
+                        cumulativeLayoutShift?: number;
+                        speedIndex?: number;
+                    };
+                    lighthouseVersion?: string;
+                    /** Format: date-time */
+                    fetchedAt?: string;
+                };
+            } | null;
+            passedChecks: string[];
+            findings: components["schemas"]["FindingDtoClass"][];
+            /** Format: date-time */
+            expiresAt: string;
         };
     };
     responses: never;
@@ -204,6 +420,161 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    Scans_list: {
+        parameters: {
+            query?: {
+                /** @description Filter by URL substring */
+                q?: string;
+                limit?: number;
+                /** @description Cursor: return scans created before this time (nextCursor from the previous page) */
+                before?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanListResponse"];
+                };
+            };
+        };
+    };
+    Scans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateScanBody"];
+            };
+        };
+        responses: {
+            /** @description 202 when queued; 200 when a recent identical scan is returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateScanResponse"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description A scan is already running for this user */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description Scan quota used up */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Scans_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Guest scans: the scanToken returned when the scan was created */
+                "x-scan-token"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanReportDtoClass"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Scans_retry: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description Guest scans: the scanToken returned when the scan was created */
+                "x-scan-token"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateScanResponse"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
             };
         };
     };

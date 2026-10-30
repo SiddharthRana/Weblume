@@ -98,6 +98,254 @@
           "account"
         ]
       }
+    },
+    "/v1/scans": {
+      "post": {
+        "operationId": "Scans_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScanBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "202 when queued; 200 when a recent identical scan is returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateScanResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A scan is already running for this user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Scan quota used up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "scans"
+        ]
+      },
+      "get": {
+        "operationId": "Scans_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Filter by URL substring",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "before",
+            "required": false,
+            "in": "query",
+            "description": "Cursor: return scans created before this time (nextCursor from the previous page)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "scans"
+        ]
+      }
+    },
+    "/v1/scans/{id}": {
+      "get": {
+        "operationId": "Scans_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-scan-token",
+            "required": false,
+            "in": "header",
+            "description": "Guest scans: the scanToken returned when the scan was created",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanReportDtoClass"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "scans"
+        ]
+      }
+    },
+    "/v1/scans/{id}/retry": {
+      "post": {
+        "operationId": "Scans_retry",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-scan-token",
+            "required": false,
+            "in": "header",
+            "description": "Guest scans: the scanToken returned when the scan was created",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateScanResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "scans"
+        ]
+      }
     }
   },
   "info": {
@@ -242,6 +490,637 @@
         },
         "required": [
           "id"
+        ]
+      },
+      "CreateScanBody": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "example.com",
+            "maxLength": 2048
+          },
+          "turnstileToken": {
+            "type": "string",
+            "description": "Cloudflare Turnstile token. Required for guest (signed-out) scans."
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "ScanSummaryDtoClass": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetUrl": {
+            "type": "string"
+          },
+          "normalizedUrl": {
+            "type": "string"
+          },
+          "finalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "partial",
+              "failed"
+            ]
+          },
+          "failureCode": {
+            "type": "string",
+            "enum": [
+              "invalid_url",
+              "blocked_destination",
+              "dns_failure",
+              "connection_failed",
+              "tls_error",
+              "timeout",
+              "too_many_redirects",
+              "response_too_large",
+              "not_html",
+              "http_error",
+              "internal_error",
+              "scan_timeout"
+            ],
+            "nullable": true
+          },
+          "failureMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "severityCounts": {
+            "type": "object",
+            "properties": {
+              "critical": {
+                "type": "integer"
+              },
+              "high": {
+                "type": "integer"
+              },
+              "medium": {
+                "type": "integer"
+              },
+              "low": {
+                "type": "integer"
+              },
+              "info": {
+                "type": "integer"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "targetUrl",
+          "normalizedUrl",
+          "finalUrl",
+          "status",
+          "failureCode",
+          "failureMessage",
+          "severityCounts",
+          "createdAt",
+          "completedAt"
+        ]
+      },
+      "CreateScanResponse": {
+        "type": "object",
+        "properties": {
+          "scan": {
+            "$ref": "#/components/schemas/ScanSummaryDtoClass"
+          },
+          "scanToken": {
+            "type": "string",
+            "description": "Guest scans only: secret required to view the scan (send as X-Scan-Token). Shown once."
+          },
+          "deduplicated": {
+            "type": "boolean",
+            "description": "True when an identical recent scan was returned instead of starting a new one"
+          }
+        },
+        "required": [
+          "scan",
+          "deduplicated"
+        ]
+      },
+      "ApiErrorDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number"
+          },
+          "code": {
+            "type": "string",
+            "example": "quota_exceeded"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "code",
+          "message"
+        ]
+      },
+      "ScanListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScanSummaryDtoClass"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ]
+      },
+      "FindingDtoClass": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkId": {
+            "type": "string",
+            "description": "Stable check identifier, e.g. seo.title.missing or lighthouse.<audit-id>"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "performance",
+              "seo",
+              "accessibility",
+              "technical"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "measured",
+              "detected",
+              "recommendation"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "page_fetch",
+              "psi_mobile",
+              "psi_desktop",
+              "link_check",
+              "robots_sitemap"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "whatItMeans": {
+            "type": "string"
+          },
+          "whyItMatters": {
+            "type": "string"
+          },
+          "howToFix": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "learnMoreUrl": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "checkId",
+          "category",
+          "severity",
+          "kind",
+          "source",
+          "title",
+          "whatItMeans",
+          "whyItMatters",
+          "howToFix",
+          "details"
+        ]
+      },
+      "ScanReportDtoClass": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetUrl": {
+            "type": "string"
+          },
+          "normalizedUrl": {
+            "type": "string"
+          },
+          "finalUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "completed",
+              "partial",
+              "failed"
+            ]
+          },
+          "failureCode": {
+            "type": "string",
+            "enum": [
+              "invalid_url",
+              "blocked_destination",
+              "dns_failure",
+              "connection_failed",
+              "tls_error",
+              "timeout",
+              "too_many_redirects",
+              "response_too_large",
+              "not_html",
+              "http_error",
+              "internal_error",
+              "scan_timeout"
+            ],
+            "nullable": true
+          },
+          "failureMessage": {
+            "type": "string",
+            "nullable": true
+          },
+          "severityCounts": {
+            "type": "object",
+            "properties": {
+              "critical": {
+                "type": "integer"
+              },
+              "high": {
+                "type": "integer"
+              },
+              "medium": {
+                "type": "integer"
+              },
+              "low": {
+                "type": "integer"
+              },
+              "info": {
+                "type": "integer"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "sources": {
+            "type": "object",
+            "properties": {
+              "page_fetch": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "not_configured",
+                      "disabled",
+                      "not_applicable",
+                      "timeout",
+                      "quota_exceeded",
+                      "upstream_error",
+                      "blocked",
+                      "invalid_response"
+                    ]
+                  }
+                }
+              },
+              "psi_mobile": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "not_configured",
+                      "disabled",
+                      "not_applicable",
+                      "timeout",
+                      "quota_exceeded",
+                      "upstream_error",
+                      "blocked",
+                      "invalid_response"
+                    ]
+                  }
+                }
+              },
+              "psi_desktop": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "not_configured",
+                      "disabled",
+                      "not_applicable",
+                      "timeout",
+                      "quota_exceeded",
+                      "upstream_error",
+                      "blocked",
+                      "invalid_response"
+                    ]
+                  }
+                }
+              },
+              "link_check": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "not_configured",
+                      "disabled",
+                      "not_applicable",
+                      "timeout",
+                      "quota_exceeded",
+                      "upstream_error",
+                      "blocked",
+                      "invalid_response"
+                    ]
+                  }
+                }
+              },
+              "robots_sitemap": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ok",
+                      "skipped",
+                      "failed"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "not_configured",
+                      "disabled",
+                      "not_applicable",
+                      "timeout",
+                      "quota_exceeded",
+                      "upstream_error",
+                      "blocked",
+                      "invalid_response"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": "Outcome of each data source"
+          },
+          "lighthouse": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "mobile": {
+                "type": "object",
+                "properties": {
+                  "scores": {
+                    "type": "object",
+                    "properties": {
+                      "performance": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "accessibility": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "seo": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "bestPractices": {
+                        "type": "integer",
+                        "nullable": true
+                      }
+                    }
+                  },
+                  "metrics": {
+                    "type": "object",
+                    "properties": {
+                      "firstContentfulPaint": {
+                        "type": "number"
+                      },
+                      "largestContentfulPaint": {
+                        "type": "number"
+                      },
+                      "totalBlockingTime": {
+                        "type": "number"
+                      },
+                      "cumulativeLayoutShift": {
+                        "type": "number"
+                      },
+                      "speedIndex": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "lighthouseVersion": {
+                    "type": "string"
+                  },
+                  "fetchedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              },
+              "desktop": {
+                "type": "object",
+                "properties": {
+                  "scores": {
+                    "type": "object",
+                    "properties": {
+                      "performance": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "accessibility": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "seo": {
+                        "type": "integer",
+                        "nullable": true
+                      },
+                      "bestPractices": {
+                        "type": "integer",
+                        "nullable": true
+                      }
+                    }
+                  },
+                  "metrics": {
+                    "type": "object",
+                    "properties": {
+                      "firstContentfulPaint": {
+                        "type": "number"
+                      },
+                      "largestContentfulPaint": {
+                        "type": "number"
+                      },
+                      "totalBlockingTime": {
+                        "type": "number"
+                      },
+                      "cumulativeLayoutShift": {
+                        "type": "number"
+                      },
+                      "speedIndex": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "lighthouseVersion": {
+                    "type": "string"
+                  },
+                  "fetchedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            },
+            "description": "Lighthouse results from Google PageSpeed Insights; null when unavailable"
+          },
+          "passedChecks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingDtoClass"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "targetUrl",
+          "normalizedUrl",
+          "finalUrl",
+          "status",
+          "failureCode",
+          "failureMessage",
+          "severityCounts",
+          "createdAt",
+          "completedAt",
+          "sources",
+          "lighthouse",
+          "passedChecks",
+          "findings",
+          "expiresAt"
         ]
       }
     }

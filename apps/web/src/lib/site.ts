@@ -8,6 +8,7 @@ export const site = {
 } as const;
 
 export const mainNav = [
+  { href: '/scan', label: 'Scan' },
   { href: '/features', label: 'Features' },
   { href: '/how-it-works', label: 'How it works' },
   { href: '/sample-report', label: 'Sample report' },
@@ -21,6 +22,7 @@ export const footerNav = {
     { href: '/how-it-works', label: 'How it works' },
     { href: '/sample-report', label: 'Sample report' },
     { href: '/pricing', label: 'Pricing' },
+    { href: '/history', label: 'Your recent scans' },
   ],
   Resources: [
     { href: '/blog', label: 'Blog' },

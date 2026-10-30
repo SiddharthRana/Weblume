@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { HealthController } from './health/health.controller';
 import { MeController } from './me/me.controller';
 import { PlansController } from './plans/plans.controller';
+import { ScansModule } from './scans/scans.module';
 
 const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
 
@@ -47,6 +48,7 @@ const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
     }),
     DatabaseModule,
     AuthModule,
+    ScansModule,
   ],
   controllers: [HealthController, PlansController, MeController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

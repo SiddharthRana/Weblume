@@ -3,8 +3,8 @@ import { site } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    // App routes (dashboard, scans, shared reports) will be disallowed here as they're added.
-    rules: [{ userAgent: '*', allow: '/', disallow: ['/app/', '/r/'] }],
+    // Private app routes: scan reports, history, and (later) the dashboard and shared reports.
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/app/', '/r/', '/scan/', '/history'] }],
     sitemap: `${site.url}/sitemap.xml`,
   };
 }

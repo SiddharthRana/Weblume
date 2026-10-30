@@ -2,12 +2,13 @@ import { Global, Inject, Injectable, Module, OnApplicationShutdown } from '@nest
 import postgres from 'postgres';
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { ENV, type Env } from '../config/env';
+import * as schema from './schema';
 
 /** Owns the connection pool. Connections are opened lazily on first query. */
 @Injectable()
 export class Database implements OnApplicationShutdown {
   readonly sql: postgres.Sql;
-  readonly db: PostgresJsDatabase;
+  readonly db: PostgresJsDatabase<typeof schema>;
 
   constructor(@Inject(ENV) env: Env) {
     this.sql = postgres(env.DATABASE_URL, {
@@ -18,7 +19,7 @@ export class Database implements OnApplicationShutdown {
       prepare: false,
       onnotice: () => undefined,
     });
-    this.db = drizzle({ client: this.sql });
+    this.db = drizzle({ client: this.sql, schema });
   }
 
   async ping(): Promise<boolean> {

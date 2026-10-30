@@ -1,105 +1,102 @@
-import type { FindingView } from '@/components/report/finding-card';
+import { CHECKS, type FindingDto, type ScanReportDto } from '@weblume/shared';
+
+function own(id: keyof typeof CHECKS, details: Record<string, unknown> = {}): FindingDto {
+  const c = CHECKS[id];
+  return {
+    id,
+    checkId: id,
+    category: c.category,
+    severity: c.severity,
+    kind: c.kind,
+    source: id === 'tech.links.broken' ? 'link_check' : 'page_fetch',
+    title: c.title,
+    whatItMeans: c.whatItMeans,
+    whyItMatters: c.whyItMatters,
+    howToFix: c.howToFix,
+    learnMoreUrl: c.learnMoreUrl,
+    details,
+  };
+}
 
 /**
- * ILLUSTRATIVE EXAMPLE ONLY. This fixture shows the report layout. It describes a fictional site on
- * a reserved test domain and is not the result of scanning any real website.
+ * ILLUSTRATIVE EXAMPLE ONLY. Shows the report layout for a fictional site on a reserved test
+ * domain; it is not the result of scanning any real website. Finding copy comes from the real
+ * check catalogue so the sample stays in sync with actual reports.
  */
-export const sampleReport = {
-  targetUrl: 'https://bakery.example',
+export const sampleReport: ScanReportDto = {
+  id: 'sample',
+  targetUrl: 'bakery.example',
+  normalizedUrl: 'https://bakery.example/',
   finalUrl: 'https://www.bakery.example/',
-  scannedAt: '2026-10-01T09:30:00Z',
-  sources: [
-    { name: 'Page fetch & HTML checks', status: 'ok' },
-    { name: 'Lighthouse via PageSpeed Insights (mobile)', status: 'ok' },
-    { name: 'Lighthouse via PageSpeed Insights (desktop)', status: 'ok' },
-    { name: 'Link check (first 50 links)', status: 'ok' },
-    { name: 'robots.txt & sitemap', status: 'ok' },
-  ],
-  lighthouse: {
-    mobile: { performance: 54, accessibility: 81, seo: 83, bestPractices: 92 },
-    desktop: { performance: 88, accessibility: 81, seo: 83, bestPractices: 92 },
+  status: 'completed',
+  failureCode: null,
+  failureMessage: null,
+  severityCounts: {},
+  createdAt: '2026-10-01T09:29:20Z',
+  completedAt: '2026-10-01T09:30:00Z',
+  expiresAt: '2027-10-01T09:30:00Z',
+  sources: {
+    page_fetch: { status: 'ok' },
+    psi_mobile: { status: 'ok' },
+    psi_desktop: { status: 'ok' },
+    link_check: { status: 'ok' },
+    robots_sitemap: { status: 'ok' },
   },
+  lighthouse: {
+    mobile: {
+      scores: { performance: 54, accessibility: 81, seo: 83, bestPractices: 92 },
+      metrics: {},
+      fetchedAt: '2026-10-01T09:30:00Z',
+    },
+    desktop: {
+      scores: { performance: 88, accessibility: 81, seo: 83, bestPractices: 92 },
+      metrics: {},
+      fetchedAt: '2026-10-01T09:30:00Z',
+    },
+  },
+  passedChecks: [
+    'seo.title.missing',
+    'seo.h1.missing',
+    'seo.sitemap.missing',
+    'tech.https.missing',
+    'tech.viewport.missing',
+  ],
   findings: [
+    own('tech.links.broken', {
+      count: 3,
+      broken: [
+        { url: 'https://www.bakery.example/menu/seasonal', status: 404 },
+        { url: 'https://www.bakery.example/order-online', status: 404 },
+        { url: 'https://partner.example/offer', status: 500 },
+      ],
+    }),
     {
-      id: 'tech.links.broken',
+      id: 'lcp',
+      checkId: 'lighthouse.largest-contentful-paint',
+      category: 'performance',
       severity: 'high',
-      category: 'Technical health',
-      title: '3 links on this page are broken',
+      kind: 'measured',
+      source: 'psi_mobile',
+      title: 'Largest Contentful Paint: 4.8 s',
       whatItMeans:
-        'Some links point to pages that return an error (404 Not Found or 500 Server Error).',
+        'Largest Contentful Paint (LCP) measures when the biggest piece of content on screen — usually a hero image or heading — finishes loading. Google recommends 2.5 seconds or less.',
       whyItMatters:
-        'Visitors who click them hit a dead end, and search engines treat many broken links as a sign of a poorly maintained site.',
+        'Slow pages lose visitors — especially on mobile connections — and page speed is one of the signals search engines use.',
       howToFix: [
-        'Update each link to the correct address, or remove it.',
-        'If a page moved, add a permanent (301) redirect from the old address.',
+        'Compress the main image and serve it in a modern format such as WebP or AVIF, at the size it’s displayed.',
+        'Don’t lazy-load the main image; consider fetchpriority="high" on it.',
+        'Remove or defer render-blocking scripts and styles at the top of the page.',
       ],
-      evidence: '/menu/seasonal → 404\n/order-online → 404\nhttps://partner.example/offer → 500',
+      learnMoreUrl:
+        'https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/',
+      details: { measured: '4.8 s', strategy: 'mobile' },
     },
-    {
-      id: 'lighthouse.largest-contentful-paint',
-      severity: 'high',
-      category: 'Performance (measured)',
-      title: 'Main content takes 4.8 s to appear on mobile',
-      whatItMeans:
-        'Largest Contentful Paint measures when the biggest element on screen (usually a hero image or heading) finishes loading.',
-      whyItMatters:
-        'Google recommends 2.5 s or less. Slow pages lose visitors, especially on mobile data.',
-      howToFix: [
-        'Compress the hero image and serve it in a modern format such as WebP or AVIF.',
-        'Add width and height attributes and avoid lazy-loading the hero image.',
-        'Remove render-blocking scripts from the top of the page.',
-      ],
-      evidence: 'Measured by Lighthouse (mobile, simulated slow 4G): LCP 4.8 s',
-    },
-    {
-      id: 'seo.meta-description.missing',
-      severity: 'medium',
-      category: 'SEO',
-      title: 'Page has no meta description',
-      whatItMeans:
-        'The meta description is the short summary search engines may show under your page title in results.',
-      whyItMatters:
-        'Without one, search engines pick text from the page themselves, which is often less persuasive.',
-      howToFix: [
-        'Add <meta name="description" content="…"> inside <head>.',
-        'Write 50–160 characters describing the page in a way that makes people want to click.',
-      ],
-    },
-    {
-      id: 'a11y.image-alt',
-      severity: 'medium',
-      category: 'Accessibility (automated)',
-      title: '6 images have no alternative text',
-      whatItMeans:
-        'Alternative (alt) text describes an image for people who use screen readers or can’t load images.',
-      whyItMatters:
-        'Without it, blind and low-vision visitors miss the information those images carry.',
-      howToFix: [
-        'Add a short alt attribute describing each meaningful image, e.g. alt="Fresh sourdough loaves".',
-        'Use alt="" for purely decorative images so screen readers skip them.',
-      ],
-    },
-    {
-      id: 'tech.hsts.missing',
-      severity: 'low',
-      category: 'Technical health',
-      title: 'HTTPS is not enforced with HSTS',
-      whatItMeans:
-        'The Strict-Transport-Security header tells browsers to always use the secure version of your site.',
-      whyItMatters:
-        'Without it, a visitor’s first request can be made over insecure HTTP before being redirected.',
-      howToFix: [
-        'Ask your host or CDN to enable HSTS, starting with a short max-age and increasing it once confirmed.',
-      ],
-    },
-    {
-      id: 'seo.sitemap.present',
-      severity: 'info',
-      category: 'SEO',
-      title: 'Sitemap found and readable',
-      whatItMeans: 'A sitemap lists the pages you want search engines to discover.',
-      whyItMatters: 'This is good — it helps search engines find new and updated pages.',
-      howToFix: ['No action needed. Keep it updated when you add pages.'],
-    },
-  ] satisfies FindingView[],
+    own('seo.meta_description.missing'),
+    own('a11y.image_alt.missing', {
+      count: 6,
+      examples: ['/img/loaf.jpg', '/img/croissant.jpg', '/img/shop.jpg'],
+    }),
+    own('tech.hsts.missing'),
+    own('tech.favicon.missing'),
+  ],
 };

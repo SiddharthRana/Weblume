@@ -16,6 +16,7 @@
     "openapi": "pnpm --filter @weblume/api run openapi && pnpm --filter @weblume/api-client-ts run generate",
     "openapi:check": "node scripts/check-generated.mjs",
     "db:verify": "bash scripts/db-verify.sh",
+    "db:test-setup": "bash scripts/db-test-setup.sh",
     "dev:web": "pnpm --filter @weblume/web dev",
     "dev:api": "pnpm --filter @weblume/api dev",
     "mobile:analyze": "cd apps/mobile && flutter analyze",

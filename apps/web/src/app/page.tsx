@@ -48,13 +48,13 @@ export default function HomePage() {
               explains what matters most and exactly how to fix it.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <ButtonLink href="/sample-report">See a sample report</ButtonLink>
-              <ButtonLink href="/how-it-works" variant="secondary">
-                How it works
+              <ButtonLink href="/scan">Scan a website free</ButtonLink>
+              <ButtonLink href="/sample-report" variant="secondary">
+                See a sample report
               </ButtonLink>
             </div>
             <p className="mt-4 text-sm text-fg-muted">
-              Free plan available. No credit card needed.
+              One free scan a day without an account. No credit card needed.
             </p>
           </div>
           <div

@@ -17,7 +17,7 @@ export function configureApp(app: NestExpressApplication): NestExpressApplicatio
   app.enableCors({
     origin: env.CORS_ORIGINS,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Authorization', 'Content-Type', 'X-Request-Id'],
+    allowedHeaders: ['Authorization', 'Content-Type', 'X-Request-Id', 'X-Scan-Token'],
     maxAge: 600,
   });
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });

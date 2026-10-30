@@ -2,7 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import type { AuthenticatedRequest } from './auth.types';
-import { IS_PUBLIC } from './decorators';
+import { IS_PUBLIC, OPTIONAL_AUTH } from './decorators';
 import { JwtVerifier } from './jwt-verifier';
 
 /** Global guard: every route requires a valid Supabase access token unless marked @Public(). */
@@ -20,8 +20,13 @@ export class AuthGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
+    const optional = this.reflector.getAllAndOverride<boolean>(OPTIONAL_AUTH, [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ]);
     const req = ctx.switchToHttp().getRequest<Request & AuthenticatedRequest>();
     const header = req.headers.authorization;
+    if (optional && !header) return true;
     const match = header?.match(/^Bearer ([A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+)$/);
     if (!match?.[1]) throw new UnauthorizedException('Authentication required');
 

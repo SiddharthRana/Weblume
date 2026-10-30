@@ -4,6 +4,7 @@ import { site } from '@/lib/site';
 
 const staticRoutes = [
   '',
+  '/scan',
   '/features',
   '/how-it-works',
   '/sample-report',

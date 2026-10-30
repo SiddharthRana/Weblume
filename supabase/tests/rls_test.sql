@@ -13,6 +13,7 @@ end $$;
 insert into public.scans (id, user_id, target_url, normalized_url, expires_at) values
   ('10000000-0000-0000-0000-00000000000a', '00000000-0000-0000-0000-00000000000a', 'https://a.example', 'https://a.example/', now() + interval '30 days'),
   ('10000000-0000-0000-0000-00000000000b', '00000000-0000-0000-0000-00000000000b', 'https://b.example', 'https://b.example/', now() + interval '30 days');
+insert into public.psi_cache (normalized_url, strategy, result) values ('https://a.example/', 'mobile', '{}');
 insert into public.findings (scan_id, check_id, category, severity, kind, source) values
   ('10000000-0000-0000-0000-00000000000a', 'seo.title.missing', 'seo', 'high', 'detected', 'page_fetch'),
   ('10000000-0000-0000-0000-00000000000b', 'seo.title.missing', 'seo', 'high', 'detected', 'page_fetch');
@@ -27,6 +28,7 @@ do $$ begin
   assert (select count(*) from public.profiles) = 1, 'user A must only see their own profile';
   assert (select count(*) from public.feature_flags) = 0, 'feature flags are not readable by users';
   assert (select count(*) from public.webhook_events) = 0, 'webhook events are not readable by users';
+  assert (select count(*) from public.psi_cache) = 0, 'PSI cache is not readable by users';
 end $$;
 
 -- Users cannot insert scans directly (API only).
