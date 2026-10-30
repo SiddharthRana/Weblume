@@ -2,6 +2,28 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-10-30 — Phase 6 reports and launch prep
+
+**PDF with pdfkit, not `@react-pdf/renderer`.** Both are pure JS (no browser). pdfkit is CommonJS like the API, needs no React/JSX in the backend, and draws text directly, so there's no HTML to inject into. Inter (OFL) is embedded for Latin, Greek and Cyrillic. Tests check the output by extracting the text back with pdf.js. _Trade-off:_ the layout is hand-positioned rather than declarative.
+
+**Comparison logic lives in `packages/shared`** (`compareReports`): one tested implementation for the API, and available to the web. Findings are matched by check id plus Lighthouse strategy. A finding is only called **new** or **resolved** when its data source ran in both scans; otherwise it's listed as **couldn't compare**. Without that, a Lighthouse timeout would look like every performance issue was fixed.
+
+**Share links:** 128-bit tokens, only SHA-256 hashes stored, default 30 days, never beyond the report's retention, at most 20 active per report, revocable, and the same 404 for unknown/revoked/expired. **Links keep working after a downgrade** until they expire, because the owner may already have sent them to a client; creating new ones needs the plan. The public page sends `noindex` and `no-referrer`, and tokens are masked in logs and Sentry.
+
+**PDF on Android is deferred:** the app links to the web for PDFs. Saving and sharing a file on Android needs new plugins (path/share) that can't be device-tested here.
+
+**Metrics without a metrics stack:** in-process counters plus database aggregates, served as Prometheus text on a token-protected `/metrics`. Queue depth and failures come from the database, so they're correct across instances. _Rejected for now:_ OpenTelemetry/prom-client (more dependencies than the need).
+
+**Sentry is optional and explicit-capture only:** default integrations are off, and only 5xx and worker crashes are sent, scrubbed in `beforeSend`. The web SDK is dynamically imported only when a DSN is set.
+
+**CSP with `'unsafe-inline'` scripts:** origins are restricted (API, Supabase, Turnstile, Paddle, Sentry) and framing, objects and base-uri are locked down. Nonces would make every page dynamic. Recorded as a known gap in `docs/security-review.md`.
+
+**Per-user rate limit in addition to per-IP.** Two guards share one throttler config: per-IP runs before authentication (so floods are limited), per-user runs after it (so it can key on the verified user id).
+
+**Android backups off:** the session and cached reports are excluded from cloud backup and device transfer. Users sign in again on a new phone.
+
+**API container via `pnpm deploy`:** production dependencies only, non-root, with the PDF fonts included. Workspace packages declare `files` so their built `dist` is included.
+
 ## 2026-10-30 — Phase 5 payments
 
 **Two web MoR adapters behind one interface; neither assumed.** The build prompt's default was Paddle, but India seller eligibility couldn't be confirmed from official sources, and Dodo Payments explicitly targets Indian sellers and supports UPI AutoPay mandates. Both are implemented, selected by `WEB_PAYMENT_PROVIDER`. _Rejected:_ Lemon Squeezy, since Indian payouts appear to be PayPal-only. Details and the remaining checks are in `docs/payments-setup.md`.

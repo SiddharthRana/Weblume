@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import {
   AUDIT_CATEGORIES,
+  CATEGORY_LABELS,
+  REPORT_LIMITATIONS,
   SEVERITIES,
   type AuditCategory,
   type LighthouseResult,
@@ -12,13 +14,6 @@ import { FindingCard } from './finding-card';
 import { ScoreRing } from './score-ring';
 import { SeverityBadge } from './severity-badge';
 import { SourcesList } from './sources-list';
-
-const CATEGORY_LABEL: Record<AuditCategory, string> = {
-  performance: 'Performance',
-  seo: 'SEO',
-  accessibility: 'Accessibility',
-  technical: 'Technical health',
-};
 
 const dateFmt = new Intl.DateTimeFormat('en', {
   dateStyle: 'long',
@@ -184,7 +179,7 @@ export function ReportView({ report }: { report: ScanReportDto }) {
                 onClick={() => setFilter(c)}
                 className="min-h-11 rounded-full border border-border bg-surface px-4 text-sm font-medium text-fg aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
               >
-                {c === 'all' ? 'All' : CATEGORY_LABEL[c]} ({count})
+                {c === 'all' ? 'All' : CATEGORY_LABELS[c]} ({count})
               </button>
             );
           })}
@@ -209,12 +204,7 @@ export function ReportView({ report }: { report: ScanReportDto }) {
         </div>
         <div className="rounded-lg border border-border bg-surface p-6">
           <h2 className="text-lg font-bold text-fg">Limitations</h2>
-          <p className="mt-3 text-sm text-fg-muted">
-            This is an automated audit of a single page. “Measured” results are Lighthouse lab
-            measurements, which vary between runs. “Detected” findings come from automated checks,
-            which find only some accessibility barriers, can’t guarantee search rankings, and don’t
-            test security. Recommendations are general guidance.
-          </p>
+          <p className="mt-3 text-sm text-fg-muted">{REPORT_LIMITATIONS}</p>
         </div>
       </section>
     </div>

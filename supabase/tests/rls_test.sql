@@ -18,6 +18,13 @@ insert into public.findings (scan_id, check_id, category, severity, kind, source
   ('10000000-0000-0000-0000-00000000000a', 'seo.title.missing', 'seo', 'high', 'detected', 'page_fetch'),
   ('10000000-0000-0000-0000-00000000000b', 'seo.title.missing', 'seo', 'high', 'detected', 'page_fetch');
 
+insert into public.report_branding (user_id, display_name) values
+  ('00000000-0000-0000-0000-00000000000a', 'Agency A'),
+  ('00000000-0000-0000-0000-00000000000b', 'Agency B');
+insert into public.scheduled_scans (user_id, target_url, normalized_url, frequency, next_run_at) values
+  ('00000000-0000-0000-0000-00000000000a', 'a.example', 'https://a.example/', 'weekly', now()),
+  ('00000000-0000-0000-0000-00000000000b', 'b.example', 'https://b.example/', 'monthly', now());
+
 -- Act as user A.
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', true);
@@ -29,6 +36,18 @@ do $$ begin
   assert (select count(*) from public.feature_flags) = 0, 'feature flags are not readable by users';
   assert (select count(*) from public.webhook_events) = 0, 'webhook events are not readable by users';
   assert (select count(*) from public.psi_cache) = 0, 'PSI cache is not readable by users';
+  assert (select count(*) from public.report_branding) = 1, 'user A must only see their own branding';
+  assert (select count(*) from public.scheduled_scans) = 1, 'user A must only see their own schedules';
+end $$;
+
+-- Users cannot create schedules or branding directly (API only).
+do $$ begin
+  begin
+    insert into public.scheduled_scans (user_id, target_url, normalized_url, frequency, next_run_at)
+      values ('00000000-0000-0000-0000-00000000000a', 'x', 'https://x.example/', 'weekly', now());
+    raise exception 'insert into scheduled_scans should have been rejected by RLS';
+  exception when insufficient_privilege then null;
+  end;
 end $$;
 
 -- Users cannot insert scans directly (API only).

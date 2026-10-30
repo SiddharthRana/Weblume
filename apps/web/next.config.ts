@@ -1,5 +1,6 @@
 import createMDX from '@next/mdx';
 import type { NextConfig } from 'next';
+import { buildCsp } from './csp';
 
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -7,6 +8,7 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+  { key: 'Content-Security-Policy', value: buildCsp() },
 ];
 
 const nextConfig: NextConfig = {
@@ -16,7 +18,17 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   transpilePackages: ['@weblume/shared', '@weblume/design-tokens'],
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }];
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // Shared reports: the token is in the path, so never send it to other sites.
+      {
+        source: '/r/:path*',
+        headers: [
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+    ];
   },
 };
 

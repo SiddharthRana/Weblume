@@ -1,0 +1,16 @@
+# Build context for apps/api/Dockerfile (run from the repo root).
+**/node_modules
+**/dist
+**/.next
+**/coverage
+**/test-results
+**/playwright-report
+**/*.tsbuildinfo
+.git
+.github
+apps/mobile
+apps/web
+docs
+supabase
+**/.env
+**/.env.*

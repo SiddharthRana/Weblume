@@ -260,6 +260,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Reports_compare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/{id}/report.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Reports_pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/scans/{id}/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Reports_listShares"];
+        put?: never;
+        post: operations["Reports_createShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/shares/{shareId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["Reports_revokeShare"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/shared/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Reports_viewShared"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -524,6 +604,81 @@ export interface components {
             status: string;
             /** @description True when another channel already has an active subscription (warn the user) */
             duplicateSubscription: boolean;
+        };
+        ScoreDeltaDto: {
+            before: number | null;
+            after: number | null;
+            /** @description after − before */
+            delta: number | null;
+        };
+        ScoreDeltasDto: {
+            performance: components["schemas"]["ScoreDeltaDto"];
+            accessibility: components["schemas"]["ScoreDeltaDto"];
+            seo: components["schemas"]["ScoreDeltaDto"];
+            bestPractices: components["schemas"]["ScoreDeltaDto"];
+        };
+        ScoreComparisonDto: {
+            mobile?: components["schemas"]["ScoreDeltasDto"];
+            desktop?: components["schemas"]["ScoreDeltasDto"];
+        };
+        UnchangedFindingDto: {
+            /** @description As it appears in the newer scan */
+            finding: components["schemas"]["FindingDtoClass"];
+            /**
+             * @description Set when the severity changed
+             * @enum {string}
+             */
+            previousSeverity?: "critical" | "high" | "medium" | "low" | "info";
+        };
+        ReportComparisonDto: {
+            /** @description The older scan */
+            base: components["schemas"]["ScanSummaryDtoClass"];
+            /** @description The newer scan */
+            target: components["schemas"]["ScanSummaryDtoClass"];
+            scores: components["schemas"]["ScoreComparisonDto"];
+            newFindings: components["schemas"]["FindingDtoClass"][];
+            resolvedFindings: components["schemas"]["FindingDtoClass"][];
+            unchangedFindings: components["schemas"]["UnchangedFindingDto"][];
+            /** @description Findings whose data source did not run in one of the scans, so they are neither new nor resolved */
+            notComparable: components["schemas"]["FindingDtoClass"][];
+            /** @description Newer minus older, per severity */
+            severityDelta: components["schemas"]["SeverityCountsDto"];
+        };
+        CreateShareBody: {
+            /**
+             * @description Days until the link stops working. It also stops when the scan is deleted.
+             * @default 30
+             */
+            expiresInDays: number;
+        };
+        ShareLinkDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            scanId: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string | null;
+            /** Format: date-time */
+            revokedAt: string | null;
+            /** @description False once revoked or expired */
+            active: boolean;
+        };
+        CreateShareResponse: {
+            share: components["schemas"]["ShareLinkDto"];
+            /** @description Secret for the share URL (/r/<token>). Shown once: only a hash is stored, so it cannot be retrieved later. */
+            token: string;
+            /** @description Full share URL on the public site */
+            url: string;
+        };
+        ShareListResponse: {
+            items: components["schemas"]["ShareLinkDto"][];
+        };
+        SharedReportDto: {
+            report: components["schemas"]["ScanReportDtoClass"];
+            /** Format: date-time */
+            shareExpiresAt: string | null;
         };
     };
     responses: never;
@@ -1092,6 +1247,252 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    Reports_compare: {
+        parameters: {
+            query: {
+                /** @description One scan of the URL */
+                base: string;
+                /** @description Another scan of the same URL. The older scan is always treated as the base. */
+                target: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportComparisonDto"];
+                };
+            };
+            /** @description different_urls or same_scan */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description upgrade_required: the plan does not include this feature */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description report_not_ready */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Reports_pdf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            /** @description upgrade_required: the plan does not include this feature */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description report_not_ready */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Reports_listShares: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareListResponse"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Reports_createShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateShareBody"];
+            };
+        };
+        responses: {
+            /** @description 201 Created */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateShareResponse"];
+                };
+            };
+            /** @description upgrade_required: the plan does not include this feature */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description report_not_ready or too_many_share_links */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Reports_revokeShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                shareId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareLinkDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Reports_viewShared: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SharedReportDto"];
+                };
+            };
+            /** @description Unknown, revoked or expired link */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
             };
         };
     };

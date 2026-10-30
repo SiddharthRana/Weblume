@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ScanReportDto } from '@weblume/shared';
+import { ReportActions } from '@/components/report/report-actions';
 import { ReportView } from '@/components/report/report-view';
 import { api, errorMessage } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { getLocalScan, saveLocalScan } from '@/lib/local-scans';
 
 const POLL_MS = 2_000;
@@ -19,6 +21,7 @@ type State =
 
 export function ScanStatus({ id }: { id: string }) {
   const router = useRouter();
+  const { user } = useAuth();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [tooSlow, setTooSlow] = useState(false);
   const [retrying, setRetrying] = useState(false);
@@ -223,7 +226,9 @@ export function ScanStatus({ id }: { id: string }) {
   }
 
   return (
-    <div className="py-12">
+    <div className="space-y-8 py-12">
+      {/* Only scans in the signed-in account have owner actions; guest scans don't. */}
+      {user && !getLocalScan(id)?.scanToken && <ReportActions scanId={r.id} />}
       <ReportView report={r} />
     </div>
   );

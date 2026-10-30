@@ -14,6 +14,7 @@ import '../features/auth/signup_screen.dart';
 import '../features/billing/subscription_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/history/history_screen.dart';
+import '../features/reports/compare_screen.dart';
 import '../features/scan/finding_detail_screen.dart';
 import '../features/scan/new_scan_screen.dart';
 import '../features/scan/scan_screen.dart';
@@ -117,6 +118,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) =>
             ScanScreen(key: ValueKey(state.pathParameters['id']), scanId: state.pathParameters['id']!),
         routes: [
+          GoRoute(
+            path: 'compare',
+            builder: (_, state) => CompareScreen(targetId: state.pathParameters['id']!),
+          ),
           GoRoute(
             path: 'finding/:findingId',
             builder: (context, state) {

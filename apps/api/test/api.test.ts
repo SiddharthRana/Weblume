@@ -164,3 +164,41 @@ describe('rate limiting', () => {
     for (let i = 0; i < 6; i++) await request(server).get('/health').expect(200);
   });
 });
+
+describe('per-user rate limiting', () => {
+  let app: NestExpressApplication;
+  let tokenA: string;
+  let tokenB: string;
+
+  beforeAll(async () => {
+    // Generous per-IP limit, tight per-user limit; one proxy so X-Forwarded-For sets the client IP.
+    setTestEnv({
+      RATE_LIMIT_PER_MINUTE: '100',
+      USER_RATE_LIMIT_PER_MINUTE: '3',
+      TRUST_PROXY_HOPS: '1',
+    });
+    const keys = await makeKeys();
+    app = await createTestApp({ jwks: keys.jwks });
+    tokenA = await signEs256(keys.privateKey, { sub: '00000000-0000-4000-8000-0000000000e1' });
+    tokenB = await signEs256(keys.privateKey, { sub: '00000000-0000-4000-8000-0000000000e2' });
+  });
+
+  afterAll(async () => {
+    await app?.close();
+    setTestEnv();
+  });
+
+  it('limits a signed-in user across different IPs, without affecting other users', async () => {
+    const server = app.getHttpServer();
+    const me = (token: string, ip: string) =>
+      request(server)
+        .get('/v1/me')
+        .set('Authorization', `Bearer ${token}`)
+        .set('X-Forwarded-For', ip);
+    for (let i = 0; i < 3; i++) await me(tokenA, `203.0.113.${i + 1}`).expect(200);
+    await me(tokenA, '203.0.113.99').expect(429);
+    await me(tokenB, '203.0.113.99').expect(200);
+    // Anonymous requests aren't counted against users.
+    await request(server).get('/v1/plans').set('X-Forwarded-For', '203.0.113.99').expect(200);
+  });
+});

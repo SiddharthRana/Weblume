@@ -11,7 +11,9 @@ import '../../l10n/app_localizations.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/empty_state.dart';
 import '../../shared/widgets/status_views.dart';
+import '../../router/app_router.dart';
 import '../../theme/tokens.g.dart';
+import '../reports/share_sheet.dart';
 import 'report_view.dart';
 
 /// Polls a scan while it runs, then shows the report (or an honest failure).
@@ -211,7 +213,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         ],
       );
     } else {
-      body = ReportView(report: _report!);
+      body = ReportView(
+        report: _report!,
+        actions: _fromCache ? null : _OwnerActions(scanId: widget.scanId),
+      );
     }
 
     return Scaffold(
@@ -224,6 +229,62 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Share/compare for the report owner, depending on the plan's entitlements (enforced by the API).
+class _OwnerActions extends ConsumerWidget {
+  const _OwnerActions({required this.scanId});
+
+  final String scanId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final account = ref.watch(accountProvider).value?.data;
+    if (account == null) return const SizedBox.shrink();
+    final e = account.entitlements;
+    if (!e.shareLinks && !e.comparison) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(WlSpace.s3),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.reportUpsell),
+              TextButton(onPressed: () => context.push(Routes.subscription), child: Text(l10n.seePlans)),
+            ],
+          ),
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: WlSpace.s2,
+          runSpacing: WlSpace.s2,
+          children: [
+            if (e.shareLinks)
+              OutlinedButton.icon(
+                onPressed: () => ShareSheet.show(context, scanId),
+                icon: const Icon(Icons.link),
+                label: Text(l10n.reportActionShare),
+              ),
+            if (e.comparison)
+              OutlinedButton.icon(
+                onPressed: () => context.push('/scan/$scanId/compare'),
+                icon: const Icon(Icons.compare_arrows),
+                label: Text(l10n.reportActionCompare),
+              ),
+          ],
+        ),
+        if (e.pdfExport) ...[
+          const SizedBox(height: WlSpace.s1),
+          Text(l10n.reportPdfOnWeb, style: Theme.of(context).textTheme.bodySmall),
+        ],
+      ],
     );
   }
 }

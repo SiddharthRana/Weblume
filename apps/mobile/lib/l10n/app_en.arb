@@ -384,5 +384,126 @@
   "subStatusCanceled": "Cancelled — active until the period ends",
   "subStatusEnded": "Ended",
   "subStatusRefunded": "Refunded",
-  "manageSubscription": "Manage subscription"
+  "manageSubscription": "Manage subscription",
+  "reportActionShare": "Share link",
+  "reportActionCompare": "Compare",
+  "reportUpsell": "Share links, PDF reports and before/after comparisons are part of Starter.",
+  "reportPdfOnWeb": "PDF reports can be downloaded on the Weblume website.",
+  "shareTitle": "Share a read-only copy",
+  "shareBody": "Anyone with the link can view this report without an account. Your email and other reports stay private.",
+  "shareExpiryLabel": "Link works for",
+  "shareDays": "{days} days",
+  "@shareDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "shareOneYear": "1 year",
+  "shareCreate": "Create link",
+  "shareCreating": "Creating…",
+  "shareCreated": "Link created and copied. For security it’s shown only once, so paste it somewhere now.",
+  "shareCopy": "Copy",
+  "shareCopied": "Copied",
+  "shareActive": "Active links",
+  "shareNone": "No active links.",
+  "shareTurnOff": "Turn off",
+  "shareTurnOffSemantics": "Turn off link created {date}",
+  "@shareTurnOffSemantics": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shareCreatedOn": "Created {date}",
+  "@shareCreatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shareExpiresOn": "expires {date}",
+  "@shareExpiresOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "shareRetentionNote": "A link also stops working when this report reaches the end of its retention period.",
+  "compareTitle": "Compare scans",
+  "comparePick": "Choose another scan of this address to compare with the one from {date}.",
+  "@comparePick": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "compareNoOther": "There’s no other finished scan of this address yet. Run a new scan after making changes, then compare the two.",
+  "compareFindingCount": "{count} findings",
+  "@compareFindingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "compareRange": "{from} → {to}",
+  "@compareRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "compareResolved": "Resolved",
+  "compareNew": "New issues",
+  "compareStillOpen": "Still open",
+  "compareNotComparable": "Couldn’t compare",
+  "compareNotComparableBody": "These come from a check that didn’t run in one of the two scans, so we can’t say whether they’re new or fixed.",
+  "compareGroupTitle": "{title} ({count})",
+  "@compareGroupTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "compareNone": "None.",
+  "compareScores": "Lighthouse scores",
+  "compareNoScores": "Neither scan has Lighthouse scores, so no score changes are shown.",
+  "compareScoresVary": "Lab scores vary by a few points between runs even when nothing changed.",
+  "compareScoreChange": "{before} → {after} ({change})",
+  "@compareScoreChange": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "compareWasSeverity": "Was {severity}",
+  "@compareWasSeverity": {
+    "placeholders": {
+      "severity": {
+        "type": "String"
+      }
+    }
+  },
+  "seePlans": "See plans"
 }

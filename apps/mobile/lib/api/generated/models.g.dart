@@ -1182,3 +1182,262 @@ class PlayVerifyResponse {
       'duplicateSubscription': duplicateSubscription,
       };
 }
+
+class ScoreDelta {
+  const ScoreDelta({
+    required this.before,
+    required this.after,
+    required this.delta,
+  });
+
+  final int? before;
+  final int? after;
+  /// after − before
+  final int? delta;
+
+  factory ScoreDelta.fromJson(Map<String, dynamic> json) => ScoreDelta(
+      before: json['before'] == null ? null : (json['before'] as num).toInt(),
+      after: json['after'] == null ? null : (json['after'] as num).toInt(),
+      delta: json['delta'] == null ? null : (json['delta'] as num).toInt(),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'before': before == null ? null : before!,
+      'after': after == null ? null : after!,
+      'delta': delta == null ? null : delta!,
+      };
+}
+
+class ScoreDeltas {
+  const ScoreDeltas({
+    required this.performance,
+    required this.accessibility,
+    required this.seo,
+    required this.bestPractices,
+  });
+
+  final ScoreDelta performance;
+  final ScoreDelta accessibility;
+  final ScoreDelta seo;
+  final ScoreDelta bestPractices;
+
+  factory ScoreDeltas.fromJson(Map<String, dynamic> json) => ScoreDeltas(
+      performance: ScoreDelta.fromJson(json['performance'] as Map<String, dynamic>),
+      accessibility: ScoreDelta.fromJson(json['accessibility'] as Map<String, dynamic>),
+      seo: ScoreDelta.fromJson(json['seo'] as Map<String, dynamic>),
+      bestPractices: ScoreDelta.fromJson(json['bestPractices'] as Map<String, dynamic>),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'performance': performance.toJson(),
+      'accessibility': accessibility.toJson(),
+      'seo': seo.toJson(),
+      'bestPractices': bestPractices.toJson(),
+      };
+}
+
+class ScoreComparison {
+  const ScoreComparison({
+    this.mobile,
+    this.desktop,
+  });
+
+  final ScoreDeltas? mobile;
+  final ScoreDeltas? desktop;
+
+  factory ScoreComparison.fromJson(Map<String, dynamic> json) => ScoreComparison(
+      mobile: json['mobile'] == null ? null : ScoreDeltas.fromJson(json['mobile'] as Map<String, dynamic>),
+      desktop: json['desktop'] == null ? null : ScoreDeltas.fromJson(json['desktop'] as Map<String, dynamic>),
+      );
+
+  Map<String, dynamic> toJson() => {
+      if (mobile != null) 'mobile': mobile!.toJson(),
+      if (desktop != null) 'desktop': desktop!.toJson(),
+      };
+}
+
+class UnchangedFinding {
+  const UnchangedFinding({
+    required this.finding,
+    this.previousSeverity,
+  });
+
+  /// As it appears in the newer scan
+  final Finding finding;
+  /// Set when the severity changed
+  final FindingSeverity? previousSeverity;
+
+  factory UnchangedFinding.fromJson(Map<String, dynamic> json) => UnchangedFinding(
+      finding: Finding.fromJson(json['finding'] as Map<String, dynamic>),
+      previousSeverity: json['previousSeverity'] == null ? null : FindingSeverity.fromJson(json['previousSeverity']),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'finding': finding.toJson(),
+      if (previousSeverity != null) 'previousSeverity': previousSeverity!.value,
+      };
+}
+
+class ReportComparison {
+  const ReportComparison({
+    required this.base,
+    required this.target,
+    required this.scores,
+    required this.newFindings,
+    required this.resolvedFindings,
+    required this.unchangedFindings,
+    required this.notComparable,
+    required this.severityDelta,
+  });
+
+  /// The older scan
+  final ScanSummary base;
+  /// The newer scan
+  final ScanSummary target;
+  final ScoreComparison scores;
+  final List<Finding> newFindings;
+  final List<Finding> resolvedFindings;
+  final List<UnchangedFinding> unchangedFindings;
+  /// Findings whose data source did not run in one of the scans, so they are neither new nor resolved
+  final List<Finding> notComparable;
+  /// Newer minus older, per severity
+  final SeverityCounts severityDelta;
+
+  factory ReportComparison.fromJson(Map<String, dynamic> json) => ReportComparison(
+      base: ScanSummary.fromJson(json['base'] as Map<String, dynamic>),
+      target: ScanSummary.fromJson(json['target'] as Map<String, dynamic>),
+      scores: ScoreComparison.fromJson(json['scores'] as Map<String, dynamic>),
+      newFindings: (json['newFindings'] as List<dynamic>).map((e) => Finding.fromJson(e as Map<String, dynamic>)).toList(),
+      resolvedFindings: (json['resolvedFindings'] as List<dynamic>).map((e) => Finding.fromJson(e as Map<String, dynamic>)).toList(),
+      unchangedFindings: (json['unchangedFindings'] as List<dynamic>).map((e) => UnchangedFinding.fromJson(e as Map<String, dynamic>)).toList(),
+      notComparable: (json['notComparable'] as List<dynamic>).map((e) => Finding.fromJson(e as Map<String, dynamic>)).toList(),
+      severityDelta: SeverityCounts.fromJson(json['severityDelta'] as Map<String, dynamic>),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'base': base.toJson(),
+      'target': target.toJson(),
+      'scores': scores.toJson(),
+      'newFindings': newFindings.map((e) => e.toJson()).toList(),
+      'resolvedFindings': resolvedFindings.map((e) => e.toJson()).toList(),
+      'unchangedFindings': unchangedFindings.map((e) => e.toJson()).toList(),
+      'notComparable': notComparable.map((e) => e.toJson()).toList(),
+      'severityDelta': severityDelta.toJson(),
+      };
+}
+
+class CreateShareBody {
+  const CreateShareBody({
+    this.expiresInDays,
+  });
+
+  /// Days until the link stops working. It also stops when the scan is deleted.
+  final int? expiresInDays;
+
+  factory CreateShareBody.fromJson(Map<String, dynamic> json) => CreateShareBody(
+      expiresInDays: json['expiresInDays'] == null ? null : (json['expiresInDays'] as num).toInt(),
+      );
+
+  Map<String, dynamic> toJson() => {
+      if (expiresInDays != null) 'expiresInDays': expiresInDays!,
+      };
+}
+
+class ShareLink {
+  const ShareLink({
+    required this.id,
+    required this.scanId,
+    required this.createdAt,
+    required this.expiresAt,
+    required this.revokedAt,
+    required this.active,
+  });
+
+  final String id;
+  final String scanId;
+  final DateTime createdAt;
+  final DateTime? expiresAt;
+  final DateTime? revokedAt;
+  /// False once revoked or expired
+  final bool active;
+
+  factory ShareLink.fromJson(Map<String, dynamic> json) => ShareLink(
+      id: json['id'] as String,
+      scanId: json['scanId'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      expiresAt: json['expiresAt'] == null ? null : DateTime.parse(json['expiresAt'] as String),
+      revokedAt: json['revokedAt'] == null ? null : DateTime.parse(json['revokedAt'] as String),
+      active: json['active'] as bool,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'id': id,
+      'scanId': scanId,
+      'createdAt': createdAt.toIso8601String(),
+      'expiresAt': expiresAt == null ? null : expiresAt!.toIso8601String(),
+      'revokedAt': revokedAt == null ? null : revokedAt!.toIso8601String(),
+      'active': active,
+      };
+}
+
+class CreateShareResponse {
+  const CreateShareResponse({
+    required this.share,
+    required this.token,
+    required this.url,
+  });
+
+  final ShareLink share;
+  /// Secret for the share URL (/r/<token>). Shown once: only a hash is stored, so it cannot be retrieved later.
+  final String token;
+  /// Full share URL on the public site
+  final String url;
+
+  factory CreateShareResponse.fromJson(Map<String, dynamic> json) => CreateShareResponse(
+      share: ShareLink.fromJson(json['share'] as Map<String, dynamic>),
+      token: json['token'] as String,
+      url: json['url'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'share': share.toJson(),
+      'token': token,
+      'url': url,
+      };
+}
+
+class ShareListResponse {
+  const ShareListResponse({
+    required this.items,
+  });
+
+  final List<ShareLink> items;
+
+  factory ShareListResponse.fromJson(Map<String, dynamic> json) => ShareListResponse(
+      items: (json['items'] as List<dynamic>).map((e) => ShareLink.fromJson(e as Map<String, dynamic>)).toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'items': items.map((e) => e.toJson()).toList(),
+      };
+}
+
+class SharedReport {
+  const SharedReport({
+    required this.report,
+    required this.shareExpiresAt,
+  });
+
+  final ScanReport report;
+  final DateTime? shareExpiresAt;
+
+  factory SharedReport.fromJson(Map<String, dynamic> json) => SharedReport(
+      report: ScanReport.fromJson(json['report'] as Map<String, dynamic>),
+      shareExpiresAt: json['shareExpiresAt'] == null ? null : DateTime.parse(json['shareExpiresAt'] as String),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'report': report.toJson(),
+      'shareExpiresAt': shareExpiresAt == null ? null : shareExpiresAt!.toIso8601String(),
+      };
+}

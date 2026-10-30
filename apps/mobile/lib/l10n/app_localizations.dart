@@ -1350,6 +1350,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage subscription'**
   String get manageSubscription;
+
+  /// No description provided for @reportActionShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share link'**
+  String get reportActionShare;
+
+  /// No description provided for @reportActionCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get reportActionCompare;
+
+  /// No description provided for @reportUpsell.
+  ///
+  /// In en, this message translates to:
+  /// **'Share links, PDF reports and before/after comparisons are part of Starter.'**
+  String get reportUpsell;
+
+  /// No description provided for @reportPdfOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF reports can be downloaded on the Weblume website.'**
+  String get reportPdfOnWeb;
+
+  /// No description provided for @shareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a read-only copy'**
+  String get shareTitle;
+
+  /// No description provided for @shareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with the link can view this report without an account. Your email and other reports stay private.'**
+  String get shareBody;
+
+  /// No description provided for @shareExpiryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Link works for'**
+  String get shareExpiryLabel;
+
+  /// No description provided for @shareDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} days'**
+  String shareDays(int days);
+
+  /// No description provided for @shareOneYear.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get shareOneYear;
+
+  /// No description provided for @shareCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create link'**
+  String get shareCreate;
+
+  /// No description provided for @shareCreating.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating…'**
+  String get shareCreating;
+
+  /// No description provided for @shareCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Link created and copied. For security it’s shown only once, so paste it somewhere now.'**
+  String get shareCreated;
+
+  /// No description provided for @shareCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get shareCopy;
+
+  /// No description provided for @shareCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get shareCopied;
+
+  /// No description provided for @shareActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active links'**
+  String get shareActive;
+
+  /// No description provided for @shareNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No active links.'**
+  String get shareNone;
+
+  /// No description provided for @shareTurnOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off'**
+  String get shareTurnOff;
+
+  /// No description provided for @shareTurnOffSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off link created {date}'**
+  String shareTurnOffSemantics(String date);
+
+  /// No description provided for @shareCreatedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Created {date}'**
+  String shareCreatedOn(String date);
+
+  /// No description provided for @shareExpiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'expires {date}'**
+  String shareExpiresOn(String date);
+
+  /// No description provided for @shareRetentionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A link also stops working when this report reaches the end of its retention period.'**
+  String get shareRetentionNote;
+
+  /// No description provided for @compareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare scans'**
+  String get compareTitle;
+
+  /// No description provided for @comparePick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another scan of this address to compare with the one from {date}.'**
+  String comparePick(String date);
+
+  /// No description provided for @compareNoOther.
+  ///
+  /// In en, this message translates to:
+  /// **'There’s no other finished scan of this address yet. Run a new scan after making changes, then compare the two.'**
+  String get compareNoOther;
+
+  /// No description provided for @compareFindingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} findings'**
+  String compareFindingCount(int count);
+
+  /// No description provided for @compareRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} → {to}'**
+  String compareRange(String from, String to);
+
+  /// No description provided for @compareResolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get compareResolved;
+
+  /// No description provided for @compareNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New issues'**
+  String get compareNew;
+
+  /// No description provided for @compareStillOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Still open'**
+  String get compareStillOpen;
+
+  /// No description provided for @compareNotComparable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t compare'**
+  String get compareNotComparable;
+
+  /// No description provided for @compareNotComparableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These come from a check that didn’t run in one of the two scans, so we can’t say whether they’re new or fixed.'**
+  String get compareNotComparableBody;
+
+  /// No description provided for @compareGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} ({count})'**
+  String compareGroupTitle(String title, int count);
+
+  /// No description provided for @compareNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None.'**
+  String get compareNone;
+
+  /// No description provided for @compareScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighthouse scores'**
+  String get compareScores;
+
+  /// No description provided for @compareNoScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Neither scan has Lighthouse scores, so no score changes are shown.'**
+  String get compareNoScores;
+
+  /// No description provided for @compareScoresVary.
+  ///
+  /// In en, this message translates to:
+  /// **'Lab scores vary by a few points between runs even when nothing changed.'**
+  String get compareScoresVary;
+
+  /// No description provided for @compareScoreChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{before} → {after} ({change})'**
+  String compareScoreChange(String before, String after, String change);
+
+  /// No description provided for @compareWasSeverity.
+  ///
+  /// In en, this message translates to:
+  /// **'Was {severity}'**
+  String compareWasSeverity(String severity);
+
+  /// No description provided for @seePlans.
+  ///
+  /// In en, this message translates to:
+  /// **'See plans'**
+  String get seePlans;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

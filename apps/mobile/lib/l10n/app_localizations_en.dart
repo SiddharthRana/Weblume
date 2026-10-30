@@ -694,4 +694,145 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manageSubscription => 'Manage subscription';
+
+  @override
+  String get reportActionShare => 'Share link';
+
+  @override
+  String get reportActionCompare => 'Compare';
+
+  @override
+  String get reportUpsell => 'Share links, PDF reports and before/after comparisons are part of Starter.';
+
+  @override
+  String get reportPdfOnWeb => 'PDF reports can be downloaded on the Weblume website.';
+
+  @override
+  String get shareTitle => 'Share a read-only copy';
+
+  @override
+  String get shareBody =>
+      'Anyone with the link can view this report without an account. Your email and other reports stay private.';
+
+  @override
+  String get shareExpiryLabel => 'Link works for';
+
+  @override
+  String shareDays(int days) {
+    return '$days days';
+  }
+
+  @override
+  String get shareOneYear => '1 year';
+
+  @override
+  String get shareCreate => 'Create link';
+
+  @override
+  String get shareCreating => 'Creating…';
+
+  @override
+  String get shareCreated => 'Link created and copied. For security it’s shown only once, so paste it somewhere now.';
+
+  @override
+  String get shareCopy => 'Copy';
+
+  @override
+  String get shareCopied => 'Copied';
+
+  @override
+  String get shareActive => 'Active links';
+
+  @override
+  String get shareNone => 'No active links.';
+
+  @override
+  String get shareTurnOff => 'Turn off';
+
+  @override
+  String shareTurnOffSemantics(String date) {
+    return 'Turn off link created $date';
+  }
+
+  @override
+  String shareCreatedOn(String date) {
+    return 'Created $date';
+  }
+
+  @override
+  String shareExpiresOn(String date) {
+    return 'expires $date';
+  }
+
+  @override
+  String get shareRetentionNote =>
+      'A link also stops working when this report reaches the end of its retention period.';
+
+  @override
+  String get compareTitle => 'Compare scans';
+
+  @override
+  String comparePick(String date) {
+    return 'Choose another scan of this address to compare with the one from $date.';
+  }
+
+  @override
+  String get compareNoOther =>
+      'There’s no other finished scan of this address yet. Run a new scan after making changes, then compare the two.';
+
+  @override
+  String compareFindingCount(int count) {
+    return '$count findings';
+  }
+
+  @override
+  String compareRange(String from, String to) {
+    return '$from → $to';
+  }
+
+  @override
+  String get compareResolved => 'Resolved';
+
+  @override
+  String get compareNew => 'New issues';
+
+  @override
+  String get compareStillOpen => 'Still open';
+
+  @override
+  String get compareNotComparable => 'Couldn’t compare';
+
+  @override
+  String get compareNotComparableBody =>
+      'These come from a check that didn’t run in one of the two scans, so we can’t say whether they’re new or fixed.';
+
+  @override
+  String compareGroupTitle(String title, int count) {
+    return '$title ($count)';
+  }
+
+  @override
+  String get compareNone => 'None.';
+
+  @override
+  String get compareScores => 'Lighthouse scores';
+
+  @override
+  String get compareNoScores => 'Neither scan has Lighthouse scores, so no score changes are shown.';
+
+  @override
+  String get compareScoresVary => 'Lab scores vary by a few points between runs even when nothing changed.';
+
+  @override
+  String compareScoreChange(String before, String after, String change) {
+    return '$before → $after ($change)';
+  }
+
+  @override
+  String compareWasSeverity(String severity) {
+    return 'Was $severity';
+  }
+
+  @override
+  String get seePlans => 'See plans';
 }

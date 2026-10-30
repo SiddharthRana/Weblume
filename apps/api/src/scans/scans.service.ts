@@ -16,6 +16,7 @@ import { findings, scans, type ScanRow } from '../database/schema';
 import { GuardedFetchError, type GuardedHttpClient } from '../scanner/http/guarded-client';
 import { composeFindings } from '../scanner/report-composer';
 import { EntitlementService, type ResolvedPlan } from '../entitlements/entitlement.service';
+import { MetricsService } from '../observability/metrics.service';
 import { GUARDED_CLIENT } from './scan.processor';
 import { SCAN_QUEUE, type ScanQueue } from './scan-queue';
 import { ApiError } from './scans.errors';
@@ -48,6 +49,7 @@ export class ScansService {
     @Inject(GUARDED_CLIENT) private readonly client: GuardedHttpClient,
     @Inject(ENV) private readonly env: Env,
     private readonly entitlements: EntitlementService,
+    private readonly metrics: MetricsService,
   ) {
     // Without a configured secret (development only), guest hashes are stable per process.
     this.guestSecret = env.GUEST_HASH_SECRET ?? randomBytes(32).toString('hex');
@@ -159,12 +161,22 @@ export class ScansService {
       })
       .returning();
     await this.queue.enqueue(row!.id);
+    this.metrics.inc(
+      'weblume_scans_started_total',
+      { requester: 'guest' in requester ? 'guest' : 'user' },
+      1,
+      'Scans queued by this instance (excluding deduplicated requests)',
+    );
     return { scan: toSummary(row!), scanToken, deduplicated: false };
   }
 
   /** Returns the full report if the viewer owns the scan (or holds its guest token); 404 otherwise. */
   async get(id: string, viewer: Viewer): Promise<ScanReportDto> {
-    const row = await this.findOwned(id, viewer);
+    return this.buildReport(await this.findOwned(id, viewer));
+  }
+
+  /** Full report for a scan row. Callers must have checked access. */
+  async buildReport(row: ScanRow): Promise<ScanReportDto> {
     const rows = await this.database.db.select().from(findings).where(eq(findings.scanId, row.id));
     return {
       ...toSummary(row),
@@ -263,7 +275,7 @@ export class ScansService {
     return toSummary(updated);
   }
 
-  private async findOwned(id: string, viewer: Viewer): Promise<ScanRow> {
+  async findOwned(id: string, viewer: Viewer): Promise<ScanRow> {
     const notFound = new ApiError(HttpStatus.NOT_FOUND, 'not_found', 'Scan not found.');
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw notFound;
     const [row] = await this.database.db.select().from(scans).where(eq(scans.id, id)).limit(1);

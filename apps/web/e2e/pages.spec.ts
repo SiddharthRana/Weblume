@@ -82,6 +82,31 @@ test('security headers are set', async ({ request }) => {
   expect(res.headers()['x-frame-options']).toBe('DENY');
   expect(res.headers()['x-content-type-options']).toBe('nosniff');
   expect(res.headers()['x-powered-by']).toBeUndefined();
+  const csp = res.headers()['content-security-policy'] ?? '';
+  expect(csp).toContain("default-src 'self'");
+  expect(csp).toContain("frame-ancestors 'none'");
+  expect(csp).toContain("object-src 'none'");
+  expect(csp).toContain('connect-src');
+  expect(csp).toContain('http://localhost:4000');
+});
+
+test('pages run without Content-Security-Policy violations', async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as unknown as { cspViolations: string[] }).cspViolations = [];
+    document.addEventListener('securitypolicyviolation', (e) =>
+      (window as unknown as { cspViolations: string[] }).cspViolations.push(
+        `${e.violatedDirective} ${e.blockedURI}`,
+      ),
+    );
+  });
+  for (const path of ['/', '/pricing', '/sample-report', '/scan', '/login', '/blog']) {
+    await page.goto(path);
+    await page.waitForLoadState('networkidle');
+    expect(
+      await page.evaluate(() => (window as unknown as { cspViolations: string[] }).cspViolations),
+      path,
+    ).toEqual([]);
+  }
 });
 
 test('keyboard users can skip to content', async ({ page }) => {

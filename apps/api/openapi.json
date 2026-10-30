@@ -773,6 +773,367 @@
           "billing"
         ]
       }
+    },
+    "/v1/compare": {
+      "get": {
+        "operationId": "Reports_compare",
+        "parameters": [
+          {
+            "name": "base",
+            "required": true,
+            "in": "query",
+            "description": "One scan of the URL",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "target",
+            "required": true,
+            "in": "query",
+            "description": "Another scan of the same URL. The older scan is always treated as the base.",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportComparisonDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "different_urls or same_scan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "upgrade_required: the plan does not include this feature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "report_not_ready",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/v1/scans/{id}/report.pdf": {
+      "get": {
+        "operationId": "Reports_pdf",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "upgrade_required: the plan does not include this feature",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "report_not_ready",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/v1/scans/{id}/shares": {
+      "post": {
+        "operationId": "Reports_createShare",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateShareBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "201 Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateShareResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "upgrade_required: the plan does not include this feature",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "report_not_ready or too_many_share_links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      },
+      "get": {
+        "operationId": "Reports_listShares",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/v1/shares/{shareId}": {
+      "delete": {
+        "operationId": "Reports_revokeShare",
+        "parameters": [
+          {
+            "name": "shareId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShareLinkDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/v1/shared/{token}": {
+      "get": {
+        "operationId": "Reports_viewShared",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SharedReportDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown, revoked or expired link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "reports"
+        ]
+      }
     }
   },
   "info": {
@@ -1732,6 +2093,260 @@
           "planId",
           "status",
           "duplicateSubscription"
+        ]
+      },
+      "ScoreDeltaDto": {
+        "type": "object",
+        "properties": {
+          "before": {
+            "type": "integer",
+            "nullable": true
+          },
+          "after": {
+            "type": "integer",
+            "nullable": true
+          },
+          "delta": {
+            "type": "integer",
+            "nullable": true,
+            "description": "after − before"
+          }
+        },
+        "required": [
+          "before",
+          "after",
+          "delta"
+        ]
+      },
+      "ScoreDeltasDto": {
+        "type": "object",
+        "properties": {
+          "performance": {
+            "$ref": "#/components/schemas/ScoreDeltaDto"
+          },
+          "accessibility": {
+            "$ref": "#/components/schemas/ScoreDeltaDto"
+          },
+          "seo": {
+            "$ref": "#/components/schemas/ScoreDeltaDto"
+          },
+          "bestPractices": {
+            "$ref": "#/components/schemas/ScoreDeltaDto"
+          }
+        },
+        "required": [
+          "performance",
+          "accessibility",
+          "seo",
+          "bestPractices"
+        ]
+      },
+      "ScoreComparisonDto": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "$ref": "#/components/schemas/ScoreDeltasDto"
+          },
+          "desktop": {
+            "$ref": "#/components/schemas/ScoreDeltasDto"
+          }
+        }
+      },
+      "UnchangedFindingDto": {
+        "type": "object",
+        "properties": {
+          "finding": {
+            "description": "As it appears in the newer scan",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FindingDtoClass"
+              }
+            ]
+          },
+          "previousSeverity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ],
+            "description": "Set when the severity changed"
+          }
+        },
+        "required": [
+          "finding"
+        ]
+      },
+      "ReportComparisonDto": {
+        "type": "object",
+        "properties": {
+          "base": {
+            "description": "The older scan",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScanSummaryDtoClass"
+              }
+            ]
+          },
+          "target": {
+            "description": "The newer scan",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScanSummaryDtoClass"
+              }
+            ]
+          },
+          "scores": {
+            "$ref": "#/components/schemas/ScoreComparisonDto"
+          },
+          "newFindings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingDtoClass"
+            }
+          },
+          "resolvedFindings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingDtoClass"
+            }
+          },
+          "unchangedFindings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnchangedFindingDto"
+            }
+          },
+          "notComparable": {
+            "description": "Findings whose data source did not run in one of the scans, so they are neither new nor resolved",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingDtoClass"
+            }
+          },
+          "severityDelta": {
+            "description": "Newer minus older, per severity",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SeverityCountsDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "base",
+          "target",
+          "scores",
+          "newFindings",
+          "resolvedFindings",
+          "unchangedFindings",
+          "notComparable",
+          "severityDelta"
+        ]
+      },
+      "CreateShareBody": {
+        "type": "object",
+        "properties": {
+          "expiresInDays": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "default": 30,
+            "description": "Days until the link stops working. It also stops when the scan is deleted."
+          }
+        }
+      },
+      "ShareLinkDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scanId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "revokedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "description": "False once revoked or expired"
+          }
+        },
+        "required": [
+          "id",
+          "scanId",
+          "createdAt",
+          "expiresAt",
+          "revokedAt",
+          "active"
+        ]
+      },
+      "CreateShareResponse": {
+        "type": "object",
+        "properties": {
+          "share": {
+            "$ref": "#/components/schemas/ShareLinkDto"
+          },
+          "token": {
+            "type": "string",
+            "description": "Secret for the share URL (/r/<token>). Shown once: only a hash is stored, so it cannot be retrieved later."
+          },
+          "url": {
+            "type": "string",
+            "description": "Full share URL on the public site"
+          }
+        },
+        "required": [
+          "share",
+          "token",
+          "url"
+        ]
+      },
+      "ShareListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShareLinkDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "SharedReportDto": {
+        "type": "object",
+        "properties": {
+          "report": {
+            "$ref": "#/components/schemas/ScanReportDtoClass"
+          },
+          "shareExpiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "report",
+          "shareExpiresAt"
         ]
       }
     }

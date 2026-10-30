@@ -12,9 +12,12 @@ import '../../theme/tokens.g.dart';
 
 /// Full report: scores, summary, priorities, findings by category, coverage and limitations.
 class ReportView extends StatefulWidget {
-  const ReportView({super.key, required this.report});
+  const ReportView({super.key, required this.report, this.actions});
 
   final ScanReport report;
+
+  /// Owner actions (share, compare) shown under the header.
+  final Widget? actions;
 
   @override
   State<ReportView> createState() => _ReportViewState();
@@ -61,6 +64,7 @@ class _ReportViewState extends State<ReportView> {
           l10n.scannedAt(DateFormat.yMMMd().add_jm().format((r.completedAt ?? r.createdAt).toLocal())),
           style: muted,
         ),
+        if (widget.actions != null) ...[const SizedBox(height: WlSpace.s3), widget.actions!],
         if (r.status == ScanSummaryStatus.partial) ...[
           const SizedBox(height: WlSpace.s3),
           Card(
@@ -112,7 +116,7 @@ class _ReportViewState extends State<ReportView> {
           ],
         ]),
         if (top.isNotEmpty)
-          section(l10n.topPriorities, [for (final f in top) _FindingTile(finding: f, onTap: () => _open(f))]),
+          section(l10n.topPriorities, [for (final f in top) FindingTile(finding: f, onTap: () => _open(f))]),
         section(l10n.allFindings, [
           Wrap(
             spacing: WlSpace.s2,
@@ -135,7 +139,7 @@ class _ReportViewState extends State<ReportView> {
           if (visible.isEmpty)
             Text(l10n.noFindingsInCategory, style: muted)
           else
-            for (final f in visible) _FindingTile(finding: f, onTap: () => _open(f)),
+            for (final f in visible) FindingTile(finding: f, onTap: () => _open(f)),
         ]),
         section(l10n.coverageTitle, [_Coverage(sources: r.sources)]),
         section(l10n.limitationsTitle, [Text(l10n.limitationsBody, style: muted)]),
@@ -190,11 +194,13 @@ class _LighthouseCard extends StatelessWidget {
   }
 }
 
-class _FindingTile extends StatelessWidget {
-  const _FindingTile({required this.finding, required this.onTap});
+/// A tappable finding row with its severity badge; [note] adds a line such as a previous severity.
+class FindingTile extends StatelessWidget {
+  const FindingTile({super.key, required this.finding, required this.onTap, this.note});
 
   final Finding finding;
   final VoidCallback onTap;
+  final String? note;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -205,9 +211,12 @@ class _FindingTile extends StatelessWidget {
       title: Text(finding.title),
       subtitle: Padding(
         padding: const EdgeInsets.only(top: WlSpace.s1),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: SeverityBadge(severity: severityOf(finding.severity)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SeverityBadge(severity: severityOf(finding.severity)),
+            if (note != null) ...[const SizedBox(height: WlSpace.s1), Text(note!)],
+          ],
         ),
       ),
       trailing: const Icon(Icons.chevron_right),

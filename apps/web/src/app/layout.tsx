@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { ErrorMonitoring } from '@/components/error-monitoring';
 import { AuthProvider } from '@/lib/auth-context';
 import { site } from '@/lib/site';
 import './globals.css';
@@ -47,6 +48,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           Skip to content
         </a>
+        <ErrorMonitoring />
         <AuthProvider>
           <SiteHeader />
           <main id="main" className="flex-1">

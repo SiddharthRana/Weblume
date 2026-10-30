@@ -2,7 +2,7 @@
 
 Website audits your clients can actually read. Users enter a URL; Weblume checks performance, SEO, accessibility and technical health, and explains each finding in plain language with concrete fixes.
 
-> **Status:** Phase 5 (payments, sandbox-ready) of 6 complete. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works today and what's next, and [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md) for the full product spec.
+> **Status:** all 6 build phases complete; **not deployed**. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works, what wasn't verified, and the prioritised list of remaining work. The full product spec is [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md).
 
 ## Repository layout
 
@@ -39,6 +39,9 @@ flowchart LR
   A --> Q[[pg-boss queue in Postgres]] --> WK[Scan worker]
   WK -- guarded fetch --> T[(Scanned site)]
   WK -- cached 6h --> PSI[Google PageSpeed Insights]
+  MoR[Paddle / Dodo] -- signed webhooks --> A
+  GP[Google Play] -- RTDN via Pub/Sub --> A
+  A -- optional --> SEN[Sentry]
 ```
 
 - **Auth:** Supabase Auth issues JWTs; the API verifies them (asymmetric keys via JWKS, or the legacy HS256 secret) on every request. Every route requires auth unless marked `@Public()`.
@@ -46,6 +49,8 @@ flowchart LR
 - **API contract:** NestJS generates `apps/api/openapi.json`; the TypeScript client (openapi-typescript) and the Dart client (`scripts/generate-dart-client.mjs`) are generated from it. CI fails if generated files are stale.
 - **Scanning:** `POST /v1/scans` validates and normalises the URL, enforces quota, then queues a job. The worker fetches the page through the guarded client (DNS pinning, public-IP allow-list, per-hop redirect checks, size/time limits), runs the HTML/robots/sitemap/link checks, and calls PSI (mobile + desktop) in parallel. Reports never contain invented data. See [`docs/scoring.md`](docs/scoring.md).
 - **Guests:** one scan per day per IP (stored as an HMAC, never the raw IP), protected by Cloudflare Turnstile. Guests get a one-time scan token to view their report.
+- **Reports:** comparison of two scans, branded PDF export (pdfkit, no browser) and read-only share links (128-bit tokens stored as hashes) for the Starter plan, all enforced server-side.
+- **Payments:** web via a Merchant of Record and Android via Google Play Billing, both feeding one entitlement model. See [`docs/payments-setup.md`](docs/payments-setup.md).
 - **Design tokens:** one `packages/design-tokens/tokens.json` drives web CSS variables and Flutter theme constants. Colour pairs are tested for WCAG AA contrast.
 
 ## Prerequisites
@@ -129,6 +134,10 @@ Never commit real values. Each app has a `.env.example`.
 | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase project URL and publishable (anon) key. Empty = no accounts, guest scans only |
 | `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED`                                   | `true` to show “Continue with Google”                                                  |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`                                    | Turnstile site key for guest scans (empty in local dev)                                |
+| `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` / `NEXT_PUBLIC_PADDLE_ENV`        | Paddle.js for the checkout page (only with `WEB_PAYMENT_PROVIDER=paddle`)              |
+| `NEXT_PUBLIC_SENTRY_DSN` / `NEXT_PUBLIC_SENTRY_ENVIRONMENT`         | Optional browser error reporting; nothing is loaded when empty                         |
+
+`NEXT_PUBLIC_*` values are inlined at build time, and the Content-Security-Policy (`apps/web/csp.ts`) is built from them: rebuild after changing them.
 
 ### `apps/mobile` (`--dart-define`)
 
@@ -169,7 +178,10 @@ Never commit real values. Each app has a `.env.example`.
 - **Web auth flows:** Playwright with Supabase Auth and the API mocked: sign-up, log-in errors, dashboard, guarded routes and safe `?next=` redirects, guest-scan claiming, password reset via PKCE code, callback errors, account settings (name, export, deletion), log-out.
 - **Web scan flow:** Playwright with the API mocked at the network layer: validation, progress polling, report rendering and filters, partial/failed/not-found/offline states, retry, history.
 - **Web:** Playwright on desktop and mobile viewports: every page renders, SEO metadata is present, there are no axe WCAG 2.2 AA violations (light and dark), navigation and the mobile menu work, there's no horizontal scroll, and security headers are set.
-- **Mobile:** 69 tests: generated client and offline repository, URL validation against the shared cases, router redirects, auth flows, scan flow through to finding detail, failure/partial/offline states, history, account deletion, and accessibility guidelines (tap targets, labels, contrast) in light and dark.
+- **Reports (database e2e + unit):** comparison (new/resolved/unchanged/not comparable, score deltas, ordering, different URLs), PDF rendering checked by extracting the text back out with pdf.js (content, limitations notice, page numbers, Unicode, hostile input), share links (hash-only storage, expiry capped by retention, revocation, ownership, limits, same 404 for unknown tokens, no account data), entitlement checks, metrics endpoint.
+- **Observability:** Sentry event scrubbing (through the real SDK with a fake transport), the exception filter (5xx reported, 4xx not), log path masking, per-user rate limits across IPs.
+- **Web reports:** Playwright for PDF download, share-link create/copy/turn off, compare (pick and result), shared page (read-only, `noindex`, `no-referrer`), upgrade prompts, axe on the new pages; CSP header and no CSP violations on key pages.
+- **Mobile:** 86 tests: generated client and offline repository, URL validation against the shared cases, router redirects, auth flows, scan flow through to finding detail, failure/partial/offline states, history, account deletion, Google Play Billing flows, share links and comparison, and accessibility guidelines (tap targets, labels, contrast) in light and dark.
 
 ## Payments setup (manual)
 
@@ -188,19 +200,29 @@ See also [`docs/privacy-data-map.md`](docs/privacy-data-map.md).
 
 ## Deployment (not deployed yet)
 
-Nothing is deployed and no paid resources have been created. The planned low-cost setup:
+Nothing is deployed and no paid resources have been created. Step-by-step guide (Supabase, the API container from `apps/api/Dockerfile`, web hosting, DNS, Play Console, rollback and kill switches): [`docs/deployment.md`](docs/deployment.md). Backups: [`docs/runbooks/backup-restore.md`](docs/runbooks/backup-restore.md).
 
-- **Database + auth:** Supabase. The free tier pauses inactive projects; use a paid plan for production.
-- **API (+ worker):** one small container on Fly.io, Render or Railway. Set `TRUST_PROXY_HOPS=1` and `NODE_ENV=production`.
-- **Web:** Cloudflare Pages or Vercel Pro (Vercel Hobby forbids commercial use).
+## Operations and launch docs
 
-Migrations are applied with `supabase db push` against the linked project. Backups: [`docs/runbooks/backup-restore.md`](docs/runbooks/backup-restore.md).
+| Doc                                                                                   | What's in it                                                            |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| [`docs/deployment.md`](docs/deployment.md)                                            | Hosting setup, environment, updates, rollback                           |
+| [`docs/monitoring.md`](docs/monitoring.md)                                            | Health endpoints, logs, Sentry, `/metrics`, alerts, SQL checks          |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md)                                  | Symptoms and fixes for development, API, scans, reports, payments, web  |
+| [`docs/smoke-test.md`](docs/smoke-test.md)                                            | Manual checklist to run before each release                             |
+| [`docs/payments-setup.md`](docs/payments-setup.md)                                    | Paddle / Dodo / Google Play setup                                       |
+| [`docs/security-review.md`](docs/security-review.md)                                  | Security measures, how they're tested, known gaps                       |
+| [`docs/quality-review.md`](docs/quality-review.md)                                    | Lighthouse results, accessibility tests and the manual checklist        |
+| [`docs/privacy-data-map.md`](docs/privacy-data-map.md)                                | What data is stored, where, how long, who receives it                   |
+| [`docs/costs.md`](docs/costs.md) / [`docs/unit-economics.md`](docs/unit-economics.md) | Running costs, free-tier limits, net revenue per subscriber, break-even |
+| [`docs/scoring.md`](docs/scoring.md)                                                  | How reports are built and scored                                        |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md)                                              | Why things are the way they are                                         |
 
 ## Troubleshooting
 
+The most common problems are below; the full list is in [`docs/troubleshooting.md`](docs/troubleshooting.md).
+
 - **Web build can't resolve `@weblume/design-tokens/tokens.css`:** build the packages first (`pnpm --filter "./packages/*" run build`).
-- **`pnpm install` warns about ignored build scripts for `@scarf/scarf`:** expected. That's a telemetry postinstall from swagger-ui, which we deliberately don't run.
 - **API `/ready` returns 503:** the database isn't reachable; check `DATABASE_URL`. `/health` stays 200 because it doesn't touch dependencies.
 - **Scans fail with `dns_failure`/`connection_failed` locally:** the worker needs direct outbound internet access (it deliberately doesn't use HTTP proxies, which would bypass DNS pinning).
-- **Guest scans return `guest_scans_disabled` in production:** set `TURNSTILE_SECRET_KEY` (and `NEXT_PUBLIC_TURNSTILE_SITE_KEY` on the web).
 - **401 on every request:** make sure `SUPABASE_URL` matches the project that issued the token (the issuer must be `<SUPABASE_URL>/auth/v1`).

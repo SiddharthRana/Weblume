@@ -1,9 +1,41 @@
 # Progress
 
-**Current phase:** 5 — Payments ✅ complete (sandbox-ready; no live provider calls were possible from the build environment), awaiting go-ahead for Phase 6.
+**Current phase:** 6 of 6 — Reports+ and launch prep ✅ complete. All phases are built; **nothing is deployed**. What remains before a public launch is listed below, in priority order.
 **Last updated:** 2026-10-30
 
-## Phase 5 — Payments
+## Phase 6 — Reports+ and launch prep
+
+### Done (verified in this environment)
+
+| Area               | What                                                                                                                                                                                                                                                                                                      | Verified by                                                                                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Comparison         | `compareReports` in `packages/shared`: new / resolved / still open / couldn't compare (when a source didn't run in one scan), severity changes, score deltas; `GET /v1/compare`; web `/compare` (pick an earlier scan, then results); Android compare screen                                              | 6 shared unit tests, API DB e2e, Playwright, Flutter tests                                                                                 |
+| PDF export         | Branded A4 PDF via pdfkit (Inter embedded): scores, summary, priorities, findings by category with fixes and evidence, coverage, limitations notice, page numbers; `GET /v1/scans/:id/report.pdf`; web download button                                                                                    | Text extracted back with pdf.js (content, Unicode, hostile input, 60-finding report); rendered pages checked visually; API e2e; Playwright |
+| Share links        | 128-bit tokens, hash-only storage, default 30 days (max 365, capped at the report's retention), revoke, at most 20 active per report; public `GET /v1/shared/:token` with `noindex`/`no-store`/`no-referrer` and no account data; web `/r/[token]` and share panel; Android share sheet (copies the link) | 8 API DB e2e tests, Playwright, Flutter tests                                                                                              |
+| Entitlements       | Comparison, PDF and sharing require Starter (server-side `upgrade_required`); free plans see an upgrade prompt                                                                                                                                                                                            | API e2e, Playwright, Flutter                                                                                                               |
+| Monitoring         | Optional Sentry (API + web) with personal-data scrubbing; exception filter reports only 5xx; token-protected `/metrics` (queue depth, scans and failures by reason, PSI calls/latency/cache hits, webhook failures); share tokens masked in request logs                                                  | Unit tests (including the real Sentry SDK with a fake transport), API e2e                                                                  |
+| Security hardening | Content-Security-Policy on the web (built from configured origins); per-user rate limit in addition to per-IP; Android cloud backup / device transfer of session and cache disabled                                                                                                                       | Playwright (CSP header, no violations on key pages), API test (per-user limit across IPs), CI APK build                                    |
+| Schema-ready (v2)  | `report_branding` and `scheduled_scans` tables with RLS, `scans.scheduled_scan_id`                                                                                                                                                                                                                        | `pnpm db:verify` (RLS tests)                                                                                                               |
+| Deployment         | `apps/api/Dockerfile` (pnpm deploy, prod deps only, non-root, healthcheck), `.dockerignore`                                                                                                                                                                                                               | Image built and run locally against Postgres: `/health`, `/ready`, a public route, fonts present, runs as `node`                           |
+| Lighthouse         | Own marketing pages: accessibility 100, SEO 100, best practices 100 (96 on `/pricing`, only because no API was running), performance 93–99 mobile / 100 desktop                                                                                                                                           | Lighthouse 13.4 on a local production build (`docs/quality-review.md`)                                                                     |
+| Docs               | `deployment.md`, `monitoring.md`, `troubleshooting.md`, `smoke-test.md`, `security-review.md`, `quality-review.md` (accessibility + Lighthouse), `costs.md`, `unit-economics.md`; privacy data map, README and decisions updated                                                                          | —                                                                                                                                          |
+
+**Test totals at the end of Phase 6:** API 305, shared 86, design tokens 36, TS client 2, web Playwright 189 passed / 5 skipped, Flutter 86. Lint, typecheck, format, `openapi:check`, `db:verify` and production builds are clean. `pnpm audit --prod` shows no known vulnerabilities.
+
+### Bugs found and fixed during the review
+
+- **Share tokens appeared in request logs.** Found by running the built container. Paths are now logged as `/v1/shared/[token]`.
+- **Body-parser errors would have been reported to Sentry as 500s.** The 413 errors carry their own status; the filter now uses Nest's status rules.
+- **The Dart client generator treated the PDF endpoint as JSON.** It now returns bytes for binary responses.
+
+### Not verified / limitations
+
+- **Nothing deployed.** No real hosting, DNS, Supabase cloud project, Play Console, Paddle/Dodo account, Pub/Sub or Sentry project was used. The CSP hasn't been checked with real Turnstile/Paddle keys.
+- **Manual accessibility checks** (screen readers, zoom, TalkBack, large fonts) weren't done. They need a person and devices; the checklist is in `docs/quality-review.md`.
+- **The Docker build** needed the build environment's proxy CA injected via a local copy of the Dockerfile; the committed Dockerfile is unchanged and expects normal internet access.
+- **Prices in `costs.md` / `unit-economics.md`** are from memory of public pricing, not checked live.
+
+## Phase 5 — Payments (complete; CI green on GitHub including the Android release APK with in_app_purchase)
 
 ### Done (verified in this environment)
 
@@ -23,7 +55,7 @@
 
 - **No real payment provider was called.** Paddle, Dodo, Google Play and Google OAuth were faked at the HTTP edge. Signature formats were tested against independently computed HMACs. **The Dodo adapter's request/response fields follow Dodo's docs as recalled; confirm in test mode** (`docs/payments-setup.md` §3).
 - **Seller eligibility is unconfirmed** for Paddle (India). Dodo appears to be the better fit for India and UPI, but verify both with the providers.
-- **The Android release APK with `in_app_purchase` is built only on CI** (pending for this commit). Purchases can only be tested on a device with an app uploaded to a Play testing track.
+- **The Android release APK with `in_app_purchase` built on CI** (run 41017600855). Purchases can only be tested on a device with an app uploaded to a Play testing track.
 - Google Play subscriptions have no current-period start in the API; it's derived from expiry minus the base-plan length.
 - Plan changes (monthly ↔ annual), proration and promotional offers aren't supported: base plans only.
 - Tax-inclusive vs exclusive display of the ₹149 / $3.99 hypotheses still needs deciding (§1 of the setup guide).
@@ -113,10 +145,6 @@
 
 Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundation (auth guard, health, OpenAPI), generated TS client, marketing site, Flutter skeleton, CI. Details in git history (`876fa66`).
 
-## Next: Phase 6 — Reports+ and launch prep
-
-PDF export, share links, scan comparison, accessibility review (web + mobile), Lighthouse on our own pages, security self-review against the build prompt, deployment guide, monitoring, troubleshooting, manual smoke-test checklist, prioritised list of unfinished items.
-
 ## Manual setup you'll need
 
 - **PageSpeed Insights API key** (free): Google Cloud console → enable "PageSpeed Insights API" → create an API key restricted to that API → `PSI_API_KEY`.
@@ -125,3 +153,44 @@ PDF export, share links, scan comparison, accessibility review (web + mobile), L
 - **Supabase project:** see “Supabase Auth setup” in the README (URLs, keys, redirect URLs, SMTP, optional Google).
 - Android upload keystore (see `apps/mobile/README.md`).
 - **Payments:** follow `docs/payments-setup.md` (provider choice, sandbox accounts, Play Console products, service account, Pub/Sub).
+
+## Remaining work and known limitations (prioritised)
+
+### P0: before a public launch
+
+1. **Choose and confirm the web payment provider.**
+   - Confirm seller eligibility (India) and fees with Paddle and Dodo.
+   - Run one sandbox purchase end to end.
+   - Fix any Dodo field mismatches (`docs/payments-setup.md` §0, §3).
+2. **Test with a real PageSpeed Insights key.** Run scans and compare with pagespeed.web.dev; so far the mapper is tested only against a hand-built fixture.
+3. **Deploy a staging environment.** Follow `docs/deployment.md` and run `docs/smoke-test.md`. That includes the CSP with real Turnstile and Paddle keys, email delivery, and the Android build against staging.
+4. **Get a legal review** of the privacy policy, terms and refund policy (all marked DRAFT), and fill in the Play data safety form from `docs/privacy-data-map.md`.
+5. **Device-test Android.**
+   - Play Billing on an internal track with license testers (purchase, renewal, cancel, refund via RTDN).
+   - Share and compare flows.
+   - TalkBack and large fonts.
+6. **Harden Supabase Auth.** Enable CAPTCHA (Turnstile) and leaked-password protection, configure SMTP, and set the password policy (README).
+7. **Pricing decisions.**
+   - Paddle's fixed $0.50 fee takes ~28% of a ₹149 monthly payment (`docs/unit-economics.md`). Decide INR monthly price, provider, or an annual-first plan.
+   - Decide tax-inclusive display.
+8. **Manual accessibility checks** in `docs/quality-review.md`, plus a 3–5 person "understand the report in 10 seconds" test.
+
+### P1: soon after launch
+
+9. Store the mobile session in Keystore-backed secure storage (`flutter_secure_storage`).
+10. Move rate-limit counters to a shared store (e.g. Redis) before running more than one API instance.
+11. Add Sentry (or similar) to the Android app.
+12. PDF download and system share sheet in the Android app (currently: "download on the website").
+13. Nonce-based CSP to drop `'unsafe-inline'` scripts.
+14. Wider PDF font coverage (Devanagari, CJK) via Noto fonts.
+15. Set up uptime monitors, metric alerts and cost alerts (`docs/monitoring.md`, `docs/costs.md`).
+16. Optional MFA (Supabase TOTP) in the account settings.
+
+### P2: later / v2 (schema already in place)
+
+17. Custom branding on PDFs and shared reports (`report_branding`).
+18. Scheduled re-scans with change alerts (`scheduled_scans`, `scans.scheduled_scan_id`), reusing `compareReports`.
+19. Agency plan (the entitlement model supports adding one in `packages/shared/src/plans.ts`).
+20. iOS app and App Store purchases.
+21. Plan changes (monthly ↔ annual), proration and promotional offers.
+22. Web unit tests (only Playwright today) and an OpenNext/Cloudflare deployment option for the web app.

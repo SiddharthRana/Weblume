@@ -21,6 +21,7 @@ export function botUserAgent(siteUrl: string): string {
 
 @Module({
   controllers: [ScansController],
+  exports: [ScansService],
   providers: [
     ScansService,
     ScanProcessor,

@@ -8,6 +8,8 @@ import { findings, scans } from '../database/schema';
 import { GuardedHttpClient } from '../scanner/http/guarded-client';
 import { PsiService } from '../scanner/psi/psi-cache.service';
 import { runScan, type ScanResult } from '../scanner/scan-runner';
+import { ERROR_REPORTER, type ErrorReporter } from '../observability/error-reporter';
+import { MetricsService } from '../observability/metrics.service';
 
 export const GUARDED_CLIENT = Symbol('GUARDED_CLIENT');
 /** Test seam for the http→https probe port. */
@@ -25,6 +27,8 @@ export class ScanProcessor implements OnApplicationShutdown {
     @Inject(GUARDED_CLIENT) private readonly client: GuardedHttpClient,
     @Inject(ENV) private readonly env: Env,
     @Inject(HTTP_PROBE_PORT) private readonly httpPort: number | undefined,
+    @Inject(ERROR_REPORTER) private readonly reporter: ErrorReporter,
+    private readonly metrics: MetricsService,
   ) {}
 
   async process(scanId: string): Promise<void> {
@@ -37,6 +41,7 @@ export class ScanProcessor implements OnApplicationShutdown {
       .returning({ id: scans.id, normalizedUrl: scans.normalizedUrl });
     if (!scan) return;
 
+    const started = performance.now();
     let result: ScanResult;
     try {
       const [psiOn, linksOn] = await Promise.all([
@@ -57,9 +62,22 @@ export class ScanProcessor implements OnApplicationShutdown {
     } catch (err) {
       // Log the type only — never the URL or page content.
       this.logger.error(`Scan ${scanId} crashed: ${err instanceof Error ? err.name : 'unknown'}`);
+      this.reporter.capture(withoutMessage(err), { job: 'scan', scanId });
       result = { status: 'failed', failureCode: 'internal_error', finalUrl: null };
     }
     await this.persist(scanId, result);
+    this.metrics.inc(
+      'weblume_scans_finished_total',
+      { status: result.status, reason: result.status === 'failed' ? result.failureCode : 'none' },
+      1,
+      'Scans finished by this instance, by status and failure reason',
+    );
+    this.metrics.observeMs(
+      'weblume_scan_duration',
+      {},
+      performance.now() - started,
+      'Scan run time',
+    );
   }
 
   private async persist(scanId: string, result: ScanResult): Promise<void> {
@@ -130,4 +148,16 @@ function failureMessage(code: ScanFailureCode, details?: Record<string, unknown>
   if (code === 'http_error' && typeof details?.status === 'number')
     return `${base} (HTTP ${details.status})`;
   return base;
+}
+
+/** Keeps an error's type and stack but drops its message, which may contain the scanned URL. */
+export function withoutMessage(err: unknown): Error {
+  const name = err instanceof Error ? err.name : 'UnknownError';
+  const safe = new Error(`Scan crashed (${name})`);
+  safe.name = name;
+  if (err instanceof Error && err.stack) {
+    const frames = err.stack.split('\n').filter((l) => /^\s+at /.test(l));
+    safe.stack = [`${name}: Scan crashed`, ...frames].join('\n');
+  }
+  return safe;
 }

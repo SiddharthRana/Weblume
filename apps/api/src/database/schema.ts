@@ -152,7 +152,13 @@ export const shareLinks = pgTable('share_links', {
   id: uuid('id').primaryKey().defaultRandom(),
   scanId: uuid('scan_id').notNull(),
   createdBy: uuid('created_by').notNull(),
+  tokenHash: text('token_hash').notNull(),
+  expiresAt: ts('expires_at'),
+  revokedAt: ts('revoked_at'),
+  createdAt: ts('created_at').notNull().defaultNow(),
 });
+
+export type ShareLinkRow = typeof shareLinks.$inferSelect;
 
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').primaryKey().defaultRandom(),

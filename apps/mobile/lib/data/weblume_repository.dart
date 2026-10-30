@@ -87,4 +87,17 @@ class WeblumeRepository {
   /// Server-side verification (and acknowledgement) of a Google Play purchase.
   Future<PlayVerifyResponse> verifyPlayPurchase(String purchaseToken) =>
       _api.billingVerify(body: PlayVerifyBody(purchaseToken: purchaseToken));
+
+  /// Compares two finished scans of the same URL (Starter plan). The older one is the base.
+  Future<ReportComparison> compare(String base, String target) => _api.reportsCompare(base: base, target: target);
+
+  /// Creates a read-only share link (Starter plan). The URL is returned once.
+  Future<CreateShareResponse> createShare(String scanId, int expiresInDays) => _api.reportsCreateShare(
+    id: scanId,
+    body: CreateShareBody(expiresInDays: expiresInDays),
+  );
+
+  Future<List<ShareLink>> shares(String scanId) async => (await _api.reportsListShares(id: scanId)).items;
+
+  Future<void> revokeShare(String shareId) => _api.reportsRevokeShare(shareId: shareId);
 }

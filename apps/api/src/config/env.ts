@@ -22,6 +22,8 @@ export const envSchema = z.object({
     .optional()
     .transform((v) => (v ? v : undefined)),
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(60),
+  /** Per signed-in user, across all their IPs. */
+  USER_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(120),
   /** Stricter per-IP limit for starting/retrying scans. */
   SCAN_CREATE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
   /**
@@ -126,6 +128,22 @@ export const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v ? v : undefined)),
+  // ---- Monitoring
+  /** Sentry DSN. Without it, errors are only logged. Requests are scrubbed of personal data. */
+  SENTRY_DSN: z
+    .url()
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  SENTRY_ENVIRONMENT: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** Bearer token for GET /metrics (Prometheus format). Unset = endpoint disabled (404). */
+  METRICS_TOKEN: z
+    .string()
+    .min(24)
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
   // Number of reverse-proxy hops in front of the API (so client IPs are read correctly). 0 = none.
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
 });

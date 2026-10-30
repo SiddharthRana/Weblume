@@ -239,4 +239,64 @@ class WeblumeApi {
         );
         return Map<String, dynamic>.from(res.data as Map);
       });
+
+  Future<ReportComparison> reportsCompare({required String base, required String target}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/compare',
+          options: Options(method: 'GET'),
+          queryParameters: {'base': base, 'target': target},
+          
+        );
+        return ReportComparison.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<List<int>> reportsPdf({required String id}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/scans/${Uri.encodeComponent(id)}/report.pdf',
+          options: Options(method: 'GET', responseType: ResponseType.bytes),
+          
+          
+        );
+        return res.data as List<int>;
+      });
+
+  Future<CreateShareResponse> reportsCreateShare({required String id, required CreateShareBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/scans/${Uri.encodeComponent(id)}/shares',
+          options: Options(method: 'POST'),
+          
+          data: body.toJson(),
+        );
+        return CreateShareResponse.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<ShareListResponse> reportsListShares({required String id}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/scans/${Uri.encodeComponent(id)}/shares',
+          options: Options(method: 'GET'),
+          
+          
+        );
+        return ShareListResponse.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<ShareLink> reportsRevokeShare({required String shareId}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/shares/${Uri.encodeComponent(shareId)}',
+          options: Options(method: 'DELETE'),
+          
+          
+        );
+        return ShareLink.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<SharedReport> reportsViewShared({required String token}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/shared/${Uri.encodeComponent(token)}',
+          options: Options(method: 'GET'),
+          
+          
+        );
+        return SharedReport.fromJson(res.data as Map<String, dynamic>);
+      });
 }

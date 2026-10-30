@@ -252,6 +252,86 @@ class FakeRepository implements WeblumeRepository {
     calls.add('verify:$purchaseToken');
     return _ret(verifyResult);
   }
+
+  Object? compareResult;
+  final shareLinks = <ShareLink>[];
+  Object? createShareError;
+
+  @override
+  Future<ReportComparison> compare(String base, String target) async {
+    calls.add('compare:$base:$target');
+    return _ret(compareResult ?? comparisonJson(base, target));
+  }
+
+  @override
+  Future<CreateShareResponse> createShare(String scanId, int expiresInDays) async {
+    calls.add('share:$scanId:$expiresInDays');
+    if (createShareError != null) _ret<void>(createShareError!);
+    final link = ShareLink.fromJson({
+      'id': 'sh${shareLinks.length + 1}',
+      'scanId': scanId,
+      'createdAt': '2026-10-30T10:00:00.000Z',
+      'expiresAt': '2026-11-29T10:00:00.000Z',
+      'revokedAt': null,
+      'active': true,
+    });
+    shareLinks.add(link);
+    return CreateShareResponse(share: link, token: 'tok', url: 'https://weblume.test/r/tok');
+  }
+
+  @override
+  Future<List<ShareLink>> shares(String scanId) async => List.of(shareLinks);
+
+  @override
+  Future<void> revokeShare(String shareId) async {
+    calls.add('revoke:$shareId');
+    shareLinks.removeWhere((l) => l.id == shareId);
+  }
+}
+
+Account starterAccount() => Account.fromJson({
+  ...fakeAccount().toJson(),
+  'plan': {'id': 'starter', 'name': 'Starter', 'paid': true, 'source': 'subscription'},
+  'entitlements': {
+    'scansPerPeriod': 60,
+    'quotaPeriod': 'billing_period',
+    'retentionDays': 365,
+    'lighthouseData': true,
+    'comparison': true,
+    'pdfExport': true,
+    'shareLinks': true,
+  },
+});
+
+ReportComparison comparisonJson(String base, String target) {
+  final r = reportJson(target);
+  final findings = (r['findings'] as List).cast<Map<String, dynamic>>();
+  Map<String, dynamic> delta(int? b, int? a) => {
+    'before': b,
+    'after': a,
+    'delta': a != null && b != null ? a - b : null,
+  };
+  return ReportComparison.fromJson({
+    'base': {...summaryJson(base), 'createdAt': '2026-10-20T10:00:00.000Z'},
+    'target': summaryJson(target),
+    'scores': {
+      'mobile': {
+        'performance': delta(40, 61),
+        'accessibility': delta(88, 88),
+        'seo': delta(null, 92),
+        'bestPractices': delta(100, 100),
+      },
+    },
+    'newFindings': [findings[0]],
+    'resolvedFindings': [
+      {...findings[1], 'id': 'old1', 'title': 'Page title is missing', 'checkId': 'seo.title.missing'},
+    ],
+    'unchangedFindings': [
+      {'finding': findings[1], 'previousSeverity': 'high'},
+    ],
+    'notComparable': <Object>[],
+    'severityDelta': {'high': 1},
+  });
 }
 
 BillingConfig fakeBillingConfig({bool enabled = true, bool play = true}) => BillingConfig.fromJson({

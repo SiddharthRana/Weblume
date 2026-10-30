@@ -260,6 +260,10 @@ for (const [path, methods] of Object.entries(spec.paths)) {
   for (const [method, op] of Object.entries(methods)) {
     const ok = Object.entries(op.responses).find(([code]) => code.startsWith('2'));
     const resSchema = ok?.[1]?.content?.['application/json']?.schema;
+    // Binary downloads (e.g. application/pdf) are returned as raw bytes.
+    const binary = Object.entries(ok?.[1]?.content ?? {}).some(
+      ([type, c]) => type !== 'application/json' && c.schema?.format === 'binary',
+    );
     const bodySchema = op.requestBody?.content?.['application/json']?.schema;
     ops.push({
       path,
@@ -275,6 +279,7 @@ for (const [path, methods] of Object.entries(spec.paths)) {
       })),
       body: bodySchema ? typeOf(bodySchema, 'Body', op.operationId) : null,
       res: resSchema ? typeOf(resSchema, 'Response', op.operationId) : null,
+      binary,
     });
   }
 }
@@ -291,14 +296,16 @@ function renderOp(op) {
   );
   const query = op.params.filter((p) => p.in === 'query');
   const headers = op.params.filter((p) => p.in === 'header');
-  const ret = op.res ? op.res.dart : 'Map<String, dynamic>';
-  const decodeRes = op.res
-    ? decode(op.res, 'res.data')
-    : 'Map<String, dynamic>.from(res.data as Map)';
+  const ret = op.binary ? 'List<int>' : op.res ? op.res.dart : 'Map<String, dynamic>';
+  const decodeRes = op.binary
+    ? 'res.data as List<int>'
+    : op.res
+      ? decode(op.res, 'res.data')
+      : 'Map<String, dynamic>.from(res.data as Map)';
   return `  ${op.summary ? `/// ${op.summary.split('\n')[0]}\n  ` : ''}Future<${ret}> ${op.name}(${sig}) => _call(() async {
         final res = await _dio.request<Object?>(
           '${pathExpr}',
-          options: Options(method: '${op.method}'${headers.length ? `, headers: {${headers.map((h) => `${h.required ? '' : `if (${h.field} != null) `}'${h.name}': ${h.field}`).join(', ')}}` : ''}),
+          options: Options(method: '${op.method}'${op.binary ? ', responseType: ResponseType.bytes' : ''}${headers.length ? `, headers: {${headers.map((h) => `${h.required ? '' : `if (${h.field} != null) `}'${h.name}': ${h.field}`).join(', ')}}` : ''}),
           ${query.length ? `queryParameters: {${query.map((q) => `${q.required ? '' : `if (${q.field} != null) `}'${q.name}': ${encode(q.type, q.field)}`).join(', ')}},` : ''}
           ${op.body ? `data: ${encode(op.body, 'body')},` : ''}
         );
