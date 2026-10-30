@@ -204,19 +204,20 @@ Nothing is deployed and no paid resources have been created. Step-by-step guide 
 
 ## Operations and launch docs
 
-| Doc                                                                                   | What's in it                                                            |
-| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| [`docs/deployment.md`](docs/deployment.md)                                            | Hosting setup, environment, updates, rollback                           |
-| [`docs/monitoring.md`](docs/monitoring.md)                                            | Health endpoints, logs, Sentry, `/metrics`, alerts, SQL checks          |
-| [`docs/troubleshooting.md`](docs/troubleshooting.md)                                  | Symptoms and fixes for development, API, scans, reports, payments, web  |
-| [`docs/smoke-test.md`](docs/smoke-test.md)                                            | Manual checklist to run before each release                             |
-| [`docs/payments-setup.md`](docs/payments-setup.md)                                    | Paddle / Dodo / Google Play setup                                       |
-| [`docs/security-review.md`](docs/security-review.md)                                  | Security measures, how they're tested, known gaps                       |
-| [`docs/quality-review.md`](docs/quality-review.md)                                    | Lighthouse results, accessibility tests and the manual checklist        |
-| [`docs/privacy-data-map.md`](docs/privacy-data-map.md)                                | What data is stored, where, how long, who receives it                   |
-| [`docs/costs.md`](docs/costs.md) / [`docs/unit-economics.md`](docs/unit-economics.md) | Running costs, free-tier limits, net revenue per subscriber, break-even |
-| [`docs/scoring.md`](docs/scoring.md)                                                  | How reports are built and scored                                        |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md)                                              | Why things are the way they are                                         |
+| Doc                                                                                   | What's in it                                                                            |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [`docs/HANDOVER.md`](docs/HANDOVER.md)                                                | Start here in a new session: status, local setup for a real Android phone, what to test |
+| [`docs/deployment.md`](docs/deployment.md)                                            | Hosting setup, environment, updates, rollback                                           |
+| [`docs/monitoring.md`](docs/monitoring.md)                                            | Health endpoints, logs, Sentry, `/metrics`, alerts, SQL checks                          |
+| [`docs/troubleshooting.md`](docs/troubleshooting.md)                                  | Symptoms and fixes for development, API, scans, reports, payments, web                  |
+| [`docs/smoke-test.md`](docs/smoke-test.md)                                            | Manual checklist to run before each release                                             |
+| [`docs/payments-setup.md`](docs/payments-setup.md)                                    | Paddle / Dodo / Google Play setup                                                       |
+| [`docs/security-review.md`](docs/security-review.md)                                  | Security measures, how they're tested, known gaps                                       |
+| [`docs/quality-review.md`](docs/quality-review.md)                                    | Lighthouse results, accessibility tests and the manual checklist                        |
+| [`docs/privacy-data-map.md`](docs/privacy-data-map.md)                                | What data is stored, where, how long, who receives it                                   |
+| [`docs/costs.md`](docs/costs.md) / [`docs/unit-economics.md`](docs/unit-economics.md) | Running costs, free-tier limits, net revenue per subscriber, break-even                 |
+| [`docs/scoring.md`](docs/scoring.md)                                                  | How reports are built and scored                                                        |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md)                                              | Why things are the way they are                                                         |
 
 ## Troubleshooting
 
