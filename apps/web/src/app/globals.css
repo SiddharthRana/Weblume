@@ -17,6 +17,10 @@
   --color-focus: var(--wl-focus);
   --color-success: var(--wl-success);
   --color-danger: var(--wl-danger);
+  --color-brand-start: var(--wl-gradient-start);
+  --color-brand-mid: var(--wl-gradient-mid);
+  --color-brand-end: var(--wl-gradient-end);
+  --color-glow: var(--wl-glow);
 
   --color-sev-critical: var(--wl-severity-critical-fg);
   --color-sev-critical-bg: var(--wl-severity-critical-bg);
@@ -38,6 +42,16 @@
 }
 
 @layer base {
+  :root {
+    --wl-brand-gradient: linear-gradient(
+      135deg,
+      var(--wl-gradient-start) 0%,
+      var(--wl-gradient-mid) 55%,
+      var(--wl-gradient-end) 100%
+    );
+    /* Lets <details> animate to height: auto where supported. */
+    interpolate-size: allow-keywords;
+  }
   html {
     -webkit-text-size-adjust: 100%;
   }
@@ -58,6 +72,237 @@
       transition-duration: 0.01ms !important;
       animation-duration: 0.01ms !important;
     }
+  }
+}
+
+/* Brand look: gradient actions, glass header, glow backgrounds, soft cards. */
+@layer components {
+  /* Primary action. White text passes WCAG AA on every gradient stop (tested in design-tokens). */
+  .btn-primary {
+    color: #fff;
+    background-color: var(--wl-gradient-mid);
+    background-image: var(--wl-brand-gradient);
+    background-size: 180% 100%;
+    background-position: 0% 50%;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.22),
+      0 1px 2px rgb(0 0 0 / 0.18),
+      0 8px 24px -10px color-mix(in oklab, var(--wl-glow) 70%, transparent);
+    transition:
+      background-position 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.25s ease,
+      transform 0.15s ease;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-position: 100% 50%;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      0 1px 2px rgb(0 0 0 / 0.18),
+      0 12px 32px -8px color-mix(in oklab, var(--wl-glow) 85%, transparent);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  /* Secondary action: subtle surface with a hairline that lights up on hover. */
+  .btn-secondary {
+    color: var(--wl-text);
+    background: color-mix(in oklab, var(--wl-surface) 88%, transparent);
+    border: 1px solid var(--wl-border);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.15s ease;
+  }
+  .btn-secondary:hover {
+    border-color: color-mix(in oklab, var(--wl-gradient-mid) 55%, var(--wl-border));
+    background: var(--wl-surface-muted);
+  }
+  .btn-secondary:active {
+    transform: translateY(1px);
+  }
+
+  .bg-brand-gradient {
+    background-image: var(--wl-brand-gradient);
+  }
+
+  /* Headline text that fades from the text colour into the brand colours. */
+  .text-gradient {
+    background: linear-gradient(
+      100deg,
+      var(--wl-text) 20%,
+      color-mix(in oklab, var(--wl-text) 45%, var(--wl-gradient-mid)) 70%,
+      var(--wl-gradient-end) 110%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  @media (forced-colors: active) {
+    .text-gradient {
+      color: CanvasText;
+      background: none;
+    }
+  }
+
+  /* Header: translucent with blur, Linear-style. */
+  .header-glass {
+    background: color-mix(in oklab, var(--wl-background) 72%, transparent);
+    backdrop-filter: saturate(1.6) blur(14px);
+    -webkit-backdrop-filter: saturate(1.6) blur(14px);
+  }
+
+  /* Soft brand glow behind hero sections. Decorative only. */
+  .hero-glow {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .hero-glow::before {
+    content: '';
+    position: absolute;
+    inset: -40% -10% auto;
+    height: 90%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(
+        45% 55% at 30% 40%,
+        color-mix(in oklab, var(--wl-gradient-start) 30%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        40% 50% at 72% 30%,
+        color-mix(in oklab, var(--wl-gradient-end) 24%, transparent),
+        transparent 70%
+      );
+    filter: blur(20px);
+    opacity: 0.9;
+  }
+  /* Faint grid, fading out downwards. */
+  .hero-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(color-mix(in oklab, var(--wl-text) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--wl-text) 5%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 60% at 50% 0%, #000 30%, transparent 100%);
+  }
+
+  /* Card with a top highlight and a hairline border that glows on hover. */
+  .card {
+    position: relative;
+    border: 1px solid var(--wl-border);
+    border-radius: var(--wl-radius-lg);
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--wl-text) 3%, var(--wl-surface)),
+      var(--wl-surface) 60%
+    );
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, #fff 6%, transparent),
+      0 1px 2px rgb(0 0 0 / 0.06);
+    transition:
+      border-color 0.25s ease,
+      transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.25s ease;
+  }
+  .card-hover:hover {
+    border-color: color-mix(in oklab, var(--wl-gradient-mid) 45%, var(--wl-border));
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, #fff 8%, transparent),
+      0 16px 40px -20px color-mix(in oklab, var(--wl-glow) 55%, transparent);
+  }
+
+  /* Gradient hairline border (used on the hero preview). */
+  .border-gradient {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--wl-surface), var(--wl-surface)) padding-box,
+      linear-gradient(
+          140deg,
+          color-mix(in oklab, var(--wl-gradient-start) 70%, transparent),
+          var(--wl-border) 40%,
+          var(--wl-border) 60%,
+          color-mix(in oklab, var(--wl-gradient-end) 70%, transparent)
+        )
+        border-box;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--wl-border);
+    border-radius: 9999px;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--wl-text-muted);
+    background: color-mix(in oklab, var(--wl-surface) 70%, transparent);
+  }
+}
+
+/* Motion. Everything here is decorative and switched off for reduced-motion users. */
+@layer utilities {
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-page {
+      animation: wl-page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-rise {
+      animation: wl-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-delay: calc(var(--i, 0) * 80ms);
+    }
+    .ring-animate {
+      animation: wl-ring 1.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-delay: calc(var(--i, 0) * 90ms + 150ms);
+    }
+    /* Scroll-revealed sections, CSS-only (no JavaScript, no flash if unsupported). */
+    @supports (animation-timeline: view()) {
+      .reveal {
+        animation: wl-rise linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 90%;
+      }
+    }
+    details::details-content {
+      height: 0;
+      overflow: clip;
+      transition:
+        height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        content-visibility 0.3s allow-discrete;
+    }
+    details[open]::details-content {
+      height: auto;
+    }
+  }
+}
+
+@keyframes wl-page-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+@keyframes wl-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
+@keyframes wl-ring {
+  from {
+    stroke-dasharray: 0 264;
   }
 }
 

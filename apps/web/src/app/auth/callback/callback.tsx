@@ -34,7 +34,7 @@ export function AuthCallback() {
         </FormAlert>
         <Link
           href="/login"
-          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Go to log in
         </Link>

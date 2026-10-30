@@ -11,12 +11,10 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <section className="border-b border-border bg-surface py-14 sm:py-20">
+    <section className="hero-glow border-b border-border py-14 sm:py-20">
       <Container>
-        {eyebrow && (
-          <p className="text-sm font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
-        )}
-        <h1 className="mt-2 max-w-3xl text-3xl font-bold tracking-tight text-fg sm:text-5xl">
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        <h1 className="text-gradient mt-4 max-w-3xl pb-1 text-3xl font-semibold tracking-tight sm:text-5xl">
           {title}
         </h1>
         {children && <div className="mt-4 max-w-2xl text-lg text-fg-muted">{children}</div>}

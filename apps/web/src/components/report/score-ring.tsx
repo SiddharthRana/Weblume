@@ -1,12 +1,17 @@
+import type { CSSProperties } from 'react';
+
 /** Lighthouse-style score ring. Bands follow Lighthouse: 0–49 poor, 50–89 needs work, 90–100 good. */
 export function ScoreRing({
   score,
   label,
   size = 96,
+  index = 0,
 }: {
   score: number;
   label: string;
   size?: number;
+  /** Position in a row, used to stagger the fill animation. */
+  index?: number;
 }) {
   const r = 42;
   const circumference = 2 * Math.PI * r;
@@ -43,6 +48,8 @@ export function ScoreRing({
           stroke={color}
           strokeWidth="8"
           strokeLinecap="round"
+          className="ring-animate"
+          style={{ '--i': index } as CSSProperties}
           strokeDasharray={`${(clamped / 100) * circumference} ${circumference}`}
           transform="rotate(-90 50 50)"
         />

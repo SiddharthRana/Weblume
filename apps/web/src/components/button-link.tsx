@@ -4,8 +4,8 @@ import type { ComponentProps, ReactNode } from 'react';
 type Variant = 'primary' | 'secondary';
 
 const styles: Record<Variant, string> = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-hover',
-  secondary: 'border border-border bg-surface text-fg hover:bg-surface-muted',
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
 };
 
 export function ButtonLink({
@@ -22,7 +22,7 @@ export function ButtonLink({
   return (
     <Link
       href={href}
-      className={`inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2.5 text-sm font-semibold transition-colors ${styles[variant]} ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold ${styles[variant]} ${className}`}
     >
       {children}
     </Link>

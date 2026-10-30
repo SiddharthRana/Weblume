@@ -2,6 +2,26 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-10-30 — Visual redesign (Linear-inspired)
+
+**Brand gradient instead of a flat blue.** The palette is near-black and off-white with hairline borders, plus an indigo → violet → purple gradient (`gradientStart/Mid/End` tokens) for primary actions, the logo, accents and headline text. White button text is tested at ≥ 4.5:1 on every gradient stop, in both themes. One token source still drives the web (CSS variables), the PDF and Flutter.
+
+**Motion is CSS-only on the web** (no animation library), and is turned off for people who choose reduced motion:
+
+- pages fade in on navigation (`app/template.tsx`);
+- hero content rises in staggered;
+- score rings fill;
+- sections reveal on scroll via `animation-timeline: view()` (no JavaScript, and no hidden content where it isn't supported);
+- findings expand smoothly via `::details-content`.
+
+Score numbers aren't animated as text, so screen readers and tests always read the real value.
+
+**Flutter:**
+
+- Gradient filled buttons through the theme's `backgroundBuilder`, so every `FilledButton` gets it without new widgets.
+- Fade-forwards page transitions.
+- Score rings animate unless `MediaQuery.disableAnimations` is set.
+
 ## 2026-10-30 — Phase 6 reports and launch prep
 
 **PDF with pdfkit, not `@react-pdf/renderer`.** Both are pure JS (no browser). pdfkit is CommonJS like the API, needs no React/JSX in the backend, and draws text directly, so there's no HTML to inject into. Inter (OFL) is embedded for Latin, Greek and Cyrillic. Tests check the output by extracting the text back with pdf.js. _Trade-off:_ the layout is hand-positioned rather than declarative.

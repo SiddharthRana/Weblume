@@ -80,7 +80,7 @@ export function AccountHistory() {
         />
         <button
           type="submit"
-          className="min-h-11 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-fg"
+          className="min-h-11 rounded-lg btn-secondary px-4 text-sm font-semibold"
         >
           Search
         </button>
@@ -92,7 +92,7 @@ export function AccountHistory() {
         </p>
       )}
       {items && items.length === 0 && (
-        <div className="rounded-lg border border-border bg-surface p-8 text-center">
+        <div className="card p-8 text-center">
           <p className="font-semibold text-fg">
             {query ? 'No scans match that search' : 'No saved scans yet'}
           </p>
@@ -104,7 +104,7 @@ export function AccountHistory() {
           type="button"
           onClick={more}
           disabled={loadingMore}
-          className="min-h-11 rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg disabled:opacity-70"
+          className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
         >
           {loadingMore ? 'Loading…' : 'Load more'}
         </button>

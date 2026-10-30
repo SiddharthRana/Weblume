@@ -20,7 +20,7 @@ export default function BlogIndex() {
       <Container className="py-16">
         <ul className="grid gap-6 md:grid-cols-2">
           {sorted.map((p) => (
-            <li key={p.slug} className="rounded-lg border border-border bg-surface p-6">
+            <li key={p.slug} className="card card-hover p-6">
               <time dateTime={p.date} className="text-sm text-fg-muted">
                 {fmt.format(new Date(p.date))}
               </time>

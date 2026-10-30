@@ -5,7 +5,7 @@ import { SeverityBadge } from './severity-badge';
 export function FindingCard({ finding }: { finding: FindingDto }) {
   const evidence = evidenceLines(finding);
   return (
-    <details className="group rounded-lg border border-border bg-surface open:shadow-sm">
+    <details className="group card card-hover">
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 p-4 [&::-webkit-details-marker]:hidden">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
           <SeverityBadge severity={finding.severity} />

@@ -35,10 +35,7 @@ export default function PricingPage() {
       </PageHeader>
       <Container className="py-16">
         <div className="grid gap-6 md:grid-cols-2">
-          <section
-            className="flex flex-col rounded-lg border border-border bg-surface p-8"
-            aria-labelledby="plan-free"
-          >
+          <section className="flex flex-col card card-hover p-8" aria-labelledby="plan-free">
             <h2 id="plan-free" className="text-xl font-bold text-fg">
               {free.name}
             </h2>
@@ -53,12 +50,17 @@ export default function PricingPage() {
             </ul>
           </section>
           <section
-            className="flex flex-col rounded-lg border-2 border-primary bg-surface p-8"
+            className="border-gradient flex flex-col rounded-2xl p-8 shadow-[0_30px_80px_-40px_var(--wl-glow)]"
             aria-labelledby="plan-starter"
           >
-            <h2 id="plan-starter" className="text-xl font-bold text-fg">
-              {starter.name}
-            </h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="plan-starter" className="text-xl font-bold text-fg">
+                {starter.name}
+              </h2>
+              <span className="bg-brand-gradient rounded-full px-3 py-1 text-xs font-semibold text-white">
+                Best for client work
+              </span>
+            </div>
             {usd && inr && (
               <div className="mt-2">
                 <p className="text-4xl font-bold text-fg">

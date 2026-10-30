@@ -32,8 +32,15 @@ class ScoreRing extends StatelessWidget {
         children: [
           SizedBox.square(
             dimension: size,
-            child: CustomPaint(
-              painter: _RingPainter(s / 100, color, theme.colorScheme.surfaceContainerHighest),
+            // The ring fills in on first show (instantly when the system asks for reduced motion).
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: s / 100),
+              duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : const Duration(milliseconds: 900),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) => CustomPaint(
+                painter: _RingPainter(value, color, theme.colorScheme.surfaceContainerHighest),
+                child: child,
+              ),
               child: Center(
                 child: Text('$s', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
               ),

@@ -94,7 +94,7 @@ export function CompareView() {
         <p className="mt-3 text-fg-muted">{state.message}</p>
         <Link
           href="/pricing"
-          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           See plans
         </Link>
@@ -249,7 +249,7 @@ function Stat({
 }) {
   const color = tone === 'good' ? 'text-success' : tone === 'bad' ? 'text-danger' : 'text-fg';
   return (
-    <li className="rounded-lg border border-border bg-surface p-4">
+    <li className="card p-4">
       <p className="text-sm text-fg-muted">{label}</p>
       <p className={`mt-1 text-3xl font-bold ${color}`}>{value}</p>
     </li>

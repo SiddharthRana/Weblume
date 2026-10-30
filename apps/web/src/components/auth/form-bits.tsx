@@ -12,7 +12,7 @@ export function AuthCard({
 }) {
   return (
     <div className="mx-auto w-full max-w-md py-12 sm:py-16">
-      <div className="rounded-lg border border-border bg-surface p-6 shadow-sm sm:p-8">
+      <div className="card p-6 shadow-sm sm:p-8">
         <h1 className="text-2xl font-bold text-fg">{title}</h1>
         <div className="mt-6">{children}</div>
       </div>
@@ -66,7 +66,7 @@ export function SubmitButton({ busy, children }: { busy: boolean; children: Reac
     <button
       type="submit"
       disabled={busy}
-      className="min-h-12 w-full rounded-md bg-primary px-5 text-sm font-semibold text-on-primary hover:bg-primary-hover disabled:opacity-70"
+      className="min-h-12 w-full rounded-lg btn-primary px-5 text-sm font-semibold disabled:opacity-70"
     >
       {children}
     </button>

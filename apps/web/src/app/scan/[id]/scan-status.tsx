@@ -116,7 +116,7 @@ export function ScanStatus({ id }: { id: string }) {
         </p>
         <Link
           href="/scan"
-          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Start a new scan
         </Link>
@@ -135,7 +135,7 @@ export function ScanStatus({ id }: { id: string }) {
             setState({ kind: 'loading' });
             setAttempt((a) => a + 1);
           }}
-          className="mt-6 min-h-11 rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 min-h-11 rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Try again
         </button>
@@ -150,13 +150,12 @@ export function ScanStatus({ id }: { id: string }) {
       <div className="mx-auto max-w-2xl py-12">
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">Scanning</p>
         <h1 className="mt-1 break-all text-2xl font-bold text-fg">{r.normalizedUrl}</h1>
-        <div
-          role="status"
-          aria-live="polite"
-          className="mt-6 rounded-lg border border-border bg-surface p-6"
-        >
+        <div role="status" aria-live="polite" className="mt-6 card p-6">
           <div className="flex items-center gap-3">
-            <span aria-hidden="true" className="size-3 animate-pulse rounded-full bg-primary" />
+            <span
+              aria-hidden="true"
+              className="size-3 animate-pulse rounded-full bg-brand-gradient"
+            />
             <p className="font-semibold text-fg">
               {r.status === 'queued' ? 'Waiting to start…' : 'Scan in progress…'}
             </p>
@@ -205,13 +204,13 @@ export function ScanStatus({ id }: { id: string }) {
             type="button"
             onClick={retry}
             disabled={retrying}
-            className="min-h-11 rounded-md bg-primary px-5 text-sm font-semibold text-on-primary disabled:opacity-70"
+            className="min-h-11 rounded-lg btn-primary px-5 text-sm font-semibold disabled:opacity-70"
           >
             {retrying ? 'Retrying…' : 'Retry scan'}
           </button>
           <Link
             href="/scan"
-            className="inline-flex min-h-11 items-center rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg"
+            className="inline-flex min-h-11 items-center rounded-lg btn-secondary px-5 text-sm font-semibold"
           >
             Scan a different address
           </Link>

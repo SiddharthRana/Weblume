@@ -14,7 +14,7 @@ const STATUS: Record<ScanStatus, { label: string; className: string }> = {
 
 export function ScanList({ scans }: { scans: ScanSummaryDto[] }) {
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+    <ul className="divide-y divide-border card">
       {scans.map((s) => (
         <li
           key={s.id}

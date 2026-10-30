@@ -83,7 +83,7 @@ export function MobileNav() {
             <li className="mt-2">
               <Link
                 href="/scan"
-                className="flex min-h-11 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-on-primary"
+                className="flex min-h-11 items-center justify-center rounded-lg btn-primary px-4 text-sm font-semibold"
               >
                 Scan a website
               </Link>

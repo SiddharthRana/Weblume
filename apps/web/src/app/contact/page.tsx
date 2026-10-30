@@ -16,7 +16,7 @@ export default function ContactPage() {
         Questions, feedback or a problem with a report? Get in touch.
       </PageHeader>
       <Container className="grid gap-6 py-16 md:grid-cols-2">
-        <section className="rounded-lg border border-border bg-surface p-6">
+        <section className="card p-6">
           <h2 className="text-lg font-semibold text-fg">Email</h2>
           <p className="mt-2 text-fg-muted">
             <a className="font-medium text-primary underline" href={`mailto:${site.supportEmail}`}>
@@ -25,7 +25,7 @@ export default function ContactPage() {
           </p>
           <p className="mt-2 text-sm text-fg-muted">We usually reply within two working days.</p>
         </section>
-        <section className="rounded-lg border border-border bg-surface p-6">
+        <section className="card p-6">
           <h2 className="text-lg font-semibold text-fg">Helpful to include</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-fg-muted">
             <li>The URL you scanned and roughly when</li>

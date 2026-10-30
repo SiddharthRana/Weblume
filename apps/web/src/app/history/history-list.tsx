@@ -16,12 +16,12 @@ export function HistoryList() {
 
   if (scans.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-surface p-8 text-center">
+      <div className="card p-8 text-center">
         <h2 className="text-lg font-semibold text-fg">No scans on this device yet</h2>
         <p className="mt-2 text-fg-muted">Scans you start in this browser will be listed here.</p>
         <Link
           href="/scan"
-          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Scan a website
         </Link>
@@ -30,7 +30,7 @@ export function HistoryList() {
   }
 
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
+    <ul className="divide-y divide-border card">
       {scans.map((s) => (
         <li
           key={s.id}

@@ -39,6 +39,14 @@ describe.each(['light', 'dark'] as const)('%s theme contrast (WCAG AA)', (mode) 
     expect(contrast(fg, bg)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 
+  it.each([
+    ['gradientStart', c.gradientStart],
+    ['gradientMid', c.gradientMid],
+    ['gradientEnd', c.gradientEnd],
+  ])('white button text on the brand gradient (%s) >= 4.5:1', (_label, stop) => {
+    expect(contrast('#FFFFFF', stop)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
   it('focus ring is visible against surface and background (>= 3:1)', () => {
     expect(contrast(c.focus, c.surface)).toBeGreaterThanOrEqual(AA_NON_TEXT);
     expect(contrast(c.focus, c.background)).toBeGreaterThanOrEqual(AA_NON_TEXT);

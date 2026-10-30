@@ -35,8 +35,8 @@ export default function HowItWorksPage() {
       <Container className="py-16">
         <ol className="grid gap-6 md:grid-cols-2">
           {steps.map((s, i) => (
-            <li key={s.title} className="rounded-lg border border-border bg-surface p-6">
-              <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">
+            <li key={s.title} className="card card-hover p-6">
+              <span className="inline-flex size-8 items-center justify-center rounded-full btn-primary text-sm font-bold">
                 {i + 1}
               </span>
               <h2 className="mt-3 text-lg font-semibold text-fg">{s.title}</h2>

@@ -51,7 +51,7 @@ export function PaddleCheckout() {
           </p>
           <Link
             href="/pricing"
-            className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+            className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
           >
             Back to pricing
           </Link>

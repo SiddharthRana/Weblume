@@ -50,7 +50,7 @@ export function Dashboard() {
         </div>
         <Link
           href="/scan"
-          className="inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           New scan
         </Link>
@@ -65,10 +65,7 @@ export function Dashboard() {
         </p>
       )}
       {account && (
-        <section
-          aria-labelledby="usage"
-          className="grid gap-6 rounded-lg border border-border bg-surface p-6 md:grid-cols-2"
-        >
+        <section aria-labelledby="usage" className="grid gap-6 card p-6 md:grid-cols-2">
           <div>
             <h2 id="usage" className="text-lg font-bold text-fg">
               {account.plan.name} plan
@@ -106,7 +103,7 @@ export function Dashboard() {
           {scans.length ? (
             <ScanList scans={scans} />
           ) : (
-            <div className="rounded-lg border border-border bg-surface p-8 text-center">
+            <div className="card p-8 text-center">
               <p className="font-semibold text-fg">No scans yet</p>
               <p className="mt-1 text-fg-muted">Run your first scan to see a report here.</p>
             </div>

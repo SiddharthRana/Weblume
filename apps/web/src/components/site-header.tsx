@@ -7,7 +7,7 @@ import { AuthNav } from './auth-nav';
 
 export function SiteHeader() {
   return (
-    <header className="relative border-b border-border bg-surface">
+    <header className="header-glass sticky top-0 z-40 border-b border-border/70">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" aria-label="Weblume home" className="rounded-md">
           <Logo />
@@ -18,7 +18,7 @@ export function SiteHeader() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-fg-muted hover:bg-surface-muted hover:text-fg"
+                  className="rounded-md px-3 py-2 text-sm font-medium text-fg-muted transition-colors hover:text-fg"
                 >
                   {item.label}
                 </Link>

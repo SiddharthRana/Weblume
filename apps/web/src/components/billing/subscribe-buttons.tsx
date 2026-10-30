@@ -26,7 +26,7 @@ export function SubscribeButtons() {
       <div className="mt-6">
         <Link
           href={configured ? '/signup?next=%2Fpricing' : '/scan'}
-          className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Create an account to subscribe
         </Link>
@@ -58,7 +58,7 @@ export function SubscribeButtons() {
           type="button"
           disabled={busy !== null}
           onClick={() => start('monthly')}
-          className="min-h-11 w-full rounded-md bg-primary px-5 text-sm font-semibold text-on-primary hover:bg-primary-hover disabled:opacity-70"
+          className="min-h-11 w-full rounded-lg btn-primary px-5 text-sm font-semibold disabled:opacity-70"
         >
           {busy === 'monthly' ? 'Opening checkout…' : 'Subscribe monthly'}
         </button>
@@ -68,7 +68,7 @@ export function SubscribeButtons() {
           type="button"
           disabled={busy !== null}
           onClick={() => start('annual')}
-          className="min-h-11 w-full rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted disabled:opacity-70"
+          className="min-h-11 w-full rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
         >
           {busy === 'annual' ? 'Opening checkout…' : 'Subscribe yearly (save ~37%)'}
         </button>

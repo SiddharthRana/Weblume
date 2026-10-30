@@ -29,7 +29,7 @@ export function UsageMeter({
         className="mt-2 h-2.5 overflow-hidden rounded-full bg-surface-muted"
       >
         <div
-          className={`h-full rounded-full ${remaining === 0 ? 'bg-danger' : 'bg-primary'}`}
+          className={`h-full rounded-full ${remaining === 0 ? 'bg-danger' : 'bg-brand-gradient'}`}
           style={{ width: `${pct}%` }}
         />
       </div>

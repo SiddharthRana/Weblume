@@ -21,7 +21,7 @@ export function GoogleButton({ next }: { next: string }) {
             })) ?? {};
           if (error) setBusy(false);
         }}
-        className="min-h-12 w-full rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted disabled:opacity-70"
+        className="min-h-12 w-full rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
       >
         Continue with Google
       </button>

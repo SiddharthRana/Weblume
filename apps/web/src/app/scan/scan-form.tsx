@@ -62,11 +62,7 @@ export function ScanForm() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      noValidate
-      className="rounded-lg border border-border bg-surface p-6 shadow-sm"
-    >
+    <form onSubmit={onSubmit} noValidate className="card p-6 shadow-sm">
       <label htmlFor={inputId} className="block text-sm font-semibold text-fg">
         Website address
       </label>
@@ -90,7 +86,7 @@ export function ScanForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="min-h-12 shrink-0 rounded-md bg-primary px-6 text-sm font-semibold text-on-primary hover:bg-primary-hover disabled:opacity-70"
+          className="min-h-12 shrink-0 rounded-lg btn-primary px-6 text-sm font-semibold disabled:opacity-70"
         >
           {submitting ? 'Starting…' : 'Scan website'}
         </button>

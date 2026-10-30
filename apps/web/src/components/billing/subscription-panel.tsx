@@ -46,7 +46,7 @@ export function SubscriptionPanel({ account }: { account: Account }) {
     return config?.enabled && config.web.available ? (
       <Link
         href="/pricing"
-        className="inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+        className="inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
       >
         Upgrade to Starter
       </Link>

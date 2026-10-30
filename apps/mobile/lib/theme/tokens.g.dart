@@ -3,20 +3,24 @@
 import 'package:flutter/painting.dart';
 
 abstract final class WlColorsLight {
-  static const background = Color(0xFFF7F8FB);
+  static const background = Color(0xFFFAFAFB);
   static const surface = Color(0xFFFFFFFF);
-  static const surfaceMuted = Color(0xFFEEF1F6);
-  static const border = Color(0xFFD5DBE5);
-  static const text = Color(0xFF111827);
-  static const textMuted = Color(0xFF4B5565);
-  static const primary = Color(0xFF2448D8);
-  static const primaryHover = Color(0xFF1B39B3);
+  static const surfaceMuted = Color(0xFFF2F2F5);
+  static const border = Color(0xFFE3E4EA);
+  static const text = Color(0xFF0E0F14);
+  static const textMuted = Color(0xFF565A66);
+  static const primary = Color(0xFF4F46E5);
+  static const primaryHover = Color(0xFF4338CA);
   static const onPrimary = Color(0xFFFFFFFF);
   static const accent = Color(0xFFF2A516);
   static const onAccent = Color(0xFF1F1400);
-  static const focus = Color(0xFF2448D8);
+  static const focus = Color(0xFF4F46E5);
   static const success = Color(0xFF0F7A3D);
   static const danger = Color(0xFFB42318);
+  static const gradientStart = Color(0xFF4F46E5);
+  static const gradientMid = Color(0xFF6D3BE8);
+  static const gradientEnd = Color(0xFF9333EA);
+  static const glow = Color(0xFF7C6CFF);
   static const severityCriticalFg = Color(0xFF9F1A13);
   static const severityCriticalBg = Color(0xFFFDECEA);
   static const severityHighFg = Color(0xFFA2360B);
@@ -30,30 +34,34 @@ abstract final class WlColorsLight {
 }
 
 abstract final class WlColorsDark {
-  static const background = Color(0xFF0B1020);
-  static const surface = Color(0xFF121A2E);
-  static const surfaceMuted = Color(0xFF1A2440);
-  static const border = Color(0xFF2B3756);
-  static const text = Color(0xFFF1F4FA);
-  static const textMuted = Color(0xFFA9B4C8);
-  static const primary = Color(0xFF7D98FF);
-  static const primaryHover = Color(0xFF9DB1FF);
-  static const onPrimary = Color(0xFF0B1020);
+  static const background = Color(0xFF08090C);
+  static const surface = Color(0xFF0F1015);
+  static const surfaceMuted = Color(0xFF16171D);
+  static const border = Color(0xFF25262E);
+  static const text = Color(0xFFF4F5F8);
+  static const textMuted = Color(0xFF9095A1);
+  static const primary = Color(0xFFA3A8FF);
+  static const primaryHover = Color(0xFFBEC2FF);
+  static const onPrimary = Color(0xFF0B0C12);
   static const accent = Color(0xFFF5B84A);
   static const onAccent = Color(0xFF1F1400);
-  static const focus = Color(0xFF9DB1FF);
+  static const focus = Color(0xFFA3A8FF);
   static const success = Color(0xFF4ADE80);
   static const danger = Color(0xFFF97066);
+  static const gradientStart = Color(0xFF5048E5);
+  static const gradientMid = Color(0xFF6D3BE8);
+  static const gradientEnd = Color(0xFF9333EA);
+  static const glow = Color(0xFF6D5BFF);
   static const severityCriticalFg = Color(0xFFFFA39B);
-  static const severityCriticalBg = Color(0xFF3A1513);
+  static const severityCriticalBg = Color(0xFF2A1214);
   static const severityHighFg = Color(0xFFFDB48A);
-  static const severityHighBg = Color(0xFF3A2012);
+  static const severityHighBg = Color(0xFF2A1910);
   static const severityMediumFg = Color(0xFFFBD27A);
-  static const severityMediumBg = Color(0xFF382A0E);
-  static const severityLowFg = Color(0xFFA8C1FF);
-  static const severityLowBg = Color(0xFF172648);
+  static const severityMediumBg = Color(0xFF28200E);
+  static const severityLowFg = Color(0xFFB3C3FF);
+  static const severityLowBg = Color(0xFF151C36);
   static const severityInfoFg = Color(0xFFC3CCDB);
-  static const severityInfoBg = Color(0xFF1F2A42);
+  static const severityInfoBg = Color(0xFF1A1D27);
 }
 
 abstract final class WlFontSize {

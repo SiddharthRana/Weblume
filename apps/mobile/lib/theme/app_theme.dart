@@ -57,6 +57,17 @@ class SeverityColors extends ThemeExtension<SeverityColors> {
       t < 0.5 ? this : (other as SeverityColors? ?? this);
 }
 
+/// The brand gradient (indigo → violet → purple) used for primary actions. White text passes
+/// WCAG AA on every stop (tested in packages/design-tokens).
+LinearGradient brandGradient(Brightness b) => LinearGradient(
+  begin: Alignment.topLeft,
+  end: Alignment.bottomRight,
+  colors: b == Brightness.dark
+      ? const [WlColorsDark.gradientStart, WlColorsDark.gradientMid, WlColorsDark.gradientEnd]
+      : const [WlColorsLight.gradientStart, WlColorsLight.gradientMid, WlColorsLight.gradientEnd],
+  stops: const [0, 0.55, 1],
+);
+
 abstract final class AppTheme {
   static ThemeData light() => _build(
     brightness: Brightness.light,
@@ -81,6 +92,7 @@ abstract final class AppTheme {
     ),
     background: WlColorsLight.background,
     severity: SeverityColors.light,
+    glow: WlColorsLight.glow,
   );
 
   static ThemeData dark() => _build(
@@ -106,6 +118,7 @@ abstract final class AppTheme {
     ),
     background: WlColorsDark.background,
     severity: SeverityColors.dark,
+    glow: WlColorsDark.glow,
   );
 
   static ThemeData _build({
@@ -113,7 +126,10 @@ abstract final class AppTheme {
     required ColorScheme scheme,
     required Color background,
     required SeverityColors severity,
+    required Color glow,
   }) {
+    final radius = BorderRadius.circular(WlRadius.md);
+    final gradient = brandGradient(brightness);
     final base = ThemeData(useMaterial3: true, brightness: brightness, colorScheme: scheme);
     final text = base.textTheme.apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
     return base.copyWith(
@@ -125,7 +141,7 @@ abstract final class AppTheme {
         bodyMedium: text.bodyMedium?.copyWith(fontSize: WlFontSize.sm, height: 1.5),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
+        backgroundColor: background,
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 1,
@@ -140,11 +156,52 @@ abstract final class AppTheme {
           side: BorderSide(color: scheme.outline),
         ),
       ),
+      // Primary actions get the brand gradient with a soft glow; disabled ones stay flat.
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size(48, 48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(WlRadius.md)),
+        style: ButtonStyle(
+          minimumSize: const WidgetStatePropertyAll(Size(48, 48)),
+          shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: radius)),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? scheme.onSurface.withValues(alpha: 0.38) : Colors.white,
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled) ? scheme.surfaceContainerHighest : Colors.transparent,
+          ),
+          overlayColor: WidgetStatePropertyAll(Colors.white.withValues(alpha: 0.12)),
+          elevation: const WidgetStatePropertyAll(0),
+          textStyle: WidgetStatePropertyAll(text.labelLarge?.copyWith(fontWeight: FontWeight.w600)),
+          backgroundBuilder: (context, states, child) {
+            if (states.contains(WidgetState.disabled)) return child!;
+            final pressed = states.contains(WidgetState.pressed);
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              decoration: BoxDecoration(
+                gradient: gradient,
+                borderRadius: radius,
+                boxShadow: [
+                  BoxShadow(
+                    color: glow.withValues(alpha: pressed ? 0.25 : 0.4),
+                    blurRadius: pressed ? 8 : 18,
+                    offset: const Offset(0, 6),
+                    spreadRadius: -8,
+                  ),
+                ],
+              ),
+              child: child,
+            );
+          },
         ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          side: BorderSide(color: scheme.outline),
+          foregroundColor: scheme.onSurface,
+        ),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {TargetPlatform.android: FadeForwardsPageTransitionsBuilder()},
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -152,8 +209,17 @@ abstract final class AppTheme {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(WlRadius.md)),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: scheme.surface,
-        indicatorColor: scheme.surfaceContainerHighest,
+        backgroundColor: background,
+        indicatorColor: gradient.colors[1].withValues(alpha: 0.18),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) =>
+              IconThemeData(color: states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurfaceVariant),
+        ),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: gradient.colors[1],
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(WlRadius.lg)),
       ),
       extensions: [severity],
     );

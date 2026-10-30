@@ -13,7 +13,7 @@ const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeZone: '
 const EXPIRY_OPTIONS = [7, 30, 90, 365] as const;
 
 const buttonClass =
-  'inline-flex min-h-11 items-center gap-2 rounded-md border border-border bg-surface px-4 text-sm font-semibold text-fg hover:border-primary disabled:opacity-70';
+  'inline-flex min-h-11 items-center gap-2 rounded-lg btn-secondary px-4 text-sm font-semibold disabled:opacity-70';
 
 /** Owner-only actions on a finished report: PDF download, share links and comparison. */
 export function ReportActions({ scanId }: { scanId: string }) {
@@ -36,7 +36,7 @@ export function ReportActions({ scanId }: { scanId: string }) {
   if (!ent) return null;
   if (!ent.pdfExport && !ent.shareLinks && !ent.comparison) {
     return (
-      <aside className="rounded-lg border border-border bg-surface p-4 text-sm text-fg-muted">
+      <aside className="card p-4 text-sm text-fg-muted">
         <span className="font-semibold text-fg">Need to send this to a client?</span> PDF reports,
         share links and before/after comparisons are part of Starter.{' '}
         <Link href="/pricing" className="font-medium text-primary underline">
@@ -183,11 +183,7 @@ function SharePanel({ scanId }: { scanId: string }) {
   const active = links?.filter((l) => l.active) ?? [];
 
   return (
-    <section
-      id="share-panel"
-      aria-labelledby="share-heading"
-      className="rounded-lg border border-border bg-surface p-5"
-    >
+    <section id="share-panel" aria-labelledby="share-heading" className="card p-5">
       <h2 id="share-heading" className="font-semibold text-fg">
         Share a read-only copy
       </h2>
@@ -217,7 +213,7 @@ function SharePanel({ scanId }: { scanId: string }) {
           type="button"
           onClick={create}
           disabled={busy}
-          className="min-h-11 rounded-md bg-primary px-4 text-sm font-semibold text-on-primary disabled:opacity-70"
+          className="min-h-11 rounded-lg btn-primary px-4 text-sm font-semibold disabled:opacity-70"
         >
           {busy ? 'Creating…' : 'Create link'}
         </button>

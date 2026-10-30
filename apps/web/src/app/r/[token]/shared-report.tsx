@@ -76,7 +76,7 @@ export function SharedReport({ token }: { token: string }) {
             setState({ kind: 'loading' });
             setAttempt((a) => a + 1);
           }}
-          className="mt-6 min-h-11 rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 min-h-11 rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Try again
         </button>

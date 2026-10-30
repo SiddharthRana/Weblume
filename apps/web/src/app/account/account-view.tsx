@@ -23,7 +23,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section aria-labelledby={id} className="rounded-lg border border-border bg-surface p-6">
+    <section aria-labelledby={id} className="card p-6">
       <h2 id={id} className="text-lg font-bold text-fg">
         {title}
       </h2>
@@ -164,7 +164,7 @@ export function AccountView() {
           {nameMsg && <FormAlert tone={nameMsg.tone}>{nameMsg.text}</FormAlert>}
           <button
             type="submit"
-            className="min-h-11 rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted"
+            className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold"
           >
             Save name
           </button>
@@ -198,7 +198,7 @@ export function AccountView() {
           type="button"
           onClick={exportData}
           disabled={exporting}
-          className="min-h-11 rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted disabled:opacity-70"
+          className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
         >
           {exporting ? 'Preparing…' : 'Download my data'}
         </button>
@@ -213,7 +213,7 @@ export function AccountView() {
         <button
           type="button"
           onClick={() => signOut('/')}
-          className="min-h-11 rounded-md border border-border bg-surface px-5 text-sm font-semibold text-fg hover:bg-surface-muted"
+          className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold"
         >
           Log out
         </button>

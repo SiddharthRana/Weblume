@@ -67,7 +67,7 @@ export default function FeaturesPage() {
       </PageHeader>
       <Container className="grid gap-6 py-16 sm:grid-cols-2 lg:grid-cols-3">
         {groups.map((g) => (
-          <section key={g.title} className="rounded-lg border border-border bg-surface p-6">
+          <section key={g.title} className="card card-hover p-6">
             <h2 className="text-lg font-semibold text-fg">{g.title}</h2>
             <ul className="mt-3 space-y-2 text-sm text-fg-muted">
               {g.items.map((i) => (

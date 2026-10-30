@@ -31,7 +31,7 @@ export function ResetForm() {
         </FormAlert>
         <Link
           href="/forgot-password"
-          className="mt-6 inline-flex min-h-11 items-center rounded-md bg-primary px-5 text-sm font-semibold text-on-primary"
+          className="mt-6 inline-flex min-h-11 items-center rounded-lg btn-primary px-5 text-sm font-semibold"
         >
           Request a new link
         </Link>

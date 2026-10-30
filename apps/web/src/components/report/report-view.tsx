@@ -36,16 +36,16 @@ function LighthouseCard({
     ['Best practices', s.bestPractices],
   ] as const;
   return (
-    <div className="rounded-lg border border-border bg-surface p-6">
+    <div className="card p-6">
       <h3 className="font-semibold capitalize text-fg">{strategy}</h3>
       <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {entries.map(([label, score]) =>
+        {entries.map(([label, score], i) =>
           score === null ? (
             <p key={label} className="text-center text-sm text-fg-muted">
               {label}: not measured
             </p>
           ) : (
-            <ScoreRing key={label} score={score} label={label} />
+            <ScoreRing key={label} score={score} label={label} index={i} />
           ),
         )}
       </div>
@@ -196,13 +196,13 @@ export function ReportView({ report }: { report: ScanReportDto }) {
       </section>
 
       <section aria-labelledby="coverage" className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-surface p-6">
+        <div className="card p-6">
           <h2 id="coverage" className="text-lg font-bold text-fg">
             Audit coverage
           </h2>
           <SourcesList sources={report.sources} />
         </div>
-        <div className="rounded-lg border border-border bg-surface p-6">
+        <div className="card p-6">
           <h2 className="text-lg font-bold text-fg">Limitations</h2>
           <p className="mt-3 text-sm text-fg-muted">{REPORT_LIMITATIONS}</p>
         </div>
