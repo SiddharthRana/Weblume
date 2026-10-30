@@ -5,23 +5,315 @@
   "navNewScan": "New scan",
   "navHistory": "History",
   "navAccount": "Account",
-  "dashboardTitle": "Dashboard",
+  "loading": "Loading…",
+  "tryAgain": "Try again",
+  "offlineBanner": "You’re offline — showing saved data.",
+  "errorNetwork": "We couldn’t reach Weblume. Check your connection and try again.",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorSessionExpired": "Your session has expired. Please log in again.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "invalidEmail": "Enter a valid email address.",
+  "enterEmailPassword": "Enter your email and password.",
+  "passwordHint": "At least 10 characters, with upper- and lowercase letters and a number.",
+  "passwordNeeds": "Your password needs {items}.",
+  "@passwordNeeds": {
+    "placeholders": {
+      "items": {
+        "type": "String"
+      }
+    }
+  },
+  "loginTitle": "Log in",
+  "loginButton": "Log in",
+  "loggingIn": "Logging in…",
+  "forgotPasswordLink": "Forgot your password?",
+  "noAccountPrompt": "New to Weblume?",
+  "createAccountLink": "Create a free account",
+  "signupTitle": "Create your free account",
+  "signupButton": "Create account",
+  "creatingAccount": "Creating account…",
+  "termsNotice": "By creating an account you agree to the Terms of service and Privacy policy.",
+  "haveAccountPrompt": "Already have an account?",
+  "checkEmailTitle": "Check your email",
+  "checkEmailBody": "If {email} can be used for a new account, we’ve sent a confirmation link to it. Open the link on this device to finish.",
+  "@checkEmailBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "resetTitle": "Reset your password",
+  "resetButton": "Send reset link",
+  "sending": "Sending…",
+  "resetSent": "If an account exists for that email, we’ve sent a link to reset the password. Open it on this device.",
+  "backToLogin": "Back to log in",
+  "newPasswordTitle": "Choose a new password",
+  "newPasswordLabel": "New password",
+  "confirmPasswordLabel": "Confirm new password",
+  "savePassword": "Save new password",
+  "saving": "Saving…",
+  "passwordsDontMatch": "The passwords don’t match.",
+  "passwordUpdated": "Your password has been updated.",
+  "authNotConfiguredTitle": "Accounts aren’t configured",
+  "authNotConfiguredBody": "This build of the app has no account server configured, so you can’t sign in. You can still run a free scan on the Weblume website.",
+  "dashboardWelcome": "Welcome back",
+  "dashboardGreeting": "Hi, {name}",
+  "@dashboardGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "planName": "{plan} plan",
+  "@planName": {
+    "placeholders": {
+      "plan": {
+        "type": "String"
+      }
+    }
+  },
+  "retentionDays": "Reports are kept for {days} days.",
+  "@retentionDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "retentionYear": "Reports are kept for 12 months.",
+  "usageTitle": "Scans this period",
+  "usageCount": "{used} of {limit} used",
+  "@usageCount": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "usageRemaining": "{remaining} left · resets {date}",
+  "@usageRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "usageNoneLeft": "No scans left · resets {date}",
+  "@usageNoneLeft": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "usageSemantics": "{used} of {limit} scans used",
+  "@usageSemantics": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "recentScans": "Recent scans",
+  "viewAll": "View all",
   "dashboardEmptyTitle": "No scans yet",
-  "dashboardEmptyBody": "Your recent scans and remaining usage will appear here.",
+  "dashboardEmptyBody": "Run your first scan to see a report here.",
   "newScanTitle": "New scan",
-  "newScanUnavailableTitle": "Scanning is coming soon",
-  "newScanUnavailableBody": "You’ll be able to audit any public web page from here in an upcoming version.",
-  "historyTitle": "Scan history",
-  "historyEmptyTitle": "Nothing here yet",
-  "historyEmptyBody": "Scans you run will be listed here so you can revisit and compare them.",
+  "urlLabel": "Website address",
+  "urlHint": "example.com",
+  "scanButton": "Scan website",
+  "starting": "Starting…",
+  "scanDisclaimer": "We check one public page. Only scan websites you own or are allowed to evaluate.",
+  "urlErrorEmpty": "Enter a website address, for example example.com.",
+  "urlErrorTooLong": "That address is too long (maximum 2048 characters).",
+  "urlErrorInvalid": "That doesn’t look like a valid web address.",
+  "urlErrorScheme": "Only http:// and https:// addresses can be scanned.",
+  "urlErrorCredentials": "Addresses containing a username or password can’t be scanned.",
+  "urlErrorPort": "Only standard web ports (80 and 443) can be scanned.",
+  "urlErrorHost": "Enter a public website address with a domain name, like example.com.",
+  "scanningLabel": "Scanning",
+  "scanQueued": "Waiting to start…",
+  "scanRunning": "Scan in progress…",
+  "scanProgressBody": "This usually takes under a minute. We’re checking the page, up to 50 links, robots.txt and the sitemap, and measuring performance with Google PageSpeed Insights.",
+  "scanTakingLong": "This is taking longer than expected.",
+  "checkAgain": "Check again",
+  "scanFailedTitle": "Scan failed",
+  "scanFailedNoData": "No report was produced, and no scores or findings have been estimated.",
+  "retryScan": "Retry scan",
+  "retrying": "Retrying…",
+  "reportNotAvailableTitle": "Report not available",
+  "reportNotAvailableBody": "This report doesn’t exist or has expired.",
+  "reportTitle": "Website report",
+  "scannedAt": "Scanned {date}",
+  "@scannedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "partialNotice": "Some checks couldn’t be completed — see audit coverage. Everything shown is real data from the checks that did run.",
+  "lighthouseTitle": "Lighthouse scores",
+  "lighthouseSource": "Measured by Google PageSpeed Insights",
+  "lighthouseUnavailable": "Lighthouse scores aren’t available for this scan, so none are shown. See audit coverage for the reason.",
+  "strategyMobile": "Mobile",
+  "strategyDesktop": "Desktop",
+  "scorePerformance": "Performance",
+  "scoreAccessibility": "Accessibility",
+  "scoreSeo": "SEO",
+  "scoreBestPractices": "Best practices",
+  "scoreNotMeasured": "not measured",
+  "scoreGood": "Good",
+  "scoreNeedsWork": "Needs work",
+  "scorePoor": "Poor",
+  "scoreSemantics": "{label}: {score} out of 100, {band}",
+  "@scoreSemantics": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      },
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "findingsSummary": "Findings summary",
+  "passedChecks": "{count} of Weblume’s own checks passed.",
+  "@passedChecks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "topPriorities": "Start here: top priorities",
+  "allFindings": "All findings",
+  "filterAll": "All ({count})",
+  "@filterAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterCategory": "{category} ({count})",
+  "@filterCategory": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryPerformance": "Performance",
+  "categorySeo": "SEO",
+  "categoryAccessibility": "Accessibility",
+  "categoryTechnical": "Technical health",
+  "noFindingsInCategory": "No findings in this category.",
+  "coverageTitle": "Audit coverage",
+  "limitationsTitle": "Limitations",
+  "limitationsBody": "This is an automated audit of a single page. “Measured” results are Lighthouse lab measurements, which vary between runs. “Detected” findings come from automated checks, which find only some accessibility barriers, can’t guarantee search rankings, and don’t test security.",
+  "sourcePageFetch": "Page fetch & HTML checks",
+  "sourcePsiMobile": "Lighthouse via PageSpeed Insights (mobile)",
+  "sourcePsiDesktop": "Lighthouse via PageSpeed Insights (desktop)",
+  "sourceLinkCheck": "Link check (up to 50 links)",
+  "sourceRobotsSitemap": "robots.txt & sitemap",
+  "sourceOk": "Completed",
+  "sourceNotConfigured": "Not available — not configured on this server",
+  "sourceDisabled": "Turned off",
+  "sourceTimeout": "Didn’t finish in time",
+  "sourceQuota": "Daily quota reached — try again later",
+  "sourceUpstream": "The service returned an error",
+  "sourceUnavailable": "Unavailable",
+  "whatItMeans": "What this means",
+  "whyItMatters": "Why it matters",
+  "howToFix": "How to fix it",
+  "whatWeFound": "What we found",
+  "learnMore": "Learn more",
+  "kindMeasured": "Measured",
+  "kindDetected": "Detected automatically",
+  "kindRecommendation": "Recommendation",
+  "historyTitle": "Your scans",
+  "historySearch": "Search by address",
+  "search": "Search",
+  "loadMore": "Load more",
+  "noMatches": "No scans match that search",
+  "historyEmptyTitle": "No saved scans yet",
+  "historyEmptyBody": "Scans you run will be listed here so you can revisit them.",
+  "statusQueued": "Queued",
+  "statusRunning": "Running",
+  "statusCompleted": "Completed",
+  "statusPartial": "Partial",
+  "statusFailed": "Failed",
   "accountTitle": "Account",
-  "accountSignedOutTitle": "Sign-in is coming soon",
-  "accountSignedOutBody": "Accounts and subscriptions will be available in an upcoming version.",
+  "profileSection": "Profile",
+  "signedInAs": "Signed in as {email}",
+  "@signedInAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "displayNameLabel": "Display name",
+  "saveName": "Save name",
+  "saved": "Saved.",
+  "planSection": "Plan and usage",
+  "planDetails": "{scans} scans per period",
+  "@planDetails": {
+    "placeholders": {
+      "scans": {
+        "type": "int"
+      }
+    }
+  },
+  "paidComingSoon": "Paid plans with more scans, PDF reports and share links are coming soon.",
+  "dataSection": "Your data",
+  "exportOnWeb": "You can download a copy of all your data from Account settings on the Weblume website.",
+  "openWebsite": "Open account settings on the website",
+  "logOut": "Log out",
+  "legalSection": "Legal",
   "accountPrivacy": "Privacy policy",
   "accountTerms": "Terms of service",
-  "accountDeleteInfo": "How to delete your account",
+  "deleteSection": "Delete account",
+  "deleteWarning": "This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first — deleting your account doesn’t cancel it.",
+  "deleteConfirmLabel": "Type \"DELETE\" to confirm",
+  "deleteButton": "Permanently delete my account",
+  "deleting": "Deleting…",
+  "deleteTypeError": "Type DELETE (in capitals) to confirm.",
+  "accountDeleted": "Your account and its data have been deleted.",
+  "accountDeletionPending": "Your account data has been deleted. Your sign-in record will be removed shortly.",
   "accountVersion": "Version {version}",
   "@accountVersion": {
-    "placeholders": { "version": { "type": "String" } }
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "criticalHighCount": "{count} critical/high",
+  "@criticalHighCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

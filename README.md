@@ -2,7 +2,7 @@
 
 Website audits your clients can actually read. Users enter a URL; Weblume checks performance, SEO, accessibility and technical health, and explains each finding in plain language with concrete fixes.
 
-> **Status:** Phase 3 (accounts, entitlements, quotas) of 6 complete. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works today and what's next, and [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md) for the full product spec.
+> **Status:** Phase 4 (Android app) of 6 complete. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works today and what's next, and [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md) for the full product spec.
 
 ## Repository layout
 
@@ -43,7 +43,7 @@ flowchart LR
 
 - **Auth:** Supabase Auth issues JWTs; the API verifies them (asymmetric keys via JWKS, or the legacy HS256 secret) on every request. Every route requires auth unless marked `@Public()`.
 - **Authorisation:** done in the API. Row Level Security is enabled on every table as a second layer.
-- **API contract:** NestJS generates `apps/api/openapi.json`; the TypeScript client (and, from Phase 4, the Dart client) are generated from it. CI fails if generated files are stale.
+- **API contract:** NestJS generates `apps/api/openapi.json`; the TypeScript client (openapi-typescript) and the Dart client (`scripts/generate-dart-client.mjs`) are generated from it. CI fails if generated files are stale.
 - **Scanning:** `POST /v1/scans` validates and normalises the URL, enforces quota, then queues a job. The worker fetches the page through the guarded client (DNS pinning, public-IP allow-list, per-hop redirect checks, size/time limits), runs the HTML/robots/sitemap/link checks, and calls PSI (mobile + desktop) in parallel. Reports never contain invented data. See [`docs/scoring.md`](docs/scoring.md).
 - **Guests:** one scan per day per IP (stored as an HMAC, never the raw IP), protected by Cloudflare Turnstile. Guests get a one-time scan token to view their report.
 - **Design tokens:** one `packages/design-tokens/tokens.json` drives web CSS variables and Flutter theme constants. Colour pairs are tested for WCAG AA contrast.
@@ -132,11 +132,12 @@ Never commit real values. Each app has a `.env.example`.
 
 ### `apps/mobile` (`--dart-define`)
 
-| Key            | Description                                                                |
-| -------------- | -------------------------------------------------------------------------- |
-| `API_BASE_URL` | Weblume API base URL (default `http://10.0.2.2:4000`, the emulator's host) |
-| `SITE_URL`     | Website URL for legal links                                                |
-| `APP_VERSION`  | Shown in Account                                                           |
+| Key                                         | Description                                                                                 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `API_BASE_URL`                              | Weblume API base URL (default `http://10.0.2.2:4000`, the emulator's host)                  |
+| `SITE_URL`                                  | Website URL for legal links                                                                 |
+| `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` | Supabase project for sign-in (also add `weblume://auth-callback` to Supabase redirect URLs) |
+| `APP_VERSION`                               | Shown in Account                                                                            |
 
 ## Commands
 
@@ -146,7 +147,7 @@ Never commit real values. Each app has a `.env.example`.
 | `pnpm build`                                 | Build packages, then apps                                                                   |
 | `pnpm format` / `pnpm format:check`          | Prettier                                                                                    |
 | `pnpm tokens`                                | Regenerate design-token outputs (CSS, TS, Dart)                                             |
-| `pnpm openapi`                               | Regenerate `openapi.json` and the TypeScript client                                         |
+| `pnpm openapi`                               | Regenerate `openapi.json`, the TypeScript client and the Dart client                        |
 | `pnpm openapi:check`                         | Fail if any generated file is stale (used in CI)                                            |
 | `pnpm db:test-setup`                         | (Re)create the `weblume_test` database used by the API's database e2e tests                 |
 | `pnpm db:verify`                             | Apply migrations to a throwaway DB on plain Postgres and run RLS tests (`DB_ADMIN_URL` env) |
@@ -168,7 +169,7 @@ Never commit real values. Each app has a `.env.example`.
 - **Web auth flows:** Playwright with Supabase Auth and the API mocked: sign-up, log-in errors, dashboard, guarded routes and safe `?next=` redirects, guest-scan claiming, password reset via PKCE code, callback errors, account settings (name, export, deletion), log-out.
 - **Web scan flow:** Playwright with the API mocked at the network layer: validation, progress polling, report rendering and filters, partial/failed/not-found/offline states, retry, history.
 - **Web:** Playwright on desktop and mobile viewports: every page renders, SEO metadata is present, there are no axe WCAG 2.2 AA violations (light and dark), navigation and the mobile menu work, there's no horizontal scroll, and security headers are set.
-- **Mobile:** widget tests for navigation, responsive layout, dark theme and Flutter accessibility guidelines (tap targets, labels, contrast).
+- **Mobile:** 69 tests: generated client and offline repository, URL validation against the shared cases, router redirects, auth flows, scan flow through to finding detail, failure/partial/offline states, history, account deletion, and accessibility guidelines (tap targets, labels, contrast) in light and dark.
 
 ## Supabase Auth setup (manual)
 

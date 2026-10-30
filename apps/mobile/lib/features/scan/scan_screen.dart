@@ -1,0 +1,229 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../api/generated/api.g.dart';
+import '../../api/generated/models.g.dart';
+import '../../data/providers.dart';
+import '../../l10n/app_localizations.dart';
+import '../../shared/labels.dart';
+import '../../shared/widgets/empty_state.dart';
+import '../../shared/widgets/status_views.dart';
+import '../../theme/tokens.g.dart';
+import 'report_view.dart';
+
+/// Polls a scan while it runs, then shows the report (or an honest failure).
+class ScanScreen extends ConsumerStatefulWidget {
+  const ScanScreen({super.key, required this.scanId});
+
+  final String scanId;
+
+  static const pollInterval = Duration(seconds: 2);
+  static const giveUpAfter = Duration(minutes: 5);
+
+  @override
+  ConsumerState<ScanScreen> createState() => _ScanScreenState();
+}
+
+class _ScanScreenState extends ConsumerState<ScanScreen> {
+  ScanReport? _report;
+  bool _fromCache = false;
+  Object? _error;
+  bool _notFound = false;
+  bool _tooSlow = false;
+  bool _retrying = false;
+  String? _retryError;
+  Timer? _timer;
+  late DateTime _startedAt;
+
+  @override
+  void initState() {
+    super.initState();
+    _startedAt = DateTime.now();
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  bool get _running =>
+      _report != null && (_report!.status == ScanSummaryStatus.queued || _report!.status == ScanSummaryStatus.running);
+
+  Future<void> _load() async {
+    _timer?.cancel();
+    try {
+      final loaded = await ref.read(repositoryProvider).report(widget.scanId);
+      if (!mounted) return;
+      setState(() {
+        _report = loaded.data;
+        _fromCache = loaded.fromCache;
+        _error = null;
+      });
+      if (_running) {
+        if (DateTime.now().difference(_startedAt) > ScanScreen.giveUpAfter) {
+          setState(() => _tooSlow = true);
+        } else {
+          _timer = Timer(ScanScreen.pollInterval, _load);
+        }
+      } else {
+        // A finished scan changes usage and the recent list.
+        ref.invalidate(recentScansProvider);
+        ref.invalidate(accountProvider);
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        if (e.statusCode == 404 || e.statusCode == 400) {
+          _notFound = true;
+        } else {
+          _error = e;
+        }
+      });
+    }
+  }
+
+  Future<void> _retry() async {
+    setState(() {
+      _retrying = true;
+      _retryError = null;
+    });
+    try {
+      final res = await ref.read(repositoryProvider).retryScan(widget.scanId);
+      if (mounted) context.pushReplacement('/scan/${res.scan.id}');
+    } catch (e) {
+      if (mounted) setState(() => _retryError = AppLocalizations.of(context).apiError(e));
+    } finally {
+      if (mounted) setState(() => _retrying = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final Widget body;
+    if (_notFound) {
+      body = EmptyState(icon: Icons.search_off, title: l10n.reportNotAvailableTitle, body: l10n.reportNotAvailableBody);
+    } else if (_error != null && _report == null) {
+      body = ErrorView(
+        message: l10n.apiError(_error!),
+        onRetry: () {
+          setState(() => _error = null);
+          _load();
+        },
+      );
+    } else if (_report == null) {
+      body = const LoadingView();
+    } else if (_running) {
+      final r = _report!;
+      body = ListView(
+        padding: const EdgeInsets.all(WlSpace.s4),
+        children: [
+          Text(
+            l10n.scanningLabel.toUpperCase(),
+            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary),
+          ),
+          Text(r.normalizedUrl, style: theme.textTheme.headlineSmall),
+          const SizedBox(height: WlSpace.s6),
+          Semantics(
+            liveRegion: true,
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(WlSpace.s4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2.5)),
+                        const SizedBox(width: WlSpace.s3),
+                        Expanded(
+                          child: Text(
+                            r.status == ScanSummaryStatus.queued ? l10n.scanQueued : l10n.scanRunning,
+                            style: theme.textTheme.titleMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: WlSpace.s3),
+                    Text(l10n.scanProgressBody),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (_tooSlow) ...[
+            const SizedBox(height: WlSpace.s4),
+            Text(l10n.scanTakingLong),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _tooSlow = false;
+                  _startedAt = DateTime.now();
+                });
+                _load();
+              },
+              child: Text(l10n.checkAgain),
+            ),
+          ],
+        ],
+      );
+    } else if (_report!.status == ScanSummaryStatus.failed) {
+      final r = _report!;
+      body = ListView(
+        padding: const EdgeInsets.all(WlSpace.s4),
+        children: [
+          Text(
+            l10n.scanFailedTitle.toUpperCase(),
+            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.error),
+          ),
+          Text(r.normalizedUrl, style: theme.textTheme.headlineSmall),
+          const SizedBox(height: WlSpace.s4),
+          Semantics(
+            liveRegion: true,
+            child: Card(
+              color: theme.colorScheme.errorContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(WlSpace.s4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      r.failureMessage ?? l10n.errorGeneric,
+                      style: TextStyle(color: theme.colorScheme.onErrorContainer, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: WlSpace.s2),
+                    Text(l10n.scanFailedNoData, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: WlSpace.s4),
+          if (!_fromCache)
+            FilledButton(onPressed: _retrying ? null : _retry, child: Text(_retrying ? l10n.retrying : l10n.retryScan)),
+          if (_retryError != null) ...[const SizedBox(height: WlSpace.s3), FormMessage(text: _retryError!)],
+        ],
+      );
+    } else {
+      body = ReportView(report: _report!);
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.reportTitle)),
+      body: Column(
+        children: [
+          if (_fromCache) const OfflineBanner(),
+          Expanded(
+            child: RefreshIndicator(onRefresh: _load, child: body),
+          ),
+        ],
+      ),
+    );
+  }
+}

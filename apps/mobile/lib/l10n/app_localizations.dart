@@ -61,8 +61,7 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,8 +69,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -83,13 +81,12 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
@@ -124,11 +121,311 @@ abstract class AppLocalizations {
   /// **'Account'**
   String get navAccount;
 
-  /// No description provided for @dashboardTitle.
+  /// No description provided for @loading.
   ///
   /// In en, this message translates to:
-  /// **'Dashboard'**
-  String get dashboardTitle;
+  /// **'Loading…'**
+  String get loading;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @offlineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re offline — showing saved data.'**
+  String get offlineBanner;
+
+  /// No description provided for @errorNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t reach Weblume. Check your connection and try again.'**
+  String get errorNetwork;
+
+  /// No description provided for @errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorGeneric;
+
+  /// No description provided for @errorSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please log in again.'**
+  String get errorSessionExpired;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get invalidEmail;
+
+  /// No description provided for @enterEmailPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email and password.'**
+  String get enterEmailPassword;
+
+  /// No description provided for @passwordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 10 characters, with upper- and lowercase letters and a number.'**
+  String get passwordHint;
+
+  /// No description provided for @passwordNeeds.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password needs {items}.'**
+  String passwordNeeds(String items);
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginTitle;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get loginButton;
+
+  /// No description provided for @loggingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Logging in…'**
+  String get loggingIn;
+
+  /// No description provided for @forgotPasswordLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot your password?'**
+  String get forgotPasswordLink;
+
+  /// No description provided for @noAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'New to Weblume?'**
+  String get noAccountPrompt;
+
+  /// No description provided for @createAccountLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a free account'**
+  String get createAccountLink;
+
+  /// No description provided for @signupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your free account'**
+  String get signupTitle;
+
+  /// No description provided for @signupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signupButton;
+
+  /// No description provided for @creatingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account…'**
+  String get creatingAccount;
+
+  /// No description provided for @termsNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'By creating an account you agree to the Terms of service and Privacy policy.'**
+  String get termsNotice;
+
+  /// No description provided for @haveAccountPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account?'**
+  String get haveAccountPrompt;
+
+  /// No description provided for @checkEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email'**
+  String get checkEmailTitle;
+
+  /// No description provided for @checkEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If {email} can be used for a new account, we’ve sent a confirmation link to it. Open the link on this device to finish.'**
+  String checkEmailBody(String email);
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get resetTitle;
+
+  /// No description provided for @resetButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get resetButton;
+
+  /// No description provided for @sending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending…'**
+  String get sending;
+
+  /// No description provided for @resetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for that email, we’ve sent a link to reset the password. Open it on this device.'**
+  String get resetSent;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to log in'**
+  String get backToLogin;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a new password'**
+  String get newPasswordTitle;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPasswordLabel;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @savePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Save new password'**
+  String get savePassword;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get saving;
+
+  /// No description provided for @passwordsDontMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'The passwords don’t match.'**
+  String get passwordsDontMatch;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password has been updated.'**
+  String get passwordUpdated;
+
+  /// No description provided for @authNotConfiguredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts aren’t configured'**
+  String get authNotConfiguredTitle;
+
+  /// No description provided for @authNotConfiguredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This build of the app has no account server configured, so you can’t sign in. You can still run a free scan on the Weblume website.'**
+  String get authNotConfiguredBody;
+
+  /// No description provided for @dashboardWelcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get dashboardWelcome;
+
+  /// No description provided for @dashboardGreeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi, {name}'**
+  String dashboardGreeting(String name);
+
+  /// No description provided for @planName.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} plan'**
+  String planName(String plan);
+
+  /// No description provided for @retentionDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports are kept for {days} days.'**
+  String retentionDays(int days);
+
+  /// No description provided for @retentionYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports are kept for 12 months.'**
+  String get retentionYear;
+
+  /// No description provided for @usageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scans this period'**
+  String get usageTitle;
+
+  /// No description provided for @usageCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} used'**
+  String usageCount(int used, int limit);
+
+  /// No description provided for @usageRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} left · resets {date}'**
+  String usageRemaining(int remaining, String date);
+
+  /// No description provided for @usageNoneLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'No scans left · resets {date}'**
+  String usageNoneLeft(String date);
+
+  /// No description provided for @usageSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} scans used'**
+  String usageSemantics(int used, int limit);
+
+  /// No description provided for @recentScans.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent scans'**
+  String get recentScans;
+
+  /// No description provided for @viewAll.
+  ///
+  /// In en, this message translates to:
+  /// **'View all'**
+  String get viewAll;
 
   /// No description provided for @dashboardEmptyTitle.
   ///
@@ -139,7 +436,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Your recent scans and remaining usage will appear here.'**
+  /// **'Run your first scan to see a report here.'**
   String get dashboardEmptyBody;
 
   /// No description provided for @newScanTitle.
@@ -148,35 +445,527 @@ abstract class AppLocalizations {
   /// **'New scan'**
   String get newScanTitle;
 
-  /// No description provided for @newScanUnavailableTitle.
+  /// No description provided for @urlLabel.
   ///
   /// In en, this message translates to:
-  /// **'Scanning is coming soon'**
-  String get newScanUnavailableTitle;
+  /// **'Website address'**
+  String get urlLabel;
 
-  /// No description provided for @newScanUnavailableBody.
+  /// No description provided for @urlHint.
   ///
   /// In en, this message translates to:
-  /// **'You’ll be able to audit any public web page from here in an upcoming version.'**
-  String get newScanUnavailableBody;
+  /// **'example.com'**
+  String get urlHint;
+
+  /// No description provided for @scanButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan website'**
+  String get scanButton;
+
+  /// No description provided for @starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get starting;
+
+  /// No description provided for @scanDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'We check one public page. Only scan websites you own or are allowed to evaluate.'**
+  String get scanDisclaimer;
+
+  /// No description provided for @urlErrorEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a website address, for example example.com.'**
+  String get urlErrorEmpty;
+
+  /// No description provided for @urlErrorTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'That address is too long (maximum 2048 characters).'**
+  String get urlErrorTooLong;
+
+  /// No description provided for @urlErrorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That doesn’t look like a valid web address.'**
+  String get urlErrorInvalid;
+
+  /// No description provided for @urlErrorScheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Only http:// and https:// addresses can be scanned.'**
+  String get urlErrorScheme;
+
+  /// No description provided for @urlErrorCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Addresses containing a username or password can’t be scanned.'**
+  String get urlErrorCredentials;
+
+  /// No description provided for @urlErrorPort.
+  ///
+  /// In en, this message translates to:
+  /// **'Only standard web ports (80 and 443) can be scanned.'**
+  String get urlErrorPort;
+
+  /// No description provided for @urlErrorHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a public website address with a domain name, like example.com.'**
+  String get urlErrorHost;
+
+  /// No description provided for @scanningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning'**
+  String get scanningLabel;
+
+  /// No description provided for @scanQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to start…'**
+  String get scanQueued;
+
+  /// No description provided for @scanRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan in progress…'**
+  String get scanRunning;
+
+  /// No description provided for @scanProgressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This usually takes under a minute. We’re checking the page, up to 50 links, robots.txt and the sitemap, and measuring performance with Google PageSpeed Insights.'**
+  String get scanProgressBody;
+
+  /// No description provided for @scanTakingLong.
+  ///
+  /// In en, this message translates to:
+  /// **'This is taking longer than expected.'**
+  String get scanTakingLong;
+
+  /// No description provided for @checkAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check again'**
+  String get checkAgain;
+
+  /// No description provided for @scanFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan failed'**
+  String get scanFailedTitle;
+
+  /// No description provided for @scanFailedNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No report was produced, and no scores or findings have been estimated.'**
+  String get scanFailedNoData;
+
+  /// No description provided for @retryScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry scan'**
+  String get retryScan;
+
+  /// No description provided for @retrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrying…'**
+  String get retrying;
+
+  /// No description provided for @reportNotAvailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report not available'**
+  String get reportNotAvailableTitle;
+
+  /// No description provided for @reportNotAvailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This report doesn’t exist or has expired.'**
+  String get reportNotAvailableBody;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Website report'**
+  String get reportTitle;
+
+  /// No description provided for @scannedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned {date}'**
+  String scannedAt(String date);
+
+  /// No description provided for @partialNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Some checks couldn’t be completed — see audit coverage. Everything shown is real data from the checks that did run.'**
+  String get partialNotice;
+
+  /// No description provided for @lighthouseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighthouse scores'**
+  String get lighthouseTitle;
+
+  /// No description provided for @lighthouseSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured by Google PageSpeed Insights'**
+  String get lighthouseSource;
+
+  /// No description provided for @lighthouseUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighthouse scores aren’t available for this scan, so none are shown. See audit coverage for the reason.'**
+  String get lighthouseUnavailable;
+
+  /// No description provided for @strategyMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile'**
+  String get strategyMobile;
+
+  /// No description provided for @strategyDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop'**
+  String get strategyDesktop;
+
+  /// No description provided for @scorePerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get scorePerformance;
+
+  /// No description provided for @scoreAccessibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get scoreAccessibility;
+
+  /// No description provided for @scoreSeo.
+  ///
+  /// In en, this message translates to:
+  /// **'SEO'**
+  String get scoreSeo;
+
+  /// No description provided for @scoreBestPractices.
+  ///
+  /// In en, this message translates to:
+  /// **'Best practices'**
+  String get scoreBestPractices;
+
+  /// No description provided for @scoreNotMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'not measured'**
+  String get scoreNotMeasured;
+
+  /// No description provided for @scoreGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get scoreGood;
+
+  /// No description provided for @scoreNeedsWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs work'**
+  String get scoreNeedsWork;
+
+  /// No description provided for @scorePoor.
+  ///
+  /// In en, this message translates to:
+  /// **'Poor'**
+  String get scorePoor;
+
+  /// No description provided for @scoreSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: {score} out of 100, {band}'**
+  String scoreSemantics(String label, int score, String band);
+
+  /// No description provided for @findingsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Findings summary'**
+  String get findingsSummary;
+
+  /// No description provided for @passedChecks.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of Weblume’s own checks passed.'**
+  String passedChecks(int count);
+
+  /// No description provided for @topPriorities.
+  ///
+  /// In en, this message translates to:
+  /// **'Start here: top priorities'**
+  String get topPriorities;
+
+  /// No description provided for @allFindings.
+  ///
+  /// In en, this message translates to:
+  /// **'All findings'**
+  String get allFindings;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All ({count})'**
+  String filterAll(int count);
+
+  /// No description provided for @filterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} ({count})'**
+  String filterCategory(String category, int count);
+
+  /// No description provided for @categoryPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Performance'**
+  String get categoryPerformance;
+
+  /// No description provided for @categorySeo.
+  ///
+  /// In en, this message translates to:
+  /// **'SEO'**
+  String get categorySeo;
+
+  /// No description provided for @categoryAccessibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get categoryAccessibility;
+
+  /// No description provided for @categoryTechnical.
+  ///
+  /// In en, this message translates to:
+  /// **'Technical health'**
+  String get categoryTechnical;
+
+  /// No description provided for @noFindingsInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No findings in this category.'**
+  String get noFindingsInCategory;
+
+  /// No description provided for @coverageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Audit coverage'**
+  String get coverageTitle;
+
+  /// No description provided for @limitationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Limitations'**
+  String get limitationsTitle;
+
+  /// No description provided for @limitationsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an automated audit of a single page. “Measured” results are Lighthouse lab measurements, which vary between runs. “Detected” findings come from automated checks, which find only some accessibility barriers, can’t guarantee search rankings, and don’t test security.'**
+  String get limitationsBody;
+
+  /// No description provided for @sourcePageFetch.
+  ///
+  /// In en, this message translates to:
+  /// **'Page fetch & HTML checks'**
+  String get sourcePageFetch;
+
+  /// No description provided for @sourcePsiMobile.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighthouse via PageSpeed Insights (mobile)'**
+  String get sourcePsiMobile;
+
+  /// No description provided for @sourcePsiDesktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighthouse via PageSpeed Insights (desktop)'**
+  String get sourcePsiDesktop;
+
+  /// No description provided for @sourceLinkCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Link check (up to 50 links)'**
+  String get sourceLinkCheck;
+
+  /// No description provided for @sourceRobotsSitemap.
+  ///
+  /// In en, this message translates to:
+  /// **'robots.txt & sitemap'**
+  String get sourceRobotsSitemap;
+
+  /// No description provided for @sourceOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get sourceOk;
+
+  /// No description provided for @sourceNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available — not configured on this server'**
+  String get sourceNotConfigured;
+
+  /// No description provided for @sourceDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Turned off'**
+  String get sourceDisabled;
+
+  /// No description provided for @sourceTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn’t finish in time'**
+  String get sourceTimeout;
+
+  /// No description provided for @sourceQuota.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily quota reached — try again later'**
+  String get sourceQuota;
+
+  /// No description provided for @sourceUpstream.
+  ///
+  /// In en, this message translates to:
+  /// **'The service returned an error'**
+  String get sourceUpstream;
+
+  /// No description provided for @sourceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get sourceUnavailable;
+
+  /// No description provided for @whatItMeans.
+  ///
+  /// In en, this message translates to:
+  /// **'What this means'**
+  String get whatItMeans;
+
+  /// No description provided for @whyItMatters.
+  ///
+  /// In en, this message translates to:
+  /// **'Why it matters'**
+  String get whyItMatters;
+
+  /// No description provided for @howToFix.
+  ///
+  /// In en, this message translates to:
+  /// **'How to fix it'**
+  String get howToFix;
+
+  /// No description provided for @whatWeFound.
+  ///
+  /// In en, this message translates to:
+  /// **'What we found'**
+  String get whatWeFound;
+
+  /// No description provided for @learnMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn more'**
+  String get learnMore;
+
+  /// No description provided for @kindMeasured.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured'**
+  String get kindMeasured;
+
+  /// No description provided for @kindDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected automatically'**
+  String get kindDetected;
+
+  /// No description provided for @kindRecommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommendation'**
+  String get kindRecommendation;
 
   /// No description provided for @historyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Scan history'**
+  /// **'Your scans'**
   String get historyTitle;
+
+  /// No description provided for @historySearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by address'**
+  String get historySearch;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
+
+  /// No description provided for @loadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get loadMore;
+
+  /// No description provided for @noMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'No scans match that search'**
+  String get noMatches;
 
   /// No description provided for @historyEmptyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Nothing here yet'**
+  /// **'No saved scans yet'**
   String get historyEmptyTitle;
 
   /// No description provided for @historyEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Scans you run will be listed here so you can revisit and compare them.'**
+  /// **'Scans you run will be listed here so you can revisit them.'**
   String get historyEmptyBody;
+
+  /// No description provided for @statusQueued.
+  ///
+  /// In en, this message translates to:
+  /// **'Queued'**
+  String get statusQueued;
+
+  /// No description provided for @statusRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get statusRunning;
+
+  /// No description provided for @statusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statusCompleted;
+
+  /// No description provided for @statusPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get statusPartial;
+
+  /// No description provided for @statusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get statusFailed;
 
   /// No description provided for @accountTitle.
   ///
@@ -184,17 +973,83 @@ abstract class AppLocalizations {
   /// **'Account'**
   String get accountTitle;
 
-  /// No description provided for @accountSignedOutTitle.
+  /// No description provided for @profileSection.
   ///
   /// In en, this message translates to:
-  /// **'Sign-in is coming soon'**
-  String get accountSignedOutTitle;
+  /// **'Profile'**
+  String get profileSection;
 
-  /// No description provided for @accountSignedOutBody.
+  /// No description provided for @signedInAs.
   ///
   /// In en, this message translates to:
-  /// **'Accounts and subscriptions will be available in an upcoming version.'**
-  String get accountSignedOutBody;
+  /// **'Signed in as {email}'**
+  String signedInAs(String email);
+
+  /// No description provided for @displayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get displayNameLabel;
+
+  /// No description provided for @saveName.
+  ///
+  /// In en, this message translates to:
+  /// **'Save name'**
+  String get saveName;
+
+  /// No description provided for @saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get saved;
+
+  /// No description provided for @planSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan and usage'**
+  String get planSection;
+
+  /// No description provided for @planDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'{scans} scans per period'**
+  String planDetails(int scans);
+
+  /// No description provided for @paidComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid plans with more scans, PDF reports and share links are coming soon.'**
+  String get paidComingSoon;
+
+  /// No description provided for @dataSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get dataSection;
+
+  /// No description provided for @exportOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'You can download a copy of all your data from Account settings on the Weblume website.'**
+  String get exportOnWeb;
+
+  /// No description provided for @openWebsite.
+  ///
+  /// In en, this message translates to:
+  /// **'Open account settings on the website'**
+  String get openWebsite;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get logOut;
+
+  /// No description provided for @legalSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legalSection;
 
   /// No description provided for @accountPrivacy.
   ///
@@ -208,21 +1063,68 @@ abstract class AppLocalizations {
   /// **'Terms of service'**
   String get accountTerms;
 
-  /// No description provided for @accountDeleteInfo.
+  /// No description provided for @deleteSection.
   ///
   /// In en, this message translates to:
-  /// **'How to delete your account'**
-  String get accountDeleteInfo;
+  /// **'Delete account'**
+  String get deleteSection;
+
+  /// No description provided for @deleteWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first — deleting your account doesn’t cancel it.'**
+  String get deleteWarning;
+
+  /// No description provided for @deleteConfirmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type \"DELETE\" to confirm'**
+  String get deleteConfirmLabel;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete my account'**
+  String get deleteButton;
+
+  /// No description provided for @deleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting…'**
+  String get deleting;
+
+  /// No description provided for @deleteTypeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE (in capitals) to confirm.'**
+  String get deleteTypeError;
+
+  /// No description provided for @accountDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account and its data have been deleted.'**
+  String get accountDeleted;
+
+  /// No description provided for @accountDeletionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account data has been deleted. Your sign-in record will be removed shortly.'**
+  String get accountDeletionPending;
 
   /// No description provided for @accountVersion.
   ///
   /// In en, this message translates to:
   /// **'Version {version}'**
   String accountVersion(String version);
+
+  /// No description provided for @criticalHighCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} critical/high'**
+  String criticalHighCount(int count);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -231,8 +1133,7 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

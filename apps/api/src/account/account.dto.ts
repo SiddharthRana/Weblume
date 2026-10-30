@@ -27,8 +27,8 @@ class AccountPlanDto {
 }
 
 class UsageDto {
-  @ApiProperty() used: number;
-  @ApiProperty() limit: number;
+  @ApiProperty({ type: 'integer' }) used: number;
+  @ApiProperty({ type: 'integer' }) limit: number;
   @ApiProperty({ format: 'date-time' }) periodStart: string;
   @ApiProperty({ format: 'date-time' }) resetsAt: string;
 }

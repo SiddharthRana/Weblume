@@ -1,9 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, type ApiPropertyOptions } from '@nestjs/swagger';
-
-// @nestjs/swagger doesn't export its nested schema type, so derive it.
-type SchemaObjectMetadata = NonNullable<
-  Extract<ApiPropertyOptions, { properties?: unknown }>['properties']
->[string];
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsISO8601, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 import {
@@ -46,7 +41,7 @@ export class ListScansQuery {
   @MaxLength(200)
   q?: string;
 
-  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 50 })
+  @ApiPropertyOptional({ type: 'integer', default: 20, minimum: 1, maximum: 50 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -63,10 +58,14 @@ export class ListScansQuery {
   before?: string;
 }
 
-const severityCountsSchema: ApiPropertyOptions = {
-  type: 'object',
-  properties: Object.fromEntries(SEVERITIES.map((s) => [s, { type: 'integer' }])),
-};
+// Named schemas (rather than inline objects) so generated clients get one reusable type each.
+export class SeverityCountsDto {
+  @ApiPropertyOptional({ type: 'integer' }) critical?: number;
+  @ApiPropertyOptional({ type: 'integer' }) high?: number;
+  @ApiPropertyOptional({ type: 'integer' }) medium?: number;
+  @ApiPropertyOptional({ type: 'integer' }) low?: number;
+  @ApiPropertyOptional({ type: 'integer' }) info?: number;
+}
 
 export class ScanSummaryDtoClass {
   @ApiProperty({ format: 'uuid' }) id: string;
@@ -77,7 +76,7 @@ export class ScanSummaryDtoClass {
   @ApiProperty({ enum: Object.keys(SCAN_FAILURE_CODES), nullable: true })
   failureCode: ScanFailureCode | null;
   @ApiProperty({ type: String, nullable: true }) failureMessage: string | null;
-  @ApiProperty(severityCountsSchema) severityCounts: SeverityCounts;
+  @ApiProperty({ type: SeverityCountsDto }) severityCounts: SeverityCounts;
   @ApiProperty({ format: 'date-time' }) createdAt: string;
   @ApiProperty({ type: String, format: 'date-time', nullable: true }) completedAt: string | null;
 }
@@ -100,68 +99,65 @@ export class FindingDtoClass {
   @ApiProperty({ type: 'object', additionalProperties: true }) details: Record<string, unknown>;
 }
 
-const sourceStatusSchema: SchemaObjectMetadata = {
-  type: 'object',
-  required: ['status'],
-  properties: {
-    status: { type: 'string', enum: ['ok', 'skipped', 'failed'] },
-    reason: {
-      type: 'string',
-      enum: [
-        'not_configured',
-        'disabled',
-        'not_applicable',
-        'timeout',
-        'quota_exceeded',
-        'upstream_error',
-        'blocked',
-        'invalid_response',
-      ],
-    },
-  },
-};
+export class SourceStatusDto {
+  @ApiProperty({ enum: ['ok', 'skipped', 'failed'] }) status: 'ok' | 'skipped' | 'failed';
+  @ApiPropertyOptional({
+    enum: [
+      'not_configured',
+      'disabled',
+      'not_applicable',
+      'timeout',
+      'quota_exceeded',
+      'upstream_error',
+      'blocked',
+      'invalid_response',
+    ],
+  })
+  reason?: string;
+}
 
-const lighthouseResultSchema: SchemaObjectMetadata = {
-  type: 'object',
-  properties: {
-    scores: {
-      type: 'object',
-      properties: Object.fromEntries(
-        ['performance', 'accessibility', 'seo', 'bestPractices'].map((k) => [
-          k,
-          { type: 'integer', nullable: true },
-        ]),
-      ),
-    },
-    metrics: {
-      type: 'object',
-      properties: Object.fromEntries(
-        [
-          'firstContentfulPaint',
-          'largestContentfulPaint',
-          'totalBlockingTime',
-          'cumulativeLayoutShift',
-          'speedIndex',
-        ].map((k) => [k, { type: 'number' }]),
-      ),
-    },
-    lighthouseVersion: { type: 'string' },
-    fetchedAt: { type: 'string', format: 'date-time' },
-  },
-};
+export class ScanSourcesDto {
+  @ApiPropertyOptional({ type: SourceStatusDto }) page_fetch?: SourceStatusDto;
+  @ApiPropertyOptional({ type: SourceStatusDto }) psi_mobile?: SourceStatusDto;
+  @ApiPropertyOptional({ type: SourceStatusDto }) psi_desktop?: SourceStatusDto;
+  @ApiPropertyOptional({ type: SourceStatusDto }) link_check?: SourceStatusDto;
+  @ApiPropertyOptional({ type: SourceStatusDto }) robots_sitemap?: SourceStatusDto;
+}
+
+export class LighthouseScoresDto {
+  @ApiProperty({ type: 'integer', nullable: true }) performance: number | null;
+  @ApiProperty({ type: 'integer', nullable: true }) accessibility: number | null;
+  @ApiProperty({ type: 'integer', nullable: true }) seo: number | null;
+  @ApiProperty({ type: 'integer', nullable: true }) bestPractices: number | null;
+}
+
+export class LighthouseMetricsDto {
+  @ApiPropertyOptional({ description: 'Milliseconds' }) firstContentfulPaint?: number;
+  @ApiPropertyOptional({ description: 'Milliseconds' }) largestContentfulPaint?: number;
+  @ApiPropertyOptional({ description: 'Milliseconds' }) totalBlockingTime?: number;
+  @ApiPropertyOptional({ description: 'Unitless' }) cumulativeLayoutShift?: number;
+  @ApiPropertyOptional({ description: 'Milliseconds' }) speedIndex?: number;
+}
+
+export class LighthouseResultDto {
+  @ApiProperty({ type: LighthouseScoresDto }) scores: LighthouseScoresDto;
+  @ApiProperty({ type: LighthouseMetricsDto }) metrics: LighthouseMetricsDto;
+  @ApiPropertyOptional() lighthouseVersion?: string;
+  @ApiProperty({ format: 'date-time' }) fetchedAt: string;
+}
+
+export class LighthouseByStrategyDto {
+  @ApiPropertyOptional({ type: LighthouseResultDto }) mobile?: LighthouseResultDto;
+  @ApiPropertyOptional({ type: LighthouseResultDto }) desktop?: LighthouseResultDto;
+}
 
 export class ScanReportDtoClass extends ScanSummaryDtoClass {
-  @ApiProperty({
-    type: 'object',
-    properties: Object.fromEntries(REPORT_SOURCES.map((s) => [s, sourceStatusSchema])),
-    description: 'Outcome of each data source',
-  })
+  @ApiProperty({ type: ScanSourcesDto, description: 'Outcome of each data source' })
   sources: SourcesMap;
 
   @ApiProperty({
-    type: 'object',
+    type: LighthouseByStrategyDto,
     nullable: true,
-    properties: { mobile: lighthouseResultSchema, desktop: lighthouseResultSchema },
     description: 'Lighthouse results from Google PageSpeed Insights; null when unavailable',
   })
   lighthouse: LighthouseByStrategy | null;
@@ -190,7 +186,7 @@ export class ScanListResponse {
 }
 
 export class ApiErrorDto {
-  @ApiProperty() statusCode: number;
+  @ApiProperty({ type: 'integer' }) statusCode: number;
   @ApiProperty({ example: 'quota_exceeded' }) code: string;
   @ApiProperty() message: string;
 }

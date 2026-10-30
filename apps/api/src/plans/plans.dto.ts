@@ -2,9 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PLAN_IDS, type PlanId, type QuotaPeriod } from '@weblume/shared';
 
 export class EntitlementsDto {
-  @ApiProperty() scansPerPeriod: number;
+  @ApiProperty({ type: 'integer' }) scansPerPeriod: number;
   @ApiProperty({ enum: ['day', 'calendar_month', 'billing_period'] }) quotaPeriod: QuotaPeriod;
-  @ApiProperty() retentionDays: number;
+  @ApiProperty({ type: 'integer' }) retentionDays: number;
   @ApiProperty() lighthouseData: boolean;
   @ApiProperty() comparison: boolean;
   @ApiProperty() pdfExport: boolean;
@@ -13,8 +13,10 @@ export class EntitlementsDto {
 
 export class DisplayPriceDto {
   @ApiProperty({ enum: ['INR', 'USD'] }) currency: 'INR' | 'USD';
-  @ApiProperty({ description: 'Monthly price in minor units (paise/cents)' }) monthly: number;
-  @ApiProperty({ description: 'Annual price in minor units (paise/cents)' }) annual: number;
+  @ApiProperty({ type: 'integer', description: 'Monthly price in minor units (paise/cents)' })
+  monthly: number;
+  @ApiProperty({ type: 'integer', description: 'Annual price in minor units (paise/cents)' })
+  annual: number;
 }
 
 export class PlanDto {

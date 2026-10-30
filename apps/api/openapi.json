@@ -155,7 +155,7 @@
               "minimum": 1,
               "maximum": 50,
               "default": 20,
-              "type": "number"
+              "type": "integer"
             }
           },
           {
@@ -619,7 +619,7 @@
         "type": "object",
         "properties": {
           "scansPerPeriod": {
-            "type": "number"
+            "type": "integer"
           },
           "quotaPeriod": {
             "type": "string",
@@ -630,7 +630,7 @@
             ]
           },
           "retentionDays": {
-            "type": "number"
+            "type": "integer"
           },
           "lighthouseData": {
             "type": "boolean"
@@ -666,11 +666,11 @@
             ]
           },
           "monthly": {
-            "type": "number",
+            "type": "integer",
             "description": "Monthly price in minor units (paise/cents)"
           },
           "annual": {
-            "type": "number",
+            "type": "integer",
             "description": "Annual price in minor units (paise/cents)"
           }
         },
@@ -732,6 +732,26 @@
           "url"
         ]
       },
+      "SeverityCountsDto": {
+        "type": "object",
+        "properties": {
+          "critical": {
+            "type": "integer"
+          },
+          "high": {
+            "type": "integer"
+          },
+          "medium": {
+            "type": "integer"
+          },
+          "low": {
+            "type": "integer"
+          },
+          "info": {
+            "type": "integer"
+          }
+        }
+      },
       "ScanSummaryDtoClass": {
         "type": "object",
         "properties": {
@@ -782,24 +802,7 @@
             "nullable": true
           },
           "severityCounts": {
-            "type": "object",
-            "properties": {
-              "critical": {
-                "type": "integer"
-              },
-              "high": {
-                "type": "integer"
-              },
-              "medium": {
-                "type": "integer"
-              },
-              "low": {
-                "type": "integer"
-              },
-              "info": {
-                "type": "integer"
-              }
-            }
+            "$ref": "#/components/schemas/SeverityCountsDto"
           },
           "createdAt": {
             "type": "string",
@@ -848,7 +851,7 @@
         "type": "object",
         "properties": {
           "statusCode": {
-            "type": "number"
+            "type": "integer"
           },
           "code": {
             "type": "string",
@@ -883,6 +886,141 @@
           "items",
           "nextCursor"
         ]
+      },
+      "SourceStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "skipped",
+              "failed"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "not_configured",
+              "disabled",
+              "not_applicable",
+              "timeout",
+              "quota_exceeded",
+              "upstream_error",
+              "blocked",
+              "invalid_response"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ScanSourcesDto": {
+        "type": "object",
+        "properties": {
+          "page_fetch": {
+            "$ref": "#/components/schemas/SourceStatusDto"
+          },
+          "psi_mobile": {
+            "$ref": "#/components/schemas/SourceStatusDto"
+          },
+          "psi_desktop": {
+            "$ref": "#/components/schemas/SourceStatusDto"
+          },
+          "link_check": {
+            "$ref": "#/components/schemas/SourceStatusDto"
+          },
+          "robots_sitemap": {
+            "$ref": "#/components/schemas/SourceStatusDto"
+          }
+        }
+      },
+      "LighthouseScoresDto": {
+        "type": "object",
+        "properties": {
+          "performance": {
+            "type": "integer",
+            "nullable": true
+          },
+          "accessibility": {
+            "type": "integer",
+            "nullable": true
+          },
+          "seo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "bestPractices": {
+            "type": "integer",
+            "nullable": true
+          }
+        },
+        "required": [
+          "performance",
+          "accessibility",
+          "seo",
+          "bestPractices"
+        ]
+      },
+      "LighthouseMetricsDto": {
+        "type": "object",
+        "properties": {
+          "firstContentfulPaint": {
+            "type": "number",
+            "description": "Milliseconds"
+          },
+          "largestContentfulPaint": {
+            "type": "number",
+            "description": "Milliseconds"
+          },
+          "totalBlockingTime": {
+            "type": "number",
+            "description": "Milliseconds"
+          },
+          "cumulativeLayoutShift": {
+            "type": "number",
+            "description": "Unitless"
+          },
+          "speedIndex": {
+            "type": "number",
+            "description": "Milliseconds"
+          }
+        }
+      },
+      "LighthouseResultDto": {
+        "type": "object",
+        "properties": {
+          "scores": {
+            "$ref": "#/components/schemas/LighthouseScoresDto"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/LighthouseMetricsDto"
+          },
+          "lighthouseVersion": {
+            "type": "string"
+          },
+          "fetchedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "scores",
+          "metrics",
+          "fetchedAt"
+        ]
+      },
+      "LighthouseByStrategyDto": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "$ref": "#/components/schemas/LighthouseResultDto"
+          },
+          "desktop": {
+            "$ref": "#/components/schemas/LighthouseResultDto"
+          }
+        }
       },
       "FindingDtoClass": {
         "type": "object",
@@ -1019,24 +1157,7 @@
             "nullable": true
           },
           "severityCounts": {
-            "type": "object",
-            "properties": {
-              "critical": {
-                "type": "integer"
-              },
-              "high": {
-                "type": "integer"
-              },
-              "medium": {
-                "type": "integer"
-              },
-              "low": {
-                "type": "integer"
-              },
-              "info": {
-                "type": "integer"
-              }
-            }
+            "$ref": "#/components/schemas/SeverityCountsDto"
           },
           "createdAt": {
             "type": "string",
@@ -1048,268 +1169,22 @@
             "nullable": true
           },
           "sources": {
-            "type": "object",
-            "properties": {
-              "page_fetch": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "ok",
-                      "skipped",
-                      "failed"
-                    ]
-                  },
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "not_configured",
-                      "disabled",
-                      "not_applicable",
-                      "timeout",
-                      "quota_exceeded",
-                      "upstream_error",
-                      "blocked",
-                      "invalid_response"
-                    ]
-                  }
-                }
-              },
-              "psi_mobile": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "ok",
-                      "skipped",
-                      "failed"
-                    ]
-                  },
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "not_configured",
-                      "disabled",
-                      "not_applicable",
-                      "timeout",
-                      "quota_exceeded",
-                      "upstream_error",
-                      "blocked",
-                      "invalid_response"
-                    ]
-                  }
-                }
-              },
-              "psi_desktop": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "ok",
-                      "skipped",
-                      "failed"
-                    ]
-                  },
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "not_configured",
-                      "disabled",
-                      "not_applicable",
-                      "timeout",
-                      "quota_exceeded",
-                      "upstream_error",
-                      "blocked",
-                      "invalid_response"
-                    ]
-                  }
-                }
-              },
-              "link_check": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "ok",
-                      "skipped",
-                      "failed"
-                    ]
-                  },
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "not_configured",
-                      "disabled",
-                      "not_applicable",
-                      "timeout",
-                      "quota_exceeded",
-                      "upstream_error",
-                      "blocked",
-                      "invalid_response"
-                    ]
-                  }
-                }
-              },
-              "robots_sitemap": {
-                "type": "object",
-                "required": [
-                  "status"
-                ],
-                "properties": {
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "ok",
-                      "skipped",
-                      "failed"
-                    ]
-                  },
-                  "reason": {
-                    "type": "string",
-                    "enum": [
-                      "not_configured",
-                      "disabled",
-                      "not_applicable",
-                      "timeout",
-                      "quota_exceeded",
-                      "upstream_error",
-                      "blocked",
-                      "invalid_response"
-                    ]
-                  }
-                }
+            "description": "Outcome of each data source",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScanSourcesDto"
               }
-            },
-            "description": "Outcome of each data source"
+            ]
           },
           "lighthouse": {
-            "type": "object",
             "nullable": true,
-            "properties": {
-              "mobile": {
-                "type": "object",
-                "properties": {
-                  "scores": {
-                    "type": "object",
-                    "properties": {
-                      "performance": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "accessibility": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "seo": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "bestPractices": {
-                        "type": "integer",
-                        "nullable": true
-                      }
-                    }
-                  },
-                  "metrics": {
-                    "type": "object",
-                    "properties": {
-                      "firstContentfulPaint": {
-                        "type": "number"
-                      },
-                      "largestContentfulPaint": {
-                        "type": "number"
-                      },
-                      "totalBlockingTime": {
-                        "type": "number"
-                      },
-                      "cumulativeLayoutShift": {
-                        "type": "number"
-                      },
-                      "speedIndex": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "lighthouseVersion": {
-                    "type": "string"
-                  },
-                  "fetchedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                }
-              },
-              "desktop": {
-                "type": "object",
-                "properties": {
-                  "scores": {
-                    "type": "object",
-                    "properties": {
-                      "performance": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "accessibility": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "seo": {
-                        "type": "integer",
-                        "nullable": true
-                      },
-                      "bestPractices": {
-                        "type": "integer",
-                        "nullable": true
-                      }
-                    }
-                  },
-                  "metrics": {
-                    "type": "object",
-                    "properties": {
-                      "firstContentfulPaint": {
-                        "type": "number"
-                      },
-                      "largestContentfulPaint": {
-                        "type": "number"
-                      },
-                      "totalBlockingTime": {
-                        "type": "number"
-                      },
-                      "cumulativeLayoutShift": {
-                        "type": "number"
-                      },
-                      "speedIndex": {
-                        "type": "number"
-                      }
-                    }
-                  },
-                  "lighthouseVersion": {
-                    "type": "string"
-                  },
-                  "fetchedAt": {
-                    "type": "string",
-                    "format": "date-time"
-                  }
-                }
+            "description": "Lighthouse results from Google PageSpeed Insights; null when unavailable",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LighthouseByStrategyDto"
               }
-            },
-            "description": "Lighthouse results from Google PageSpeed Insights; null when unavailable"
+            ]
           },
           "passedChecks": {
             "type": "array",
@@ -1382,10 +1257,10 @@
         "type": "object",
         "properties": {
           "used": {
-            "type": "number"
+            "type": "integer"
           },
           "limit": {
-            "type": "number"
+            "type": "integer"
           },
           "periodStart": {
             "type": "string",

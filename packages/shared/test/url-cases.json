@@ -1,0 +1,38 @@
+{
+  "$comment": "Shared URL validation cases. Run by packages/shared (TypeScript, exact normalisation) and apps/mobile (Dart: same ok/error outcome; normalisation is best-effort there because the API is authoritative).",
+  "valid": [
+    ["example.com", "https://example.com/"],
+    ["  Example.COM/Path?q=1#frag ", "https://example.com/Path?q=1"],
+    ["http://example.com", "http://example.com/"],
+    ["https://example.com:443/", "https://example.com/"],
+    ["http://example.com:80/a", "http://example.com/a"],
+    ["https://example.com./", "https://example.com/"],
+    ["https://münchen.de/", "https://xn--mnchen-3ya.de/"],
+    ["https://sub.example.co.in/a/b/", "https://sub.example.co.in/a/b/"],
+    ["http://2130706433/", "http://127.0.0.1/"],
+    ["http://0x7f.1/", "http://127.0.0.1/"],
+    ["http://0177.0.0.1/", "http://127.0.0.1/"],
+    ["http://127.1/", "http://127.0.0.1/"]
+  ],
+  "invalid": [
+    ["", "empty"],
+    ["   ", "empty"],
+    ["javascript:alert(1)", "unsupported_scheme"],
+    ["file:///etc/passwd", "unsupported_scheme"],
+    ["ftp://example.com/", "unsupported_scheme"],
+    ["gopher://example.com/", "unsupported_scheme"],
+    ["data:text/html,hi", "unsupported_scheme"],
+    ["http://user:pass@example.com/", "credentials_not_allowed"],
+    ["https://user@example.com/", "credentials_not_allowed"],
+    ["https://example.com:8080/", "port_not_allowed"],
+    ["https://example.com:22/", "port_not_allowed"],
+    ["localhost", "invalid_host"],
+    ["http://localhost:80/", "invalid_host"],
+    ["https://app.localhost/", "invalid_host"],
+    ["https://printer.local/", "invalid_host"],
+    ["https://db.internal/", "invalid_host"],
+    ["https://intranet/", "invalid_host"],
+    ["https://exa mple.com/", "invalid"],
+    ["https://example.com/<script>", "invalid"]
+  ]
+}

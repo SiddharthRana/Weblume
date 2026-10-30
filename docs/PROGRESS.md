@@ -1,7 +1,36 @@
 # Progress
 
-**Current phase:** 3 — Accounts, entitlements, quotas ✅ complete, awaiting go-ahead for Phase 4.
+**Current phase:** 4 — Mobile app ✅ complete (Android release build pending CI confirmation — see below), awaiting go-ahead for Phase 5.
 **Last updated:** 2026-10-30
+
+## Phase 4 — Mobile app
+
+### Done (verified in this environment)
+
+| Area            | What                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Verified by                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Dart API client | Generated from `openapi.json` by `scripts/generate-dart-client.mjs`: 25 immutable models, 14 enums (unknown values → `unknown`), 12 operations, `ApiException` with API error codes; part of `pnpm openapi` and the CI staleness check                                                                                                                                                                                                                          | 8 tests (decoding, round trip, unknown enums, params, bodies, errors, network failures); `flutter analyze` clean |
+| API spec        | Inline objects replaced by named schemas (`SeverityCounts`, `ScanSources`, `SourceStatus`, `LighthouseResult`…); counts typed as integers                                                                                                                                                                                                                                                                                                                       | TS and Dart clients regenerated; all API/web tests still pass                                                    |
+| Auth            | supabase_flutter (PKCE) behind an `AuthRepository` interface; log in, sign up (email confirmation), forgot password, password-recovery deep link → new password, log out; "not configured" screen; `weblume://auth-callback` deep link (Android intent filter, iOS URL scheme)                                                                                                                                                                                  | 10 tests (redirect rules, flows with a fake auth repository)                                                     |
+| Screens         | Dashboard (greeting, plan, usage meter, recent scans, pull to refresh), new scan (shared URL rules), scan progress (2 s polling, 5 min give-up), report (Lighthouse rings, summary, top priorities, category filter, coverage, limitations), finding detail (what/why/how, evidence, learn more), history (search, load more), account (name, plan/usage, data export via web, legal, log out, delete with typed confirmation); responsive rail on wide screens | 13 flow tests                                                                                                    |
+| Offline         | Account, first page of history and up to 20 finished reports cached (shared_preferences); offline banner; writes disabled offline; cache cleared on log-out/deletion                                                                                                                                                                                                                                                                                            | Repository tests + offline widget test                                                                           |
+| URL rules       | Dart validator runs the same JSON test cases as the TypeScript one (`packages/shared/test/url-cases.json`)                                                                                                                                                                                                                                                                                                                                                      | 33 Dart + 33 TS cases                                                                                            |
+| Accessibility   | Flutter guidelines (tap targets, labelled targets, text contrast) on dashboard and report, light and dark                                                                                                                                                                                                                                                                                                                                                       | Widget tests                                                                                                     |
+
+69 Flutter tests in total; `dart format` and `flutter analyze` clean.
+
+### Bugs found and fixed by the new tests
+
+- The **New scan** tab route (`/scan/new`) was captured by the report route `/scan/:id`, so the tab opened a "report" for scan id `new`. Moved to `/new`, with a regression test.
+
+### Not verified / limitations
+
+- **The Android release APK is built only on CI** (the Android SDK download is blocked in this environment). This needs confirming on this commit's CI run; supabase_flutter adds native plugins.
+- **Not run on a device or emulator**, and there's no visual check of the Flutter screens (widget tests render text as placeholder blocks). First manual test: install the CI-built APK, sign in, run a scan, open a finding, go offline, delete the account.
+- Supabase auth in the app (sessions, the deep link opening the app, password recovery) is only tested against a fake auth repository.
+- Data export on mobile links to the website's Account settings rather than saving a file in the app.
+- Mobile requires sign-in to scan (no guest scans). Turnstile is web-only.
+- Google sign-in isn't offered in the app yet (email/password only).
 
 ## Phase 3 — Accounts, entitlements, quotas
 
@@ -57,9 +86,9 @@
 
 Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundation (auth guard, health, OpenAPI), generated TS client, marketing site, Flutter skeleton, CI. Details in git history (`876fa66`).
 
-## Next: Phase 4 — Mobile app
+## Next: Phase 5 — Payments
 
-Generated Dart API client, Supabase Auth in Flutter, dashboard, new scan, progress, report, finding detail, history, account (incl. deletion), offline cache, widget tests, Android release build.
+PaymentProvider interface, Merchant-of-Record web checkout (sandbox; provider eligibility checked first), Google Play Billing in the app with server-side purchase verification and acknowledgement, Real-time Developer Notifications, webhook signature verification and idempotency, subscription state machine, cross-channel entitlements, billing-disabled mode.
 
 ## Manual setup you'll need
 

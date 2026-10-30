@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "tokens": "pnpm --filter @weblume/design-tokens run build",
-    "openapi": "pnpm --filter @weblume/api run openapi && pnpm --filter @weblume/api-client-ts run generate",
+    "openapi": "pnpm --filter @weblume/api run openapi && pnpm --filter @weblume/api-client-ts run generate && node scripts/generate-dart-client.mjs",
     "openapi:check": "node scripts/check-generated.mjs",
     "db:verify": "bash scripts/db-verify.sh",
     "db:test-setup": "bash scripts/db-test-setup.sh",

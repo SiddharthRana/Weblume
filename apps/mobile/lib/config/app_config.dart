@@ -8,5 +8,13 @@ abstract final class AppConfig {
 
   static const siteUrl = String.fromEnvironment('SITE_URL', defaultValue: 'http://10.0.2.2:3000');
 
+  static const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  static const supabasePublishableKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+
+  /// Deep link Supabase redirects to after email confirmation / password reset.
+  static const authRedirectUrl = 'weblume://auth-callback';
+
   static const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0');
+
+  static bool get authConfigured => supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

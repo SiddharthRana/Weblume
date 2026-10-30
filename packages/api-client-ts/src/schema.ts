@@ -189,6 +189,13 @@ export interface components {
             /** @description Cloudflare Turnstile token. Required for guest (signed-out) scans. */
             turnstileToken?: string;
         };
+        SeverityCountsDto: {
+            critical?: number;
+            high?: number;
+            medium?: number;
+            low?: number;
+            info?: number;
+        };
         ScanSummaryDtoClass: {
             /** Format: uuid */
             id: string;
@@ -200,13 +207,7 @@ export interface components {
             /** @enum {string|null} */
             failureCode: "invalid_url" | "blocked_destination" | "dns_failure" | "connection_failed" | "tls_error" | "timeout" | "too_many_redirects" | "response_too_large" | "not_html" | "http_error" | "internal_error" | "scan_timeout" | null;
             failureMessage: string | null;
-            severityCounts: {
-                critical?: number;
-                high?: number;
-                medium?: number;
-                low?: number;
-                info?: number;
-            };
+            severityCounts: components["schemas"]["SeverityCountsDto"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -229,6 +230,48 @@ export interface components {
             items: components["schemas"]["ScanSummaryDtoClass"][];
             /** Format: date-time */
             nextCursor: string | null;
+        };
+        SourceStatusDto: {
+            /** @enum {string} */
+            status: "ok" | "skipped" | "failed";
+            /** @enum {string} */
+            reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
+        };
+        ScanSourcesDto: {
+            page_fetch?: components["schemas"]["SourceStatusDto"];
+            psi_mobile?: components["schemas"]["SourceStatusDto"];
+            psi_desktop?: components["schemas"]["SourceStatusDto"];
+            link_check?: components["schemas"]["SourceStatusDto"];
+            robots_sitemap?: components["schemas"]["SourceStatusDto"];
+        };
+        LighthouseScoresDto: {
+            performance: number | null;
+            accessibility: number | null;
+            seo: number | null;
+            bestPractices: number | null;
+        };
+        LighthouseMetricsDto: {
+            /** @description Milliseconds */
+            firstContentfulPaint?: number;
+            /** @description Milliseconds */
+            largestContentfulPaint?: number;
+            /** @description Milliseconds */
+            totalBlockingTime?: number;
+            /** @description Unitless */
+            cumulativeLayoutShift?: number;
+            /** @description Milliseconds */
+            speedIndex?: number;
+        };
+        LighthouseResultDto: {
+            scores: components["schemas"]["LighthouseScoresDto"];
+            metrics: components["schemas"]["LighthouseMetricsDto"];
+            lighthouseVersion?: string;
+            /** Format: date-time */
+            fetchedAt: string;
+        };
+        LighthouseByStrategyDto: {
+            mobile?: components["schemas"]["LighthouseResultDto"];
+            desktop?: components["schemas"]["LighthouseResultDto"];
         };
         FindingDtoClass: {
             /** Format: uuid */
@@ -263,89 +306,15 @@ export interface components {
             /** @enum {string|null} */
             failureCode: "invalid_url" | "blocked_destination" | "dns_failure" | "connection_failed" | "tls_error" | "timeout" | "too_many_redirects" | "response_too_large" | "not_html" | "http_error" | "internal_error" | "scan_timeout" | null;
             failureMessage: string | null;
-            severityCounts: {
-                critical?: number;
-                high?: number;
-                medium?: number;
-                low?: number;
-                info?: number;
-            };
+            severityCounts: components["schemas"]["SeverityCountsDto"];
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
             completedAt: string | null;
             /** @description Outcome of each data source */
-            sources: {
-                page_fetch?: {
-                    /** @enum {string} */
-                    status: "ok" | "skipped" | "failed";
-                    /** @enum {string} */
-                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
-                };
-                psi_mobile?: {
-                    /** @enum {string} */
-                    status: "ok" | "skipped" | "failed";
-                    /** @enum {string} */
-                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
-                };
-                psi_desktop?: {
-                    /** @enum {string} */
-                    status: "ok" | "skipped" | "failed";
-                    /** @enum {string} */
-                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
-                };
-                link_check?: {
-                    /** @enum {string} */
-                    status: "ok" | "skipped" | "failed";
-                    /** @enum {string} */
-                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
-                };
-                robots_sitemap?: {
-                    /** @enum {string} */
-                    status: "ok" | "skipped" | "failed";
-                    /** @enum {string} */
-                    reason?: "not_configured" | "disabled" | "not_applicable" | "timeout" | "quota_exceeded" | "upstream_error" | "blocked" | "invalid_response";
-                };
-            };
+            sources: components["schemas"]["ScanSourcesDto"];
             /** @description Lighthouse results from Google PageSpeed Insights; null when unavailable */
-            lighthouse: {
-                mobile?: {
-                    scores?: {
-                        performance?: number | null;
-                        accessibility?: number | null;
-                        seo?: number | null;
-                        bestPractices?: number | null;
-                    };
-                    metrics?: {
-                        firstContentfulPaint?: number;
-                        largestContentfulPaint?: number;
-                        totalBlockingTime?: number;
-                        cumulativeLayoutShift?: number;
-                        speedIndex?: number;
-                    };
-                    lighthouseVersion?: string;
-                    /** Format: date-time */
-                    fetchedAt?: string;
-                };
-                desktop?: {
-                    scores?: {
-                        performance?: number | null;
-                        accessibility?: number | null;
-                        seo?: number | null;
-                        bestPractices?: number | null;
-                    };
-                    metrics?: {
-                        firstContentfulPaint?: number;
-                        largestContentfulPaint?: number;
-                        totalBlockingTime?: number;
-                        cumulativeLayoutShift?: number;
-                        speedIndex?: number;
-                    };
-                    lighthouseVersion?: string;
-                    /** Format: date-time */
-                    fetchedAt?: string;
-                };
-            } | null;
+            lighthouse: components["schemas"]["LighthouseByStrategyDto"] | null;
             passedChecks: string[];
             findings: components["schemas"]["FindingDtoClass"][];
             /** Format: date-time */

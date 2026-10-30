@@ -6,6 +6,8 @@ const GENERATED = [
   'apps/api/openapi.json',
   'packages/api-client-ts/src/schema.ts',
   'apps/mobile/lib/theme/tokens.g.dart',
+  'apps/mobile/lib/api/generated/models.g.dart',
+  'apps/mobile/lib/api/generated/api.g.dart',
 ];
 
 const run = (cmd) => execSync(cmd, { stdio: 'inherit' });
@@ -13,6 +15,7 @@ run('pnpm --filter @weblume/shared run build');
 run('pnpm --filter @weblume/design-tokens run build');
 run('pnpm --filter @weblume/api run openapi');
 run('pnpm --filter @weblume/api-client-ts run generate');
+run('node scripts/generate-dart-client.mjs');
 
 try {
   execSync(`git diff --exit-code -- ${GENERATED.join(' ')}`, { stdio: 'inherit' });

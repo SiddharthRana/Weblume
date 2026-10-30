@@ -2,6 +2,24 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-10-30 — Phase 4 mobile app
+
+**Dart client from our own small generator** (`scripts/generate-dart-client.mjs`, ~300 lines, no dependencies) instead of openapi-generator (Java, large output) or swagger_parser (build_runner/freezed). Our API surface is small. The output is plain immutable classes with `fromJson`/`toJson` plus a dio client, committed and checked in CI. Unknown enum values decode to `unknown`, so older app versions survive API additions.
+
+**Named schemas over inline objects in the OpenAPI spec**, so both generated clients get one reusable type per shape. Swagger's `allOf: [$ref]` wrapper (added for descriptions/nullability) is treated as a plain reference.
+
+**Repository + interface boundaries** (`AuthRepository`, `WeblumeRepository`) overridden with fakes in widget tests. Riverpod 3's automatic retry is disabled app-wide (`ProviderScope(retry: …)`), because screens offer explicit "Try again" actions and auto-retry would hide failures and slow tests.
+
+**Mobile requires an account to scan.** Turnstile has no native SDK, and embedding it in a WebView isn't worth it for v1. The dashboard and usage only make sense signed in anyway.
+
+**Offline = read-only cache in shared_preferences** (account, first history page, up to 20 finished reports). In-progress scans are never cached. Writes (scan, retry, rename, delete) are disabled offline rather than queued. The cache is cleared on log-out and deletion. _Rejected:_ SQLite/drift (more weight than the data needs).
+
+**Password recovery via deep link:** Supabase emits `passwordRecovery` after the PKCE code exchange; the router forces the new-password screen until it's saved.
+
+**Data export on mobile links to the website**, which already produces the JSON download. In-app file saving can come later.
+
+**URL rules shared by test cases, not code:** `packages/shared/test/url-cases.json` is run by both the TypeScript and Dart validators. The Dart side accepts IDN and numeric hosts and leaves exact normalisation to the API.
+
 ## 2026-10-30 — Phase 3 accounts
 
 **Entitlements only from server-side subscription rows**, through one `EntitlementService`. Clients can't influence plans (`PATCH /v1/me` rejects unknown fields). While the `billing` flag is off, everyone is on Free regardless of rows, matching the spec's "billing disabled" mode. The best plan among subscriptions that grant access wins.
