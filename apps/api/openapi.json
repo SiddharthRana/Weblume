@@ -584,6 +584,195 @@
           "account"
         ]
       }
+    },
+    "/v1/billing/config": {
+      "get": {
+        "operationId": "Billing_config",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BillingConfigDtoClass"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/checkout": {
+      "post": {
+        "operationId": "Billing_checkout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Hosted checkout URL to redirect to",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/portal": {
+      "post": {
+        "operationId": "Billing_portal",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UrlDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/google-play/account-ref": {
+      "get": {
+        "operationId": "Billing_accountRef",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountRefDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/google-play/verify": {
+      "post": {
+        "operationId": "Billing_verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlayVerifyBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlayVerifyResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/google-play/rtdn": {
+      "post": {
+        "operationId": "Billing_rtdn",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Acknowledged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/webhooks/{provider}": {
+      "post": {
+        "operationId": "Billing_webhook",
+        "parameters": [
+          {
+            "name": "provider",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "billing"
+        ]
+      }
     }
   },
   "info": {
@@ -1403,6 +1592,146 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "WebBillingDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string",
+            "enum": [
+              "none",
+              "paddle",
+              "dodo"
+            ]
+          },
+          "available": {
+            "type": "boolean"
+          },
+          "intervals": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "monthly",
+                "annual"
+              ]
+            }
+          }
+        },
+        "required": [
+          "provider",
+          "available",
+          "intervals"
+        ]
+      },
+      "PlayBillingDto": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          },
+          "packageName": {
+            "type": "string"
+          },
+          "subscriptionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "available",
+          "packageName",
+          "subscriptionId"
+        ]
+      },
+      "BillingConfigDtoClass": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Paid plans switched on (billing feature flag)"
+          },
+          "web": {
+            "$ref": "#/components/schemas/WebBillingDto"
+          },
+          "googlePlay": {
+            "$ref": "#/components/schemas/PlayBillingDto"
+          }
+        },
+        "required": [
+          "enabled",
+          "web",
+          "googlePlay"
+        ]
+      },
+      "CheckoutBody": {
+        "type": "object",
+        "properties": {
+          "interval": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "annual"
+            ]
+          }
+        },
+        "required": [
+          "interval"
+        ]
+      },
+      "UrlDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "AccountRefDto": {
+        "type": "object",
+        "properties": {
+          "accountRef": {
+            "type": "string",
+            "description": "Pass as obfuscatedAccountId (applicationUserName) when purchasing"
+          }
+        },
+        "required": [
+          "accountRef"
+        ]
+      },
+      "PlayVerifyBody": {
+        "type": "object",
+        "properties": {
+          "purchaseToken": {
+            "type": "string",
+            "description": "Google Play purchase token"
+          }
+        },
+        "required": [
+          "purchaseToken"
+        ]
+      },
+      "PlayVerifyResponse": {
+        "type": "object",
+        "properties": {
+          "planId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "duplicateSubscription": {
+            "type": "boolean",
+            "description": "True when another channel already has an active subscription (warn the user)"
+          }
+        },
+        "required": [
+          "planId",
+          "status",
+          "duplicateSubscription"
         ]
       }
     }

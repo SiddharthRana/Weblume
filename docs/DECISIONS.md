@@ -2,6 +2,26 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-10-30 — Phase 5 payments
+
+**Two web MoR adapters behind one interface; neither assumed.** The build prompt's default was Paddle, but India seller eligibility couldn't be confirmed from official sources, and Dodo Payments explicitly targets Indian sellers and supports UPI AutoPay mandates. Both are implemented, selected by `WEB_PAYMENT_PROVIDER`. _Rejected:_ Lemon Squeezy, since Indian payouts appear to be PayPal-only. Details and the remaining checks are in `docs/payments-setup.md`.
+
+**The user id travels server-side to the provider** (Paddle transaction `custom_data`, Dodo `metadata`) and comes back in signed webhooks, so a client can't attach a payment to someone else's account. Webhook signatures are verified over the raw request bytes (Nest `rawBody`).
+
+**One writer for subscriptions** (`SubscriptionStore`) with `last_event_at` ordering; **one idempotency ledger** (`webhook_events`, unique per provider + event id). Failed events return 5xx and are retried by providers.
+
+**Google Play without the googleapis SDK:** a service-account JWT is signed with `jose` and the two REST calls are made directly. That's ~100 lines instead of a very large dependency.
+
+**Play anti-replay:** each user has an `obfuscatedAccountId` = HMAC(`BILLING_ACCOUNT_SECRET`, user id), stored on the profile. Verification requires the purchase to carry the caller's reference, so a leaked token can't unlock another account. The stored reference also lets RTDN match first purchases the app never reported.
+
+**Acknowledge on the server**, from both `/verify` and RTDN. The app finishes the purchase on the device only after server verification succeeds, so interrupted purchases are redelivered instead of lost.
+
+**Status mapping:** Paddle `active` with a scheduled cancel, and Play with auto-renew off, become `canceled` (access until period end). Paddle `canceled` = ended → `expired`. Play `SUBSCRIPTION_REVOKED` → `refunded`. Pending/payment-incomplete states grant no access.
+
+**Duplicate subscriptions are prevented where we can and surfaced where we can't:** web checkout refuses users with any active subscription, the app hides purchase options for web subscribers, and both UIs warn when two are active.
+
+**Base plans only** (monthly/annual) in Play; no offers or proration in v1.
+
 ## 2026-10-30 — Phase 4 mobile app
 
 **Dart client from our own small generator** (`scripts/generate-dart-client.mjs`, ~300 lines, no dependencies) instead of openapi-generator (Java, large output) or swagger_parser (build_runner/freezed). Our API surface is small. The output is plain immutable classes with `fromJson`/`toJson` plus a dio client, committed and checked in CI. Unknown enum values decode to `unknown`, so older app versions survive API additions.

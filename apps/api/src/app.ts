@@ -34,6 +34,8 @@ export async function createApp(
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
     bodyParser: false,
+    // Webhook signatures are computed over the exact bytes received.
+    rawBody: true,
     ...(options.logger === false ? { logger: false } : {}),
   });
   if (options.logger !== false) app.useLogger(app.get(Logger));

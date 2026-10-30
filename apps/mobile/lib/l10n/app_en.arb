@@ -315,5 +315,74 @@
         "type": "int"
       }
     }
-  }
+  },
+  "subscriptionTitle": "Upgrade to Starter",
+  "subscriptionUnavailable": "Paid plans aren’t available in the app yet.",
+  "storeUnavailable": "Google Play Billing isn’t available on this device right now. Check that Google Play is installed and you’re signed in, then try again.",
+  "planFeatureScans": "{scans} scans per billing period",
+  "@planFeatureScans": {
+    "placeholders": {
+      "scans": {
+        "type": "int"
+      }
+    }
+  },
+  "planFeatureRetention": "Reports kept for 12 months",
+  "planFeatureCompare": "Compare scans over time",
+  "planFeaturePdf": "PDF reports and private share links",
+  "offerMonthly": "Monthly",
+  "offerAnnual": "Yearly",
+  "perMonth": "{price} / month",
+  "@perMonth": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "perYear": "{price} / year",
+  "@perYear": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "subscribe": "Subscribe",
+  "restorePurchases": "Restore purchases",
+  "playBillingNote": "Payment is charged to your Google Play account. Your subscription renews automatically until you cancel it in Google Play.",
+  "purchasePending": "Waiting for your payment to complete…",
+  "purchaseVerifying": "Confirming your purchase…",
+  "purchaseSuccess": "You’re on Starter. Thank you!",
+  "purchaseDuplicate": "You now have more than one active subscription (web and Google Play). Cancel the one you don’t need to avoid paying twice.",
+  "purchaseFailed": "The purchase didn’t go through. You haven’t been charged.",
+  "purchaseAccountMismatch": "This Google Play purchase belongs to a different Weblume account.",
+  "purchaseVerifyFailed": "We couldn’t confirm your purchase yet. It will be checked again automatically — you won’t be charged twice.",
+  "subscribedOnWeb": "You’re subscribed through the Weblume website. Manage or cancel it there.",
+  "subscribedOnPlay": "You’re subscribed through Google Play.",
+  "manageOnWeb": "Manage on the website",
+  "manageInPlay": "Manage in Google Play",
+  "upgradeButton": "Upgrade to Starter",
+  "subscriptionStatusLine": "{channel} · {status}",
+  "@subscriptionStatusLine": {
+    "placeholders": {
+      "channel": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "channelWeb": "Web",
+  "channelPlay": "Google Play",
+  "subStatusActive": "Active",
+  "subStatusTrial": "Trial",
+  "subStatusGrace": "Payment issue — still active",
+  "subStatusOnHold": "On hold — payment failed",
+  "subStatusPaused": "Paused",
+  "subStatusCanceled": "Cancelled — active until the period ends",
+  "subStatusEnded": "Ended",
+  "subStatusRefunded": "Refunded",
+  "manageSubscription": "Manage subscription"
 }

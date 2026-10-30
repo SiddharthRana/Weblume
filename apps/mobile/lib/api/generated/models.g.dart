@@ -220,6 +220,33 @@ enum DeleteAccountResponseStatus {
       DeleteAccountResponseStatus.values.firstWhere((e) => e.value == json, orElse: () => DeleteAccountResponseStatus.unknown);
 }
 
+enum WebBillingProvider {
+  none('none'),
+  paddle('paddle'),
+  dodo('dodo'),
+  /// A value this app version doesn't know yet.
+  unknown('unknown');
+
+  const WebBillingProvider(this.value);
+  final String value;
+
+  static WebBillingProvider fromJson(Object? json) =>
+      WebBillingProvider.values.firstWhere((e) => e.value == json, orElse: () => WebBillingProvider.unknown);
+}
+
+enum WebBillingInterval {
+  monthly('monthly'),
+  annual('annual'),
+  /// A value this app version doesn't know yet.
+  unknown('unknown');
+
+  const WebBillingInterval(this.value);
+  final String value;
+
+  static WebBillingInterval fromJson(Object? json) =>
+      WebBillingInterval.values.firstWhere((e) => e.value == json, orElse: () => WebBillingInterval.unknown);
+}
+
 class Health {
   const Health({
     required this.status,
@@ -989,5 +1016,169 @@ class DeleteAccountResponse {
 
   Map<String, dynamic> toJson() => {
       'status': status.value,
+      };
+}
+
+class WebBilling {
+  const WebBilling({
+    required this.provider,
+    required this.available,
+    required this.intervals,
+  });
+
+  final WebBillingProvider provider;
+  final bool available;
+  final List<WebBillingInterval> intervals;
+
+  factory WebBilling.fromJson(Map<String, dynamic> json) => WebBilling(
+      provider: WebBillingProvider.fromJson(json['provider']),
+      available: json['available'] as bool,
+      intervals: (json['intervals'] as List<dynamic>).map((e) => WebBillingInterval.fromJson(e)).toList(),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'provider': provider.value,
+      'available': available,
+      'intervals': intervals.map((e) => e.value).toList(),
+      };
+}
+
+class PlayBilling {
+  const PlayBilling({
+    required this.available,
+    required this.packageName,
+    required this.subscriptionId,
+  });
+
+  final bool available;
+  final String packageName;
+  final String subscriptionId;
+
+  factory PlayBilling.fromJson(Map<String, dynamic> json) => PlayBilling(
+      available: json['available'] as bool,
+      packageName: json['packageName'] as String,
+      subscriptionId: json['subscriptionId'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'available': available,
+      'packageName': packageName,
+      'subscriptionId': subscriptionId,
+      };
+}
+
+class BillingConfig {
+  const BillingConfig({
+    required this.enabled,
+    required this.web,
+    required this.googlePlay,
+  });
+
+  /// Paid plans switched on (billing feature flag)
+  final bool enabled;
+  final WebBilling web;
+  final PlayBilling googlePlay;
+
+  factory BillingConfig.fromJson(Map<String, dynamic> json) => BillingConfig(
+      enabled: json['enabled'] as bool,
+      web: WebBilling.fromJson(json['web'] as Map<String, dynamic>),
+      googlePlay: PlayBilling.fromJson(json['googlePlay'] as Map<String, dynamic>),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'enabled': enabled,
+      'web': web.toJson(),
+      'googlePlay': googlePlay.toJson(),
+      };
+}
+
+class CheckoutBody {
+  const CheckoutBody({
+    required this.interval,
+  });
+
+  final WebBillingInterval interval;
+
+  factory CheckoutBody.fromJson(Map<String, dynamic> json) => CheckoutBody(
+      interval: WebBillingInterval.fromJson(json['interval']),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'interval': interval.value,
+      };
+}
+
+class Url {
+  const Url({
+    required this.url,
+  });
+
+  final String url;
+
+  factory Url.fromJson(Map<String, dynamic> json) => Url(
+      url: json['url'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'url': url,
+      };
+}
+
+class AccountRef {
+  const AccountRef({
+    required this.accountRef,
+  });
+
+  /// Pass as obfuscatedAccountId (applicationUserName) when purchasing
+  final String accountRef;
+
+  factory AccountRef.fromJson(Map<String, dynamic> json) => AccountRef(
+      accountRef: json['accountRef'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'accountRef': accountRef,
+      };
+}
+
+class PlayVerifyBody {
+  const PlayVerifyBody({
+    required this.purchaseToken,
+  });
+
+  /// Google Play purchase token
+  final String purchaseToken;
+
+  factory PlayVerifyBody.fromJson(Map<String, dynamic> json) => PlayVerifyBody(
+      purchaseToken: json['purchaseToken'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'purchaseToken': purchaseToken,
+      };
+}
+
+class PlayVerifyResponse {
+  const PlayVerifyResponse({
+    required this.planId,
+    required this.status,
+    required this.duplicateSubscription,
+  });
+
+  final String planId;
+  final String status;
+  /// True when another channel already has an active subscription (warn the user)
+  final bool duplicateSubscription;
+
+  factory PlayVerifyResponse.fromJson(Map<String, dynamic> json) => PlayVerifyResponse(
+      planId: json['planId'] as String,
+      status: json['status'] as String,
+      duplicateSubscription: json['duplicateSubscription'] as bool,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'planId': planId,
+      'status': status,
+      'duplicateSubscription': duplicateSubscription,
       };
 }

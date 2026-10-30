@@ -32,6 +32,69 @@ export const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v ? v : undefined)),
+  // ---- Billing (all optional; with nothing set, billing stays unavailable)
+  /** Web checkout provider. Confirm seller eligibility first (docs/payments-setup.md). */
+  WEB_PAYMENT_PROVIDER: z.enum(['none', 'paddle', 'dodo']).default('none'),
+  /** Where the provider sends customers after checkout (site URL + path). */
+  BILLING_RETURN_URL: z.url().default('http://localhost:3000/account?checkout=success'),
+  PADDLE_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
+  PADDLE_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  PADDLE_WEBHOOK_SECRET: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  PADDLE_PRICE_STARTER_MONTHLY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  PADDLE_PRICE_STARTER_ANNUAL: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  DODO_ENV: z.enum(['test', 'live']).default('test'),
+  DODO_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  DODO_WEBHOOK_SECRET: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  DODO_PRODUCT_STARTER_MONTHLY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  DODO_PRODUCT_STARTER_ANNUAL: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** Android application id. */
+  GOOGLE_PLAY_PACKAGE_NAME: z.string().default('com.weblume.app'),
+  /** Play subscription product id; base plans "monthly" and "annual". */
+  GOOGLE_PLAY_SUBSCRIPTION_ID: z.string().default('weblume_starter'),
+  /** Service account key JSON (raw or base64) with access to the Play Developer API. */
+  GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** Expected audience of Pub/Sub push tokens for Real-time Developer Notifications. */
+  GOOGLE_PLAY_RTDN_AUDIENCE: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** Service account email that Pub/Sub uses to sign push requests. */
+  GOOGLE_PLAY_RTDN_SERVICE_ACCOUNT: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** HMAC key for the obfuscated account id sent to Google Play (>= 32 chars). Required in production with Play. */
+  BILLING_ACCOUNT_SECRET: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
   // ---- Scanning
   /** Google PageSpeed Insights API key. Without it, reports say Lighthouse data is unavailable. */
   PSI_API_KEY: z
@@ -73,6 +136,14 @@ function productionRules(env: Env): string[] {
   if (env.NODE_ENV !== 'production') return [];
   const problems: string[] = [];
   if (!env.GUEST_HASH_SECRET) problems.push('  - GUEST_HASH_SECRET: required in production');
+  if (
+    env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON &&
+    (!env.BILLING_ACCOUNT_SECRET || env.BILLING_ACCOUNT_SECRET.length < 32)
+  ) {
+    problems.push(
+      '  - BILLING_ACCOUNT_SECRET: required (>= 32 chars) in production when Google Play is configured',
+    );
+  }
   return problems;
 }
 

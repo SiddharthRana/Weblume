@@ -2,7 +2,7 @@
 
 Website audits your clients can actually read. Users enter a URL; Weblume checks performance, SEO, accessibility and technical health, and explains each finding in plain language with concrete fixes.
 
-> **Status:** Phase 4 (Android app) of 6 complete. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works today and what's next, and [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md) for the full product spec.
+> **Status:** Phase 5 (payments, sandbox-ready) of 6 complete. See [`docs/PROGRESS.md`](docs/PROGRESS.md) for what works today and what's next, and [`docs/BUILD_PROMPT.md`](docs/BUILD_PROMPT.md) for the full product spec.
 
 ## Repository layout
 
@@ -170,6 +170,10 @@ Never commit real values. Each app has a `.env.example`.
 - **Web scan flow:** Playwright with the API mocked at the network layer: validation, progress polling, report rendering and filters, partial/failed/not-found/offline states, retry, history.
 - **Web:** Playwright on desktop and mobile viewports: every page renders, SEO metadata is present, there are no axe WCAG 2.2 AA violations (light and dark), navigation and the mobile menu work, there's no horizontal scroll, and security headers are set.
 - **Mobile:** 69 tests: generated client and offline repository, URL validation against the shared cases, router redirects, auth flows, scan flow through to finding detail, failure/partial/offline states, history, account deletion, and accessibility guidelines (tap targets, labels, contrast) in light and dark.
+
+## Payments setup (manual)
+
+Web checkout via a Merchant of Record (Paddle or Dodo Payments) and Google Play Billing in the app, all in sandbox until you switch. Step-by-step dashboard and console setup, provider choice for an India-based seller, and how to switch billing on: [`docs/payments-setup.md`](docs/payments-setup.md). API env vars are listed in `apps/api/.env.example` (`WEB_PAYMENT_PROVIDER`, `PADDLE_*`, `DODO_*`, `GOOGLE_PLAY_*`, `BILLING_ACCOUNT_SECRET`).
 
 ## Supabase Auth setup (manual)
 

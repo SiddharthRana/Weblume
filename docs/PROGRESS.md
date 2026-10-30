@@ -1,9 +1,36 @@
 # Progress
 
-**Current phase:** 4 — Mobile app ✅ complete (Android release build pending CI confirmation — see below), awaiting go-ahead for Phase 5.
+**Current phase:** 5 — Payments ✅ complete (sandbox-ready; no live provider calls were possible from the build environment), awaiting go-ahead for Phase 6.
 **Last updated:** 2026-10-30
 
-## Phase 4 — Mobile app
+## Phase 5 — Payments
+
+### Done (verified in this environment)
+
+| Area              | What                                                                                                                                                                                                                                                                                                                                                | Verified by                                                                 |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Provider research | Paddle / Dodo / Lemon Squeezy eligibility for an India-based seller and Indian buyers; findings and the remaining checks in `docs/payments-setup.md`                                                                                                                                                                                                | Web search (official docs weren't reachable from the build environment)     |
+| Core              | `WebPaymentProvider` interface; `ProductCatalog` (provider ids → plans from env); `SubscriptionStore` (only writer of `subscriptions`; resolves users by custom data, existing/linked rows or account ref; ignores out-of-order events); `WebhookLedger` (idempotency, audit)                                                                       | Unit + DB e2e tests                                                         |
+| Web: Paddle       | Server-created transactions (user id in `custom_data`), customer portal, `Paddle-Signature` verification (rotation, 5-min tolerance), status mapping (scheduled cancel → access until period end, past_due → grace)                                                                                                                                 | 13 signature/mapping tests + 11 DB e2e tests through the real HTTP endpoint |
+| Web: Dodo         | Checkout sessions, portal, Standard Webhooks verification, status mapping                                                                                                                                                                                                                                                                           | 13 signature/mapping tests (adapter not run against Dodo's API)             |
+| Google Play       | Service-account OAuth (JWT bearer) + `subscriptionsv2.get` + acknowledge, without the googleapis SDK; purchase verification bound to an HMAC account ref (anti-replay); RTDN via Pub/Sub push with Google OIDC token verification; revocation → refunded; replacement tokens supersede old ones; first purchases matched via the stored account ref | 18 unit tests + 10 DB e2e tests                                             |
+| API               | `GET /v1/billing/config`, `POST /v1/billing/checkout`, `POST /v1/billing/portal`, `GET /v1/billing/google-play/account-ref`, `POST /v1/billing/google-play/verify`, `POST /v1/billing/google-play/rtdn`, `POST /v1/billing/webhooks/:provider`; raw-body capture for signatures; dual-subscription guard                                            | 278 API tests in total                                                      |
+| Web app           | Pricing: subscribe monthly/yearly (signed-in), account-first for visitors, "coming soon" when off; Paddle.js default-payment-link page; account: subscription list, provider portal, Manage in Google Play, double-subscription warning, post-checkout confirmation polling                                                                         | 18 new Playwright runs (170 in total)                                       |
+| Android app       | `in_app_purchase` behind a `BillingGateway`; base-plan offers with Play's localised prices; purchase → server verify → complete only after verification; pending / error / cancel / mismatch / offline handling; restore; app-wide purchase listener; never offers a second subscription to web subscribers                                         | 10 new Flutter tests (79 in total)                                          |
+| Docs              | `docs/payments-setup.md`: provider choice, dashboard and console steps for Paddle, Dodo, Play Console, Google Cloud, Pub/Sub; switching billing on; behaviour reference                                                                                                                                                                             | —                                                                           |
+
+### Not verified / limitations
+
+- **No real payment provider was called.** Paddle, Dodo, Google Play and Google OAuth were faked at the HTTP edge. Signature formats were tested against independently computed HMACs. **The Dodo adapter's request/response fields follow Dodo's docs as recalled; confirm in test mode** (`docs/payments-setup.md` §3).
+- **Seller eligibility is unconfirmed** for Paddle (India). Dodo appears to be the better fit for India and UPI, but verify both with the providers.
+- **The Android release APK with `in_app_purchase` is built only on CI** (pending for this commit). Purchases can only be tested on a device with an app uploaded to a Play testing track.
+- Google Play subscriptions have no current-period start in the API; it's derived from expiry minus the base-plan length.
+- Plan changes (monthly ↔ annual), proration and promotional offers aren't supported: base plans only.
+- Tax-inclusive vs exclusive display of the ₹149 / $3.99 hypotheses still needs deciding (§1 of the setup guide).
+
+### Phase 4 (complete; CI green on GitHub including the Android release APK with supabase_flutter)
+
+### Phase 4 — Mobile app (details)
 
 ### Done (verified in this environment)
 
@@ -86,9 +113,9 @@
 
 Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundation (auth guard, health, OpenAPI), generated TS client, marketing site, Flutter skeleton, CI. Details in git history (`876fa66`).
 
-## Next: Phase 5 — Payments
+## Next: Phase 6 — Reports+ and launch prep
 
-PaymentProvider interface, Merchant-of-Record web checkout (sandbox; provider eligibility checked first), Google Play Billing in the app with server-side purchase verification and acknowledgement, Real-time Developer Notifications, webhook signature verification and idempotency, subscription state machine, cross-channel entitlements, billing-disabled mode.
+PDF export, share links, scan comparison, accessibility review (web + mobile), Lighthouse on our own pages, security self-review against the build prompt, deployment guide, monitoring, troubleshooting, manual smoke-test checklist, prioritised list of unfinished items.
 
 ## Manual setup you'll need
 
@@ -96,4 +123,5 @@ PaymentProvider interface, Merchant-of-Record web checkout (sandbox; provider el
 - **Cloudflare Turnstile** (free): create a widget → site key to `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, secret to `TURNSTILE_SECRET_KEY`.
 - **`GUEST_HASH_SECRET`** for production: `openssl rand -hex 32`.
 - **Supabase project:** see “Supabase Auth setup” in the README (URLs, keys, redirect URLs, SMTP, optional Google).
-- Android upload keystore (Phase 4).
+- Android upload keystore (see `apps/mobile/README.md`).
+- **Payments:** follow `docs/payments-setup.md` (provider choice, sandbox accounts, Play Console products, service account, Pub/Sub).

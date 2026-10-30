@@ -3,6 +3,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import type { Schemas } from '@weblume/api-client-ts';
 import { UsageMeter } from '@/components/app/usage-meter';
+import { SubscriptionPanel } from '@/components/billing/subscription-panel';
 import { Field, FormAlert } from '@/components/auth/form-bits';
 import { API_URL, api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -52,6 +53,28 @@ export function AccountView() {
       },
       () => setLoadError(errorMessage(undefined)),
     );
+  }, []);
+
+  // After checkout the provider's webhook may land a few seconds after the redirect: poll briefly.
+  const [checkout, setCheckout] = useState<'idle' | 'confirming' | 'active' | 'pending'>('idle');
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('checkout') !== 'success') return;
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      setCheckout('confirming');
+      const { data } = await api.GET('/v1/me').catch(() => ({ data: undefined }));
+      if (data?.plan.paid) {
+        setAccount(data);
+        setCheckout('active');
+      } else if (++tries < 10) {
+        timer = setTimeout(poll, 3_000);
+      } else {
+        setCheckout('pending');
+      }
+    };
+    timer = setTimeout(poll, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   async function saveName(e: FormEvent) {
@@ -112,6 +135,18 @@ export function AccountView() {
 
   return (
     <div className="space-y-6">
+      {checkout === 'confirming' && (
+        <FormAlert tone="success">Thanks! We’re confirming your payment…</FormAlert>
+      )}
+      {checkout === 'active' && (
+        <FormAlert tone="success">Your {account.plan.name} plan is active. Thank you!</FormAlert>
+      )}
+      {checkout === 'pending' && (
+        <FormAlert tone="success">
+          Your payment is being processed. Your plan will update shortly — refresh this page in a
+          minute.
+        </FormAlert>
+      )}
       <Section id="profile" title="Profile">
         <p className="text-sm text-fg-muted">
           Signed in as <span className="font-medium text-fg">{user?.email ?? account.email}</span> ·
@@ -151,22 +186,7 @@ export function AccountView() {
           limit={account.usage.limit}
           resetsAt={account.usage.resetsAt}
         />
-        {account.subscriptions.length === 0 ? (
-          <p className="text-sm text-fg-muted">
-            Paid plans with more scans, PDF reports and share links are coming soon.
-          </p>
-        ) : (
-          <ul className="space-y-1 text-sm text-fg-muted">
-            {account.subscriptions.map((s, i) => (
-              <li key={i}>
-                {s.planId} via {s.provider === 'google_play' ? 'Google Play' : 'web'} —{' '}
-                {s.status.replace('_', ' ')}
-                {s.currentPeriodEnd &&
-                  ` · ${s.cancelAtPeriodEnd ? 'ends' : 'renews'} ${fmtDate.format(new Date(s.currentPeriodEnd))}`}
-              </li>
-            ))}
-          </ul>
-        )}
+        <SubscriptionPanel account={account} />
       </Section>
 
       <Section id="data" title="Your data">

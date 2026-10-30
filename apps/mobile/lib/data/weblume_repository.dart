@@ -76,4 +76,15 @@ class WeblumeRepository {
   }
 
   Future<void> clearCache() => _cache.clear();
+
+  Future<BillingConfig> billingConfig() => _api.billingConfig();
+
+  Future<List<Plan>> plans() => _api.plansList();
+
+  /// Opaque id passed to Google Play as the obfuscated account id.
+  Future<String> playAccountRef() async => (await _api.billingAccountRef()).accountRef;
+
+  /// Server-side verification (and acknowledgement) of a Google Play purchase.
+  Future<PlayVerifyResponse> verifyPlayPurchase(String purchaseToken) =>
+      _api.billingVerify(body: PlayVerifyBody(purchaseToken: purchaseToken));
 }

@@ -5,7 +5,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/generated/models.g.dart';
 import '../../config/app_config.dart';
+import '../../billing/billing_controller.dart';
 import '../../data/providers.dart';
+import '../../router/app_router.dart';
+import '../billing/subscription_status.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
@@ -157,7 +160,25 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       const SizedBox(height: WlSpace.s3),
                       UsageMeter(used: a.usage.used, limit: a.usage.limit, resetsAt: a.usage.resetsAt),
                       const SizedBox(height: WlSpace.s3),
-                      if (a.subscriptions.isEmpty) Text(l10n.paidComingSoon, style: muted),
+                      for (final sub in a.subscriptions) SubscriptionStatusTile(subscription: sub),
+                      if (a.subscriptions.where(grantsAccess).isEmpty)
+                        ref
+                            .watch(billingConfigProvider)
+                            .maybeWhen(
+                              data: (c) => c.enabled && c.googlePlay.available
+                                  ? FilledButton.icon(
+                                      onPressed: () => context.push(Routes.subscription),
+                                      icon: const Icon(Icons.workspace_premium_outlined),
+                                      label: Text(l10n.upgradeButton),
+                                    )
+                                  : Text(l10n.paidComingSoon, style: muted),
+                              orElse: () => Text(l10n.paidComingSoon, style: muted),
+                            )
+                      else
+                        OutlinedButton(
+                          onPressed: () => context.push(Routes.subscription),
+                          child: Text(l10n.manageSubscription),
+                        ),
                     ]),
                     const SizedBox(height: WlSpace.s4),
                     section(l10n.dataSection, [

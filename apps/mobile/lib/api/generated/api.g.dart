@@ -169,4 +169,74 @@ class WeblumeApi {
         );
         return Map<String, dynamic>.from(res.data as Map);
       });
+
+  Future<BillingConfig> billingConfig() => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/config',
+          options: Options(method: 'GET'),
+          
+          
+        );
+        return BillingConfig.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Url> billingCheckout({required CheckoutBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/checkout',
+          options: Options(method: 'POST'),
+          
+          data: body.toJson(),
+        );
+        return Url.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Url> billingPortal() => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/portal',
+          options: Options(method: 'POST'),
+          
+          
+        );
+        return Url.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<AccountRef> billingAccountRef() => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/google-play/account-ref',
+          options: Options(method: 'GET'),
+          
+          
+        );
+        return AccountRef.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<PlayVerifyResponse> billingVerify({required PlayVerifyBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/google-play/verify',
+          options: Options(method: 'POST'),
+          
+          data: body.toJson(),
+        );
+        return PlayVerifyResponse.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<ApiErrorBody> billingRtdn() => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/google-play/rtdn',
+          options: Options(method: 'POST'),
+          
+          
+        );
+        return ApiErrorBody.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Map<String, dynamic>> billingWebhook({required String provider}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/billing/webhooks/${Uri.encodeComponent(provider)}',
+          options: Options(method: 'POST'),
+          
+          
+        );
+        return Map<String, dynamic>.from(res.data as Map);
+      });
 }

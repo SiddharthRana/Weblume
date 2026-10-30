@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:weblume/app.dart';
+import 'package:weblume/billing/billing_controller.dart';
 import 'package:weblume/data/providers.dart';
 
 import 'fakes.dart';
@@ -10,6 +11,7 @@ Future<void> pumpApp(
   WidgetTester tester, {
   required FakeAuth auth,
   FakeRepository? repo,
+  FakeBillingGateway? billing,
   Size size = const Size(400, 900),
   Brightness brightness = Brightness.light,
 }) async {
@@ -24,6 +26,7 @@ Future<void> pumpApp(
       overrides: [
         authRepositoryProvider.overrideWithValue(auth),
         repositoryProvider.overrideWithValue(repo ?? FakeRepository()),
+        billingGatewayProvider.overrideWithValue(billing ?? FakeBillingGateway()),
       ],
       child: const WeblumeApp(),
     ),
@@ -47,6 +50,8 @@ Future<void> tapText(WidgetTester tester, String text) async {
 
 /// Scrolls the visible list until [finder] is built and on screen.
 Future<void> scrollTo(WidgetTester tester, Finder finder, {double delta = 300}) async {
-  await tester.dragUntilVisible(finder, find.byType(Scrollable).last, Offset(0, -delta));
+  // Vertical lists only: text fields contain their own (horizontal) Scrollable.
+  final list = find.byWidgetPredicate((w) => w is Scrollable && axisDirectionToAxis(w.axisDirection) == Axis.vertical);
+  await tester.dragUntilVisible(finder, list.last, Offset(0, -delta));
   await settle(tester, frames: 2);
 }

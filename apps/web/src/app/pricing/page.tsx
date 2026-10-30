@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { formatPrice, PLANS, type Entitlements } from '@weblume/shared';
 import { Container } from '@/components/container';
 import { PageHeader } from '@/components/page-header';
+import { SubscribeButtons } from '@/components/billing/subscribe-buttons';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -76,9 +77,7 @@ export default function PricingPage() {
                 <li key={f}>✓ {f}</li>
               ))}
             </ul>
-            <p className="mt-6 rounded-md bg-surface-muted p-3 text-sm text-fg-muted">
-              Paid plans are coming soon. Checkout isn’t open yet.
-            </p>
+            <SubscribeButtons />
           </section>
         </div>
         <div className="mt-10 max-w-3xl space-y-2 text-sm text-fg-muted">

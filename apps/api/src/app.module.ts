@@ -12,6 +12,7 @@ import { HealthController } from './health/health.controller';
 import { PlansController } from './plans/plans.controller';
 import { ScansModule } from './scans/scans.module';
 import { AccountModule } from './account/account.module';
+import { BillingModule } from './billing/billing.module';
 import { EntitlementsModule } from './entitlements/entitlements.module';
 import { JobsModule } from './jobs/pg-boss.service';
 
@@ -54,6 +55,7 @@ const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
     EntitlementsModule,
     ScansModule,
     AccountModule,
+    BillingModule,
   ],
   controllers: [HealthController, PlansController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

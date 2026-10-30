@@ -11,6 +11,7 @@ import '../features/account/account_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/password_screens.dart';
 import '../features/auth/signup_screen.dart';
+import '../features/billing/subscription_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/scan/finding_detail_screen.dart';
@@ -30,6 +31,7 @@ abstract final class Routes {
   static const forgotPassword = '/forgot-password';
   static const resetPassword = '/reset-password';
   static const notConfigured = '/not-configured';
+  static const subscription = '/subscription';
 }
 
 const _publicRoutes = {Routes.login, Routes.signup, Routes.forgotPassword};
@@ -109,6 +111,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             PopScope(canPop: false, child: NewPasswordScreen(onDone: () => listenable.recovering = false)),
       ),
       GoRoute(path: Routes.notConfigured, builder: (_, _) => const AuthNotConfiguredScreen()),
+      GoRoute(path: Routes.subscription, builder: (_, _) => const SubscriptionScreen()),
       GoRoute(
         path: '/scan/:id',
         builder: (_, state) =>

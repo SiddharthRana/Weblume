@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'l10n/app_localizations.dart';
+import 'billing/billing_controller.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 
@@ -11,6 +12,8 @@ class WeblumeApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Keep the purchase listener alive app-wide so interrupted purchases are verified on next launch.
+    ref.listen(billingControllerProvider, (_, _) {});
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,

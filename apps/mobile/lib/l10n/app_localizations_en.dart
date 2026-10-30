@@ -568,4 +568,130 @@ class AppLocalizationsEn extends AppLocalizations {
   String criticalHighCount(int count) {
     return '$count critical/high';
   }
+
+  @override
+  String get subscriptionTitle => 'Upgrade to Starter';
+
+  @override
+  String get subscriptionUnavailable => 'Paid plans aren’t available in the app yet.';
+
+  @override
+  String get storeUnavailable =>
+      'Google Play Billing isn’t available on this device right now. Check that Google Play is installed and you’re signed in, then try again.';
+
+  @override
+  String planFeatureScans(int scans) {
+    return '$scans scans per billing period';
+  }
+
+  @override
+  String get planFeatureRetention => 'Reports kept for 12 months';
+
+  @override
+  String get planFeatureCompare => 'Compare scans over time';
+
+  @override
+  String get planFeaturePdf => 'PDF reports and private share links';
+
+  @override
+  String get offerMonthly => 'Monthly';
+
+  @override
+  String get offerAnnual => 'Yearly';
+
+  @override
+  String perMonth(String price) {
+    return '$price / month';
+  }
+
+  @override
+  String perYear(String price) {
+    return '$price / year';
+  }
+
+  @override
+  String get subscribe => 'Subscribe';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get playBillingNote =>
+      'Payment is charged to your Google Play account. Your subscription renews automatically until you cancel it in Google Play.';
+
+  @override
+  String get purchasePending => 'Waiting for your payment to complete…';
+
+  @override
+  String get purchaseVerifying => 'Confirming your purchase…';
+
+  @override
+  String get purchaseSuccess => 'You’re on Starter. Thank you!';
+
+  @override
+  String get purchaseDuplicate =>
+      'You now have more than one active subscription (web and Google Play). Cancel the one you don’t need to avoid paying twice.';
+
+  @override
+  String get purchaseFailed => 'The purchase didn’t go through. You haven’t been charged.';
+
+  @override
+  String get purchaseAccountMismatch => 'This Google Play purchase belongs to a different Weblume account.';
+
+  @override
+  String get purchaseVerifyFailed =>
+      'We couldn’t confirm your purchase yet. It will be checked again automatically — you won’t be charged twice.';
+
+  @override
+  String get subscribedOnWeb => 'You’re subscribed through the Weblume website. Manage or cancel it there.';
+
+  @override
+  String get subscribedOnPlay => 'You’re subscribed through Google Play.';
+
+  @override
+  String get manageOnWeb => 'Manage on the website';
+
+  @override
+  String get manageInPlay => 'Manage in Google Play';
+
+  @override
+  String get upgradeButton => 'Upgrade to Starter';
+
+  @override
+  String subscriptionStatusLine(String channel, String status) {
+    return '$channel · $status';
+  }
+
+  @override
+  String get channelWeb => 'Web';
+
+  @override
+  String get channelPlay => 'Google Play';
+
+  @override
+  String get subStatusActive => 'Active';
+
+  @override
+  String get subStatusTrial => 'Trial';
+
+  @override
+  String get subStatusGrace => 'Payment issue — still active';
+
+  @override
+  String get subStatusOnHold => 'On hold — payment failed';
+
+  @override
+  String get subStatusPaused => 'Paused';
+
+  @override
+  String get subStatusCanceled => 'Cancelled — active until the period ends';
+
+  @override
+  String get subStatusEnded => 'Ended';
+
+  @override
+  String get subStatusRefunded => 'Refunded';
+
+  @override
+  String get manageSubscription => 'Manage subscription';
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:weblume/api/generated/api.g.dart';
 import 'package:weblume/api/generated/models.g.dart';
 import 'package:weblume/auth/auth_repository.dart';
+import 'package:weblume/billing/billing_gateway.dart';
 import 'package:weblume/data/weblume_repository.dart';
 
 class FakeAuth implements AuthRepository {
@@ -211,6 +212,98 @@ class FakeRepository implements WeblumeRepository {
 
   @override
   Future<void> clearCache() async => calls.add('clearCache');
+
+  Object billingConfigResult = fakeBillingConfig();
+  Object verifyResult = PlayVerifyResponse.fromJson({
+    'planId': 'starter',
+    'status': 'active',
+    'duplicateSubscription': false,
+  });
+
+  @override
+  Future<BillingConfig> billingConfig() async => _ret(billingConfigResult);
+
+  @override
+  Future<List<Plan>> plans() async => [
+    Plan.fromJson({
+      'id': 'starter',
+      'name': 'Starter',
+      'paid': true,
+      'entitlements': {
+        'scansPerPeriod': 60,
+        'quotaPeriod': 'billing_period',
+        'retentionDays': 365,
+        'lighthouseData': true,
+        'comparison': true,
+        'pdfExport': true,
+        'shareLinks': true,
+      },
+    }),
+  ];
+
+  @override
+  Future<String> playAccountRef() async {
+    calls.add('accountRef');
+    return 'ref-123';
+  }
+
+  @override
+  Future<PlayVerifyResponse> verifyPlayPurchase(String purchaseToken) async {
+    calls.add('verify:$purchaseToken');
+    return _ret(verifyResult);
+  }
+}
+
+BillingConfig fakeBillingConfig({bool enabled = true, bool play = true}) => BillingConfig.fromJson({
+  'enabled': enabled,
+  'web': {
+    'provider': 'paddle',
+    'available': enabled,
+    'intervals': ['monthly', 'annual'],
+  },
+  'googlePlay': {'available': enabled && play, 'packageName': 'com.weblume.app', 'subscriptionId': 'weblume_starter'},
+});
+
+Map<String, dynamic> subscriptionJson({String provider = 'google_play', String status = 'active'}) => {
+  'provider': provider,
+  'planId': 'starter',
+  'status': status,
+  'currentPeriodEnd': DateTime.now().add(const Duration(days: 20)).toUtc().toIso8601String(),
+  'cancelAtPeriodEnd': false,
+};
+
+Account accountWithSubs(List<Map<String, dynamic>> subs) => Account.fromJson({
+  ...fakeAccount().toJson(),
+  'subscriptions': subs,
+  'plan': {'id': 'starter', 'name': 'Starter', 'paid': true, 'source': 'subscription'},
+});
+
+class FakeBillingGateway implements BillingGateway {
+  bool available = true;
+  List<StoreOffer> offers = const [
+    StoreOffer(basePlanId: 'monthly', interval: StoreInterval.monthly, price: '₹149.00'),
+    StoreOffer(basePlanId: 'annual', interval: StoreInterval.annual, price: '₹1,199.00'),
+  ];
+  final _updates = StreamController<StorePurchaseUpdate>.broadcast();
+  final bought = <String>[];
+  final completed = <String?>[];
+  int restores = 0;
+
+  void emit(StorePurchaseUpdate u) => _updates.add(u);
+
+  @override
+  Future<bool> isAvailable() async => available;
+  @override
+  Future<List<StoreOffer>> loadOffers(String productId) async => offers;
+  @override
+  Future<void> buy(StoreOffer offer, {required String accountRef}) async =>
+      bought.add('${offer.basePlanId}:$accountRef');
+  @override
+  Stream<StorePurchaseUpdate> get purchases => _updates.stream;
+  @override
+  Future<void> complete(StorePurchaseUpdate update) async => completed.add(update.purchaseToken);
+  @override
+  Future<void> restore() async => restores++;
 }
 
 Loaded<ScanReport> loadedReport(

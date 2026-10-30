@@ -1122,6 +1122,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} critical/high'**
   String criticalHighCount(int count);
+
+  /// No description provided for @subscriptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Starter'**
+  String get subscriptionTitle;
+
+  /// No description provided for @subscriptionUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid plans aren’t available in the app yet.'**
+  String get subscriptionUnavailable;
+
+  /// No description provided for @storeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play Billing isn’t available on this device right now. Check that Google Play is installed and you’re signed in, then try again.'**
+  String get storeUnavailable;
+
+  /// No description provided for @planFeatureScans.
+  ///
+  /// In en, this message translates to:
+  /// **'{scans} scans per billing period'**
+  String planFeatureScans(int scans);
+
+  /// No description provided for @planFeatureRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports kept for 12 months'**
+  String get planFeatureRetention;
+
+  /// No description provided for @planFeatureCompare.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare scans over time'**
+  String get planFeatureCompare;
+
+  /// No description provided for @planFeaturePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF reports and private share links'**
+  String get planFeaturePdf;
+
+  /// No description provided for @offerMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get offerMonthly;
+
+  /// No description provided for @offerAnnual.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get offerAnnual;
+
+  /// No description provided for @perMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / month'**
+  String perMonth(String price);
+
+  /// No description provided for @perYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / year'**
+  String perYear(String price);
+
+  /// No description provided for @subscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get subscribe;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @playBillingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment is charged to your Google Play account. Your subscription renews automatically until you cancel it in Google Play.'**
+  String get playBillingNote;
+
+  /// No description provided for @purchasePending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your payment to complete…'**
+  String get purchasePending;
+
+  /// No description provided for @purchaseVerifying.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming your purchase…'**
+  String get purchaseVerifying;
+
+  /// No description provided for @purchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re on Starter. Thank you!'**
+  String get purchaseSuccess;
+
+  /// No description provided for @purchaseDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'You now have more than one active subscription (web and Google Play). Cancel the one you don’t need to avoid paying twice.'**
+  String get purchaseDuplicate;
+
+  /// No description provided for @purchaseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase didn’t go through. You haven’t been charged.'**
+  String get purchaseFailed;
+
+  /// No description provided for @purchaseAccountMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'This Google Play purchase belongs to a different Weblume account.'**
+  String get purchaseAccountMismatch;
+
+  /// No description provided for @purchaseVerifyFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t confirm your purchase yet. It will be checked again automatically — you won’t be charged twice.'**
+  String get purchaseVerifyFailed;
+
+  /// No description provided for @subscribedOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re subscribed through the Weblume website. Manage or cancel it there.'**
+  String get subscribedOnWeb;
+
+  /// No description provided for @subscribedOnPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re subscribed through Google Play.'**
+  String get subscribedOnPlay;
+
+  /// No description provided for @manageOnWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage on the website'**
+  String get manageOnWeb;
+
+  /// No description provided for @manageInPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage in Google Play'**
+  String get manageInPlay;
+
+  /// No description provided for @upgradeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Starter'**
+  String get upgradeButton;
+
+  /// No description provided for @subscriptionStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{channel} · {status}'**
+  String subscriptionStatusLine(String channel, String status);
+
+  /// No description provided for @channelWeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Web'**
+  String get channelWeb;
+
+  /// No description provided for @channelPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Play'**
+  String get channelPlay;
+
+  /// No description provided for @subStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get subStatusActive;
+
+  /// No description provided for @subStatusTrial.
+  ///
+  /// In en, this message translates to:
+  /// **'Trial'**
+  String get subStatusTrial;
+
+  /// No description provided for @subStatusGrace.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment issue — still active'**
+  String get subStatusGrace;
+
+  /// No description provided for @subStatusOnHold.
+  ///
+  /// In en, this message translates to:
+  /// **'On hold — payment failed'**
+  String get subStatusOnHold;
+
+  /// No description provided for @subStatusPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get subStatusPaused;
+
+  /// No description provided for @subStatusCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled — active until the period ends'**
+  String get subStatusCanceled;
+
+  /// No description provided for @subStatusEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get subStatusEnded;
+
+  /// No description provided for @subStatusRefunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get subStatusRefunded;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get manageSubscription;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
