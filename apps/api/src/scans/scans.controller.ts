@@ -32,6 +32,7 @@ import {
   ListScansQuery,
   ScanListResponse,
   ScanReportDtoClass,
+  ScanSummaryDtoClass,
 } from './scans.dto';
 import { ScansService, type Requester } from './scans.service';
 
@@ -112,10 +113,22 @@ export class ScansController {
   async retry(
     @Param('id', new ParseUUIDPipe()) id: string,
     @MaybeUser() user: AuthUser | undefined,
-    @Req() req: Request,
     @Headers('x-scan-token') scanToken?: string,
   ): Promise<CreateScanResponse> {
-    const requester: Requester = user ? { user } : { guest: { ip: req.ip ?? 'unknown' } };
-    return this.scans.retry(id, { user, scanToken }, requester);
+    return this.scans.retry(id, { user, scanToken });
+  }
+
+  /** Move a guest scan (started on this device before signing in) into the signed-in account. */
+  @Post(':id/claim')
+  @HttpCode(200)
+  @ApiHeader({ ...scanTokenHeader, required: true })
+  @ApiOkResponse({ type: ScanSummaryDtoClass })
+  @ApiNotFoundResponse({ type: ApiErrorDto })
+  async claim(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @CurrentUser() user: AuthUser,
+    @Headers('x-scan-token') scanToken?: string,
+  ): Promise<ScanSummaryDtoClass> {
+    return this.scans.claim(id, user, scanToken);
   }
 }

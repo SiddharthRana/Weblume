@@ -1,11 +1,9 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { and, count, desc, eq, gte, ilike, inArray, lt, ne, type SQL } from 'drizzle-orm';
+import { and, desc, eq, gte, ilike, inArray, isNull, lt, ne, type SQL } from 'drizzle-orm';
 import {
-  getPlan,
   normalizeUrl,
   SCAN_FAILURE_CODES,
-  type PlanId,
   type ScanFailureCode,
   type ScanReportDto,
   type ScanSummaryDto,
@@ -17,6 +15,7 @@ import { Database } from '../database/database.module';
 import { findings, scans, type ScanRow } from '../database/schema';
 import { GuardedFetchError, type GuardedHttpClient } from '../scanner/http/guarded-client';
 import { composeFindings } from '../scanner/report-composer';
+import { EntitlementService, type ResolvedPlan } from '../entitlements/entitlement.service';
 import { GUARDED_CLIENT } from './scan.processor';
 import { SCAN_QUEUE, type ScanQueue } from './scan-queue';
 import { ApiError } from './scans.errors';
@@ -48,14 +47,10 @@ export class ScansService {
     @Inject(TURNSTILE_VERIFIER) private readonly turnstile: TurnstileVerifier,
     @Inject(GUARDED_CLIENT) private readonly client: GuardedHttpClient,
     @Inject(ENV) private readonly env: Env,
+    private readonly entitlements: EntitlementService,
   ) {
     // Without a configured secret (development only), guest hashes are stable per process.
     this.guestSecret = env.GUEST_HASH_SECRET ?? randomBytes(32).toString('hex');
-  }
-
-  /** Plan lookup. Phase 3 replaces this with subscription-aware entitlements. */
-  private planFor(requester: Requester): PlanId {
-    return 'user' in requester ? 'free' : 'guest';
   }
 
   async create(rawUrl: string, requester: Requester): Promise<CreateScanResult> {
@@ -78,7 +73,9 @@ export class ScansService {
     const db = this.database.db;
     let owner: SQL;
     let guestKeyHash: string | null = null;
+    let resolved: ResolvedPlan;
     if ('guest' in requester) {
+      resolved = this.entitlements.forGuest();
       if (!(await this.flags.isEnabled('guest_scans'))) {
         throw new ApiError(
           HttpStatus.FORBIDDEN,
@@ -108,6 +105,7 @@ export class ScansService {
         .digest('hex');
       owner = eq(scans.guestKeyHash, guestKeyHash);
     } else {
+      resolved = await this.entitlements.forUser(requester.user.id);
       owner = eq(scans.userId, requester.user.id);
     }
 
@@ -146,8 +144,7 @@ export class ScansService {
       );
     }
 
-    const plan = getPlan(this.planFor(requester));
-    await this.assertQuota(owner, plan.id);
+    await this.entitlements.assertQuota(owner, resolved);
 
     const scanToken = guestKeyHash ? randomBytes(24).toString('base64url') : undefined;
     const [row] = await db
@@ -158,38 +155,11 @@ export class ScansService {
         claimTokenHash: scanToken ? sha256(scanToken) : null,
         targetUrl: rawUrl.trim().slice(0, 2048),
         normalizedUrl: normalized.url,
-        expiresAt: new Date(Date.now() + plan.entitlements.retentionDays * 86_400_000),
+        expiresAt: this.entitlements.expiresAt(resolved),
       })
       .returning();
     await this.queue.enqueue(row!.id);
     return { scan: toSummary(row!), scanToken, deduplicated: false };
-  }
-
-  private async assertQuota(
-    owner: SQL,
-    planId: PlanId,
-    extra?: { excludeId?: string },
-  ): Promise<void> {
-    const plan = getPlan(planId);
-    const { start, resetsAt } = quotaWindow(plan.entitlements.quotaPeriod);
-    const conds = [owner, eq(scans.countsTowardQuota, true), gte(scans.createdAt, start)];
-    if (extra?.excludeId) conds.push(ne(scans.id, extra.excludeId));
-    const [{ used } = { used: 0 }] = await this.database.db
-      .select({ used: count() })
-      .from(scans)
-      .where(and(...conds));
-    if (used >= plan.entitlements.scansPerPeriod) {
-      throw new ApiError(
-        HttpStatus.TOO_MANY_REQUESTS,
-        'quota_exceeded',
-        quotaMessage(planId, plan.entitlements.scansPerPeriod),
-        {
-          limit: plan.entitlements.scansPerPeriod,
-          used,
-          resetsAt: resetsAt.toISOString(),
-        },
-      );
-    }
   }
 
   /** Returns the full report if the viewer owns the scan (or holds its guest token); 404 otherwise. */
@@ -228,7 +198,7 @@ export class ScansService {
   }
 
   /** Retries a failed scan as a new scan. Free when the failure was ours or an integration's. */
-  async retry(id: string, viewer: Viewer, requester: Requester): Promise<CreateScanResult> {
+  async retry(id: string, viewer: Viewer): Promise<CreateScanResult> {
     const original = await this.findOwned(id, viewer);
     if (original.status !== 'failed')
       throw new ApiError(HttpStatus.CONFLICT, 'not_failed', 'Only failed scans can be retried.');
@@ -250,10 +220,10 @@ export class ScansService {
 
     const free =
       SCAN_FAILURE_CODES[(original.failureCode ?? 'internal_error') as ScanFailureCode] === 'ours';
-    const planId = original.userId
-      ? this.planFor({ user: { id: original.userId } })
-      : this.planFor(requester);
-    if (!free) await this.assertQuota(owner, planId);
+    const resolved = original.userId
+      ? await this.entitlements.forUser(original.userId)
+      : this.entitlements.forGuest();
+    if (!free) await this.entitlements.assertQuota(owner, resolved);
 
     const scanToken = original.guestKeyHash ? randomBytes(24).toString('base64url') : undefined;
     const [row] = await this.database.db
@@ -266,11 +236,31 @@ export class ScansService {
         normalizedUrl: original.normalizedUrl,
         countsTowardQuota: !free,
         retryOf: original.id,
-        expiresAt: new Date(Date.now() + getPlan(planId).entitlements.retentionDays * 86_400_000),
+        expiresAt: this.entitlements.expiresAt(resolved),
       })
       .returning();
     await this.queue.enqueue(row!.id);
     return { scan: toSummary(row!), scanToken, deduplicated: false };
+  }
+
+  /**
+   * Moves a guest scan into the signed-in user's account (e.g. after signing up). Requires the
+   * guest scan token. The scan then follows the user's retention; it stays counted where it was.
+   */
+  async claim(id: string, user: AuthUser, scanToken: string | undefined): Promise<ScanSummaryDto> {
+    const row = await this.findOwned(id, { scanToken });
+    const resolved = await this.entitlements.forUser(user.id);
+    const [updated] = await this.database.db
+      .update(scans)
+      .set({
+        userId: user.id,
+        claimTokenHash: null,
+        expiresAt: this.entitlements.expiresAt(resolved, row.createdAt),
+      })
+      .where(and(eq(scans.id, row.id), isNull(scans.userId)))
+      .returning();
+    if (!updated) throw new ApiError(HttpStatus.NOT_FOUND, 'not_found', 'Scan not found.');
+    return toSummary(updated);
   }
 
   private async findOwned(id: string, viewer: Viewer): Promise<ScanRow> {
@@ -294,27 +284,6 @@ function safeEqualHex(a: string, b: string): boolean {
   const ab = Buffer.from(a, 'hex');
   const bb = Buffer.from(b, 'hex');
   return ab.length === bb.length && timingSafeEqual(ab, bb);
-}
-
-export function quotaWindow(
-  period: 'day' | 'calendar_month' | 'billing_period',
-  now = new Date(),
-): { start: Date; resetsAt: Date } {
-  if (period === 'day')
-    return {
-      start: new Date(now.getTime() - 86_400_000),
-      resetsAt: new Date(now.getTime() + 86_400_000),
-    };
-  // calendar_month (and billing_period until Phase 5 provides real period dates): UTC month.
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const resetsAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
-  return { start, resetsAt };
-}
-
-function quotaMessage(planId: PlanId, limit: number): string {
-  if (planId === 'guest')
-    return `Guests can run ${limit} free scan per day. Create a free account for more scans.`;
-  return `You’ve used all ${limit} scans included in your plan for this period.`;
 }
 
 export function toSummary(r: ScanRow): ScanSummaryDto {

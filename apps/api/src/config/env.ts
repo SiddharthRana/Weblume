@@ -24,6 +24,14 @@ export const envSchema = z.object({
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(60),
   /** Stricter per-IP limit for starting/retrying scans. */
   SCAN_CREATE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
+  /**
+   * Supabase secret key (sb_secret_…, or the legacy service_role key). Used only to delete users
+   * from Supabase Auth on account deletion. Optional: without it, deletions stay pending.
+   */
+  SUPABASE_SECRET_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
   // ---- Scanning
   /** Google PageSpeed Insights API key. Without it, reports say Lighthouse data is unavailable. */
   PSI_API_KEY: z

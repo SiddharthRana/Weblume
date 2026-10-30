@@ -1,7 +1,33 @@
 # Progress
 
-**Current phase:** 2 — Audit engine and web results ✅ complete, awaiting go-ahead for Phase 3.
+**Current phase:** 3 — Accounts, entitlements, quotas ✅ complete, awaiting go-ahead for Phase 4.
 **Last updated:** 2026-10-30
+
+## Phase 3 — Accounts, entitlements, quotas
+
+### Done (verified in this environment)
+
+| Area           | What                                                                                                                                                                                                                                                                                                                                                       | Verified by                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Entitlements   | `EntitlementService`: the single server-side source of plan/limits. Plans come from `subscriptions` rows only (with billing switched on); access rules per status (`canceled` keeps access until period end; `grace_period` keeps access; `on_hold`/`paused`/`expired`/`refunded` don't); best plan wins; billing-period quota windows; retention per plan | 11 shared unit tests + DB e2e tests for every status, billing on/off, cross-user isolation |
+| Account API    | `GET/PATCH/DELETE /v1/me`, `GET /v1/me/export`, `POST /v1/scans/:id/claim`; deleted accounts get 403 even with a still-valid token                                                                                                                                                                                                                         | 23 DB-backed e2e tests                                                                     |
+| Deletion       | Immediate app-data deletion in one transaction, then Supabase admin-API user deletion; deferred and retried by the retention job when the key is missing or the call fails                                                                                                                                                                                 | e2e tests (immediate, deferred, failing admin call)                                        |
+| Retention      | Hourly pg-boss job (`17 * * * *`): expired scans, stale PSI cache, webhook payloads older than 30 days, pending auth deletions                                                                                                                                                                                                                             | e2e test; live run confirmed the schedule is registered                                    |
+| Infrastructure | Shared `PgBossService` (one instance, lazy start); DB test files run sequentially                                                                                                                                                                                                                                                                          | All 212 API tests pass                                                                     |
+| Web auth       | Supabase Auth (supabase-js, PKCE): sign-up with email confirmation, log in, Google (optional), forgot/reset password, email callback, safe `?next=` redirects, auth-aware header and mobile nav, “not configured” fallback                                                                                                                                 | 18 auth scenarios on desktop + mobile (35 runs, 1 desktop-only), Supabase and API mocked   |
+| Web app        | Dashboard (plan, usage meter, recent scans), account settings (name, plan/usage, export download, log out, delete with typed confirmation), history from the account (search, pagination) when signed in, guest scans claimed automatically on sign-in, Turnstile only for guests                                                                          | Playwright incl. axe on sign-up, dashboard and account pages; 152 web tests in total       |
+| Docs           | `docs/privacy-data-map.md`, Supabase setup steps in README                                                                                                                                                                                                                                                                                                 | —                                                                                          |
+
+### Bugs found and fixed by the new tests
+
+- Signing out (or deleting the account) on a protected page was hijacked by the auth guard, which redirected to `/login?next=…` instead of the intended page.
+
+### Not verified / limitations
+
+- **No real Supabase project was used.** JWT verification, PKCE email links, Google OAuth and the admin delete call follow Supabase's documented formats but were only exercised against mocks. First manual test: sign up, confirm the email, reset the password, delete the account.
+- The "accounts not configured" web state isn't covered by automated tests (the e2e build always has a mocked Supabase URL).
+- When the web app deletes an account, it says "deleted" or "pending" based on the API response. A pending deletion completes within the hour once `SUPABASE_SECRET_KEY` is set.
+- Plan downgrades don't shorten the retention of existing reports (expiry is set when a scan is created).
 
 ## Phase 2 — Audit engine and web results
 
@@ -31,13 +57,14 @@
 
 Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundation (auth guard, health, OpenAPI), generated TS client, marketing site, Flutter skeleton, CI. Details in git history (`876fa66`).
 
-## Next: Phase 3 — Accounts, entitlements, quotas
+## Next: Phase 4 — Mobile app
 
-Supabase Auth on web (sign-up, login, reset, Google), claiming guest scans into an account, `EntitlementService` (replacing the hard-coded free plan), account history across devices, retention job, data export, account deletion, authorisation tests.
+Generated Dart API client, Supabase Auth in Flutter, dashboard, new scan, progress, report, finding detail, history, account (incl. deletion), offline cache, widget tests, Android release build.
 
 ## Manual setup you'll need
 
 - **PageSpeed Insights API key** (free): Google Cloud console → enable "PageSpeed Insights API" → create an API key restricted to that API → `PSI_API_KEY`.
 - **Cloudflare Turnstile** (free): create a widget → site key to `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, secret to `TURNSTILE_SECRET_KEY`.
 - **`GUEST_HASH_SECRET`** for production: `openssl rand -hex 32`.
-- Supabase project (Phase 3), Android upload keystore (Phase 4).
+- **Supabase project:** see “Supabase Auth setup” in the README (URLs, keys, redirect URLs, SMTP, optional Google).
+- Android upload keystore (Phase 4).

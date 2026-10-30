@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Container } from '@/components/container';
 import { PageHeader } from '@/components/page-header';
-import { HistoryList } from './history-list';
+import { HistorySwitch } from './history-switch';
 
 export const metadata: Metadata = {
   title: 'Scan history',
@@ -11,11 +11,12 @@ export const metadata: Metadata = {
 export default function HistoryPage() {
   return (
     <>
-      <PageHeader eyebrow="History" title="Your recent scans">
-        Scans started in this browser. Account history across devices arrives with sign-in.
+      <PageHeader eyebrow="History" title="Your scans">
+        Signed in, this lists every saved report in your account. Signed out, it lists scans started
+        in this browser.
       </PageHeader>
       <Container className="max-w-3xl py-12">
-        <HistoryList />
+        <HistorySwitch />
       </Container>
     </>
   );

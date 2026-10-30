@@ -12,6 +12,7 @@ import {
 import { loadEnv } from '../src/config/env';
 import { Database } from '../src/database/database.module';
 import { SCAN_QUEUE } from '../src/scans/scan-queue';
+import { AccountService } from '../src/account/account.service';
 
 export const SUPABASE_URL = 'http://supabase.test';
 export const ISSUER = `${SUPABASE_URL}/auth/v1`;
@@ -26,6 +27,7 @@ export function setTestEnv(overrides: Record<string, string> = {}) {
     LOG_LEVEL: 'silent',
     CORS_ORIGINS: 'http://localhost:3000',
     RATE_LIMIT_PER_MINUTE: '1000',
+    WORKER_ENABLED: 'false',
     ...overrides,
   });
 }
@@ -89,6 +91,9 @@ export async function createTestApp(opts: {
     .useValue({ ping: async () => opts.dbUp ?? true, onApplicationShutdown: async () => undefined })
     .overrideProvider(SCAN_QUEUE)
     .useValue({ enqueue: async () => undefined })
+    // /v1/me reads the database; these tests only exercise authentication, so echo the user back.
+    .overrideProvider(AccountService)
+    .useValue({ get: async (u: { id: string; email?: string }) => ({ id: u.id, email: u.email }) })
     .compile();
   const app = moduleRef.createNestApplication<NestExpressApplication>({
     bodyParser: false,

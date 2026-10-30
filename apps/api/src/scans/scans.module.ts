@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { FeatureFlags } from '../common/feature-flags.service';
 import { ENV, type Env } from '../config/env';
 import { GooglePsiProvider, UnconfiguredPsiProvider } from '../scanner/psi/google-psi.provider';
 import { PsiService } from '../scanner/psi/psi-cache.service';
@@ -26,7 +25,6 @@ export function botUserAgent(siteUrl: string): string {
     ScansService,
     ScanProcessor,
     PsiService,
-    FeatureFlags,
     { provide: SCAN_QUEUE, useClass: PgBossScanQueue },
     { provide: HTTP_PROBE_PORT, useValue: undefined },
     {

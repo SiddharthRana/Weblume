@@ -11,6 +11,8 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import type {
+  PlanId,
+  SubscriptionStatus,
   AuditCategory,
   FindingKind,
   LighthouseByStrategy,
@@ -92,3 +94,41 @@ export const featureFlags = pgTable('feature_flags', {
 
 export type ScanRow = typeof scans.$inferSelect;
 export type FindingRow = typeof findings.$inferSelect;
+
+export const profiles = pgTable('profiles', {
+  id: uuid('id').primaryKey(),
+  displayName: text('display_name'),
+  deletionRequestedAt: ts('deletion_requested_at'),
+  createdAt: ts('created_at').notNull().defaultNow(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+});
+
+export const subscriptions = pgTable('subscriptions', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull(),
+  provider: text('provider').notNull(),
+  providerSubscriptionId: text('provider_subscription_id').notNull(),
+  productId: text('product_id').notNull(),
+  planId: text('plan_id').$type<PlanId>().notNull(),
+  status: text('status').$type<SubscriptionStatus>().notNull(),
+  currentPeriodStart: ts('current_period_start'),
+  currentPeriodEnd: ts('current_period_end'),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').notNull().default(false),
+  lastEventAt: ts('last_event_at').notNull(),
+  createdAt: ts('created_at').notNull().defaultNow(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+});
+
+export const shareLinks = pgTable('share_links', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  scanId: uuid('scan_id').notNull(),
+  createdBy: uuid('created_by').notNull(),
+});
+
+export const webhookEvents = pgTable('webhook_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  payload: jsonb('payload'),
+  receivedAt: ts('received_at').notNull().defaultNow(),
+});
+
+export type SubscriptionRow = typeof subscriptions.$inferSelect;

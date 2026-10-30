@@ -5,6 +5,7 @@ import { useId, useState, type FormEvent } from 'react';
 import { normalizeUrl } from '@weblume/shared';
 import { Turnstile } from '@/components/turnstile';
 import { api, errorMessage } from '@/lib/api';
+import { useAuth } from '@/lib/auth-context';
 import { saveLocalScan } from '@/lib/local-scans';
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? '';
@@ -18,6 +19,9 @@ export function ScanForm() {
   const [submitting, setSubmitting] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [resetKey, setResetKey] = useState(0);
+  const { user } = useAuth();
+  // Signed-in users are verified by their session; only guests need the bot check.
+  const needsCaptcha = Boolean(SITE_KEY) && !user;
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -27,14 +31,14 @@ export function ScanForm() {
       setError(normalized.message);
       return;
     }
-    if (SITE_KEY && !token) {
+    if (needsCaptcha && !token) {
       setError('Please complete the verification below, then try again.');
       return;
     }
     setSubmitting(true);
     try {
       const { data, error: apiError } = await api.POST('/v1/scans', {
-        body: { url: normalized.url, ...(token ? { turnstileToken: token } : {}) },
+        body: { url: normalized.url, ...(needsCaptcha && token ? { turnstileToken: token } : {}) },
       });
       if (!data) {
         setError(errorMessage(apiError));
@@ -94,7 +98,7 @@ export function ScanForm() {
       <p id={errorId} role="alert" className="mt-2 min-h-5 text-sm font-medium text-danger">
         {error}
       </p>
-      {SITE_KEY && (
+      {needsCaptcha && (
         <div className="mt-2">
           <Turnstile siteKey={SITE_KEY} onToken={setToken} resetKey={resetKey} />
         </div>

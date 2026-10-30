@@ -70,35 +70,6 @@
         ]
       }
     },
-    "/v1/me": {
-      "get": {
-        "operationId": "Me_me",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MeDto"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Missing or invalid access token"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "account"
-        ]
-      }
-    },
     "/v1/scans": {
       "post": {
         "operationId": "Scans_create",
@@ -346,6 +317,273 @@
           "scans"
         ]
       }
+    },
+    "/v1/scans/{id}/claim": {
+      "post": {
+        "operationId": "Scans_claim",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-scan-token",
+            "required": true,
+            "in": "header",
+            "description": "Guest scans: the scanToken returned when the scan was created",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScanSummaryDtoClass"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "scans"
+        ]
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "Account_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDtoClass"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "account_deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "account"
+        ]
+      },
+      "patch": {
+        "operationId": "Account_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountDtoClass"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "account_deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "account"
+        ]
+      },
+      "delete": {
+        "operationId": "Account_delete",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteAccountResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "account_deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/v1/me/export": {
+      "get": {
+        "operationId": "Account_export",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "JSON export (account, plan, scans with findings)"
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "account_deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "account"
+        ]
+      }
     }
   },
   "info": {
@@ -475,21 +713,6 @@
           "name",
           "paid",
           "entitlements"
-        ]
-      },
-      "MeDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "email": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id"
         ]
       },
       "CreateScanBody": {
@@ -1121,6 +1344,190 @@
           "passedChecks",
           "findings",
           "expiresAt"
+        ]
+      },
+      "AccountPlanDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "starter"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "default",
+              "subscription"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "paid",
+          "source"
+        ]
+      },
+      "UsageDto": {
+        "type": "object",
+        "properties": {
+          "used": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "periodStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "resetsAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "used",
+          "limit",
+          "periodStart",
+          "resetsAt"
+        ]
+      },
+      "AccountSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "planId": {
+            "type": "string",
+            "enum": [
+              "guest",
+              "free",
+              "starter"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "trialing",
+              "active",
+              "grace_period",
+              "on_hold",
+              "paused",
+              "canceled",
+              "expired",
+              "refunded"
+            ]
+          },
+          "currentPeriodEnd": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "provider",
+          "planId",
+          "status",
+          "currentPeriodEnd",
+          "cancelAtPeriodEnd"
+        ]
+      },
+      "AccountDtoClass": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/AccountPlanDto"
+          },
+          "entitlements": {
+            "$ref": "#/components/schemas/EntitlementsDto"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/UsageDto"
+          },
+          "subscriptions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountSubscriptionDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "createdAt",
+          "plan",
+          "entitlements",
+          "usage",
+          "subscriptions"
+        ]
+      },
+      "UpdateAccountBody": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 100
+          }
+        }
+      },
+      "DeleteAccountBody": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "string",
+            "example": "DELETE",
+            "description": "Must be exactly \"DELETE\""
+          }
+        },
+        "required": [
+          "confirm"
+        ]
+      },
+      "DeleteAccountResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "deleted",
+              "pending"
+            ],
+            "description": "pending: app data is deleted; the sign-in record will be removed shortly"
+          }
+        },
+        "required": [
+          "status"
         ]
       }
     }

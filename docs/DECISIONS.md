@@ -2,6 +2,26 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-10-30 — Phase 3 accounts
+
+**Entitlements only from server-side subscription rows**, through one `EntitlementService`. Clients can't influence plans (`PATCH /v1/me` rejects unknown fields). While the `billing` flag is off, everyone is on Free regardless of rows, matching the spec's "billing disabled" mode. The best plan among subscriptions that grant access wins.
+
+**Access by subscription status:** `trialing`, `active` and `grace_period` grant access. `canceled` grants access until `current_period_end`. `on_hold`, `paused`, `expired` and `refunded` don't. This matches Google Play's grace-period vs account-hold semantics.
+
+**Retention is fixed at scan creation** (`expires_at`). Claiming a guest scan re-bases it on the account's plan from its original creation time. Downgrades don't retroactively shorten existing reports; upgrades don't extend them (documented limitation).
+
+**Claimed guest scans stay counted where they were counted** (no quota games). The guest token is cleared on claim, so only the account can open the report.
+
+**Account deletion = immediate app-data deletion + auth user deletion via the Supabase admin API**, with `deletion_requested_at` as a tombstone. The API refuses tombstoned or missing profiles (403 `account_deleted`), so a still-valid JWT can't recreate data. The retention job retries pending auth deletions. _Rejected:_ a 30-day soft delete. It's simpler to delete immediately, and the privacy policy promises "within 30 days" as an upper bound.
+
+**Supabase in the browser via supabase-js with PKCE** (not `@supabase/ssr`): all app pages are client-rendered and call our API with the access token, so no server-side session is needed. Email links (confirmation, password reset) use PKCE codes exchanged on `/auth/callback` and `/auth/reset-password`.
+
+**`?next=` redirects only to same-site relative paths** (`/…`, not `//…`), preventing open redirects.
+
+**`signOut(redirectTo)` suppresses auth-guard redirects** while it navigates. This fixes a race found by the e2e tests.
+
+**Web e2e build uses a mocked Supabase URL** (`build:e2e`). Supabase Auth and the API are mocked at the network layer, so the tests need no real project or keys.
+
 ## 2026-10-30 — Phase 2 scan engine
 
 **SSRF defence via a custom `lookup` in undici's connector.** DNS resolution, validation and connection happen in one step, so the socket connects to exactly the address that was checked: no rebinding window. A host is rejected if _any_ resolved address is non-public. IP literals skip DNS, so they're checked separately. Policy: allow only addresses ipaddr.js classifies as `unicast`, plus an explicit blocklist for ranges it misses (CGNAT, documentation, benchmarking, NAT64, 6to4, Teredo, ULA, …). _Rejected:_ resolve-then-fetch (time-of-check/time-of-use gap), and blocklisting only well-known private ranges.

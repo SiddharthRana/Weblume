@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { AccountDeletedNotice } from '@/components/account-deleted-notice';
 import { ButtonLink } from '@/components/button-link';
 import { Container } from '@/components/container';
 import { ScoreRing } from '@/components/report/score-ring';
@@ -37,6 +39,9 @@ const audiences = [
 export default function HomePage() {
   return (
     <>
+      <Suspense>
+        <AccountDeletedNotice />
+      </Suspense>
       <section className="border-b border-border bg-surface">
         <Container className="grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-2">
           <div>

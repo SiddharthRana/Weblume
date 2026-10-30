@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { PLAN_IDS, PLANS, formatPrice, compareSeverity, SEVERITIES } from '../src/index.js';
+import {
+  PLAN_IDS,
+  PLANS,
+  formatPrice,
+  compareSeverity,
+  SEVERITIES,
+  subscriptionGrantsAccess,
+  planRank,
+} from '../src/index.js';
 
 describe('plan configuration', () => {
   it('defines every plan id with a matching id field', () => {
@@ -47,5 +55,29 @@ describe('severity ordering', () => {
   it('sorts most severe first', () => {
     const shuffled = ['low', 'critical', 'info', 'high', 'medium'] as const;
     expect([...shuffled].sort(compareSeverity)).toEqual([...SEVERITIES]);
+  });
+});
+
+describe('subscriptionGrantsAccess', () => {
+  const future = new Date(Date.now() + 86_400_000);
+  const past = new Date(Date.now() - 86_400_000);
+  it.each([
+    ['trialing', null, true],
+    ['active', null, true],
+    ['grace_period', null, true],
+    ['canceled', future, true],
+    ['canceled', past, false],
+    ['canceled', null, false],
+    ['on_hold', future, false],
+    ['paused', future, false],
+    ['expired', future, false],
+    ['refunded', future, false],
+  ] as const)('%s (period end %s) → %s', (status, end, expected) => {
+    expect(subscriptionGrantsAccess(status, end)).toBe(expected);
+  });
+
+  it('ranks plans by generosity', () => {
+    expect(planRank('starter')).toBeGreaterThan(planRank('free'));
+    expect(planRank('free')).toBeGreaterThan(planRank('guest'));
   });
 });

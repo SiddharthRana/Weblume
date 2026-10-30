@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { Container } from '@/components/container';
 import { PageHeader } from '@/components/page-header';
 import { ScanForm } from './scan-form';
@@ -19,7 +20,11 @@ export default function NewScanPage() {
         <ScanForm />
         <p className="mt-6 text-sm text-fg-muted">
           Without an account you can run one free scan per day. Reports from guest scans are kept
-          for 24 hours and can only be opened on this device.
+          for 24 hours and can only be opened on this device. A{' '}
+          <Link href="/signup" className="text-primary underline">
+            free account
+          </Link>{' '}
+          gives you 5 scans a month and keeps reports for 30 days.
         </p>
       </Container>
     </>

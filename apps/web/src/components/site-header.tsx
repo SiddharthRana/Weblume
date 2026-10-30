@@ -3,7 +3,7 @@ import { mainNav } from '@/lib/site';
 import { Container } from './container';
 import { Logo } from './logo';
 import { MobileNav } from './mobile-nav';
-import { ButtonLink } from './button-link';
+import { AuthNav } from './auth-nav';
 
 export function SiteHeader() {
   return (
@@ -27,10 +27,7 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="flex items-center gap-2">
-          {/* ButtonLink sets display itself, so visibility is controlled by a wrapper. */}
-          <div className="hidden md:block">
-            <ButtonLink href="/scan">Scan a website</ButtonLink>
-          </div>
+          <AuthNav />
           <MobileNav />
         </div>
       </Container>

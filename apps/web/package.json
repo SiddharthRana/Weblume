@@ -10,12 +10,14 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "echo 'Web unit tests: none yet (see test:e2e)'",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:e2e": "NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_e2e_test NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=true next build"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@next/mdx": "^16.4.3",
+    "@supabase/supabase-js": "^2.118.0",
     "@weblume/api-client-ts": "workspace:*",
     "@weblume/design-tokens": "workspace:*",
     "@weblume/shared": "workspace:*",

@@ -52,22 +52,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["Me_me"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/v1/scans": {
         parameters: {
             query?: never;
@@ -116,6 +100,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/scans/{id}/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Scans_claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Account_me"];
+        put?: never;
+        post?: never;
+        delete: operations["Account_delete"];
+        options?: never;
+        head?: never;
+        patch: operations["Account_update"];
+        trace?: never;
+    };
+    "/v1/me/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Account_export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -150,11 +182,6 @@ export interface components {
             entitlements: components["schemas"]["EntitlementsDto"];
             /** @description Indicative prices only; the charged amount comes from the payment provider. */
             displayPrices?: components["schemas"]["DisplayPriceDto"][];
-        };
-        MeDto: {
-            /** Format: uuid */
-            id: string;
-            email?: string;
         };
         CreateScanBody: {
             /** @example example.com */
@@ -324,6 +351,61 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
         };
+        AccountPlanDto: {
+            /** @enum {string} */
+            id: "guest" | "free" | "starter";
+            name: string;
+            paid: boolean;
+            /** @enum {string} */
+            source: "default" | "subscription";
+        };
+        UsageDto: {
+            used: number;
+            limit: number;
+            /** Format: date-time */
+            periodStart: string;
+            /** Format: date-time */
+            resetsAt: string;
+        };
+        AccountSubscriptionDto: {
+            provider: string;
+            /** @enum {string} */
+            planId: "guest" | "free" | "starter";
+            /** @enum {string} */
+            status: "trialing" | "active" | "grace_period" | "on_hold" | "paused" | "canceled" | "expired" | "refunded";
+            /** Format: date-time */
+            currentPeriodEnd: string | null;
+            cancelAtPeriodEnd: boolean;
+        };
+        AccountDtoClass: {
+            /** Format: uuid */
+            id: string;
+            email?: string;
+            displayName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            plan: components["schemas"]["AccountPlanDto"];
+            entitlements: components["schemas"]["EntitlementsDto"];
+            usage: components["schemas"]["UsageDto"];
+            subscriptions: components["schemas"]["AccountSubscriptionDto"][];
+        };
+        UpdateAccountBody: {
+            displayName?: string | null;
+        };
+        DeleteAccountBody: {
+            /**
+             * @description Must be exactly "DELETE"
+             * @example DELETE
+             */
+            confirm: string;
+        };
+        DeleteAccountResponse: {
+            /**
+             * @description pending: app data is deleted; the sign-in record will be removed shortly
+             * @enum {string}
+             */
+            status: "deleted" | "pending";
+        };
     };
     responses: never;
     parameters: never;
@@ -394,32 +476,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PlanDto"][];
                 };
-            };
-        };
-    };
-    Me_me: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MeDto"];
-                };
-            };
-            /** @description Missing or invalid access token */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -569,6 +625,205 @@ export interface operations {
                 };
             };
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Scans_claim: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Guest scans: the scanToken returned when the scan was created */
+                "x-scan-token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScanSummaryDtoClass"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Account_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDtoClass"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description account_deleted */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Account_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountBody"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteAccountResponse"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description account_deleted */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Account_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAccountBody"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AccountDtoClass"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description account_deleted */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Account_export: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description JSON export (account, plan, scans with findings) */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description account_deleted */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

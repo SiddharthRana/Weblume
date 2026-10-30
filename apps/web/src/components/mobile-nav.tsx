@@ -3,12 +3,22 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useId, useState } from 'react';
+import { useAuth } from '@/lib/auth-context';
 import { mainNav } from '@/lib/site';
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const menuId = useId();
+  const { configured, user } = useAuth();
+  const accountLinks = !configured
+    ? []
+    : user
+      ? [
+          { href: '/dashboard', label: 'Dashboard' },
+          { href: '/account', label: 'Account' },
+        ]
+      : [{ href: '/login', label: 'Log in' }];
 
   // Close the menu after navigating.
   const [lastPath, setLastPath] = useState(pathname);
@@ -59,10 +69,10 @@ export function MobileNav() {
           className="absolute inset-x-0 top-16 z-20 border-b border-border bg-surface px-4 pb-4 shadow-sm"
         >
           <ul className="flex flex-col">
-            {mainNav.map((item) => (
+            {[...mainNav, ...accountLinks].map((item) => (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={item.href as never}
                   aria-current={pathname === item.href ? 'page' : undefined}
                   className="block rounded-md px-2 py-3 text-base font-medium text-fg hover:bg-surface-muted aria-[current=page]:text-primary"
                 >
