@@ -1191,6 +1191,9 @@
           "pdfExport": {
             "type": "boolean"
           },
+          "codeFixes": {
+            "type": "boolean"
+          },
           "shareLinks": {
             "type": "boolean"
           }
@@ -1202,6 +1205,7 @@
           "lighthouseData",
           "comparison",
           "pdfExport",
+          "codeFixes",
           "shareLinks"
         ]
       },
@@ -1572,6 +1576,50 @@
           }
         }
       },
+      "CodeSnippetDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Where the code goes, e.g. \"In the page’s <head>\" or \"nginx\""
+          },
+          "language": {
+            "type": "string",
+            "enum": [
+              "html",
+              "xml",
+              "nginx",
+              "apache",
+              "text"
+            ]
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "language",
+          "code"
+        ]
+      },
+      "CodeFixDto": {
+        "type": "object",
+        "properties": {
+          "snippets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CodeSnippetDto"
+            }
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "snippets"
+        ]
+      },
       "FindingDtoClass": {
         "type": "object",
         "properties": {
@@ -1641,6 +1689,18 @@
           "details": {
             "type": "object",
             "additionalProperties": true
+          },
+          "codeFixAvailable": {
+            "type": "boolean",
+            "description": "Whether a code fix exists for this finding, even if this plan doesn’t include it"
+          },
+          "codeFix": {
+            "description": "Only on plans with code fixes",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CodeFixDto"
+              }
+            ]
           }
         },
         "required": [
@@ -1654,7 +1714,8 @@
           "whatItMeans",
           "whyItMatters",
           "howToFix",
-          "details"
+          "details",
+          "codeFixAvailable"
         ]
       },
       "ScanReportDtoClass": {

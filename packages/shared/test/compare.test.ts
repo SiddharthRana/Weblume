@@ -14,6 +14,7 @@ function finding(checkId: string, over: Partial<FindingDto> = {}): FindingDto {
     whyItMatters: '',
     howToFix: [],
     details: {},
+    codeFixAvailable: false,
     ...over,
   };
 }

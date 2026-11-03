@@ -114,6 +114,22 @@ enum SourceStatusReason {
       SourceStatusReason.values.firstWhere((e) => e.value == json, orElse: () => SourceStatusReason.unknown);
 }
 
+enum CodeSnippetLanguage {
+  html('html'),
+  xml('xml'),
+  nginx('nginx'),
+  apache('apache'),
+  text('text'),
+  /// A value this app version doesn't know yet.
+  unknown('unknown');
+
+  const CodeSnippetLanguage(this.value);
+  final String value;
+
+  static CodeSnippetLanguage fromJson(Object? json) =>
+      CodeSnippetLanguage.values.firstWhere((e) => e.value == json, orElse: () => CodeSnippetLanguage.unknown);
+}
+
 enum FindingCategory {
   performance('performance'),
   seo('seo'),
@@ -271,6 +287,7 @@ class Entitlements {
     required this.lighthouseData,
     required this.comparison,
     required this.pdfExport,
+    required this.codeFixes,
     required this.shareLinks,
   });
 
@@ -280,6 +297,7 @@ class Entitlements {
   final bool lighthouseData;
   final bool comparison;
   final bool pdfExport;
+  final bool codeFixes;
   final bool shareLinks;
 
   factory Entitlements.fromJson(Map<String, dynamic> json) => Entitlements(
@@ -289,6 +307,7 @@ class Entitlements {
       lighthouseData: json['lighthouseData'] as bool,
       comparison: json['comparison'] as bool,
       pdfExport: json['pdfExport'] as bool,
+      codeFixes: json['codeFixes'] as bool,
       shareLinks: json['shareLinks'] as bool,
       );
 
@@ -299,6 +318,7 @@ class Entitlements {
       'lighthouseData': lighthouseData,
       'comparison': comparison,
       'pdfExport': pdfExport,
+      'codeFixes': codeFixes,
       'shareLinks': shareLinks,
       };
 }
@@ -702,6 +722,51 @@ class LighthouseByStrategy {
       };
 }
 
+class CodeSnippet {
+  const CodeSnippet({
+    required this.label,
+    required this.language,
+    required this.code,
+  });
+
+  /// Where the code goes, e.g. "In the page’s <head>" or "nginx"
+  final String label;
+  final CodeSnippetLanguage language;
+  final String code;
+
+  factory CodeSnippet.fromJson(Map<String, dynamic> json) => CodeSnippet(
+      label: json['label'] as String,
+      language: CodeSnippetLanguage.fromJson(json['language']),
+      code: json['code'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'label': label,
+      'language': language.value,
+      'code': code,
+      };
+}
+
+class CodeFix {
+  const CodeFix({
+    required this.snippets,
+    this.note,
+  });
+
+  final List<CodeSnippet> snippets;
+  final String? note;
+
+  factory CodeFix.fromJson(Map<String, dynamic> json) => CodeFix(
+      snippets: (json['snippets'] as List<dynamic>).map((e) => CodeSnippet.fromJson(e as Map<String, dynamic>)).toList(),
+      note: json['note'] == null ? null : json['note'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'snippets': snippets.map((e) => e.toJson()).toList(),
+      if (note != null) 'note': note!,
+      };
+}
+
 class Finding {
   const Finding({
     required this.id,
@@ -716,6 +781,8 @@ class Finding {
     required this.howToFix,
     this.learnMoreUrl,
     required this.details,
+    required this.codeFixAvailable,
+    this.codeFix,
   });
 
   final String id;
@@ -731,6 +798,10 @@ class Finding {
   final List<String> howToFix;
   final String? learnMoreUrl;
   final Map<String, dynamic> details;
+  /// Whether a code fix exists for this finding, even if this plan doesn’t include it
+  final bool codeFixAvailable;
+  /// Only on plans with code fixes
+  final CodeFix? codeFix;
 
   factory Finding.fromJson(Map<String, dynamic> json) => Finding(
       id: json['id'] as String,
@@ -745,6 +816,8 @@ class Finding {
       howToFix: (json['howToFix'] as List<dynamic>).map((e) => e as String).toList(),
       learnMoreUrl: json['learnMoreUrl'] == null ? null : json['learnMoreUrl'] as String,
       details: Map<String, dynamic>.from(json['details'] as Map),
+      codeFixAvailable: json['codeFixAvailable'] as bool,
+      codeFix: json['codeFix'] == null ? null : CodeFix.fromJson(json['codeFix'] as Map<String, dynamic>),
       );
 
   Map<String, dynamic> toJson() => {
@@ -760,6 +833,8 @@ class Finding {
       'howToFix': howToFix.map((e) => e).toList(),
       if (learnMoreUrl != null) 'learnMoreUrl': learnMoreUrl!,
       'details': details,
+      'codeFixAvailable': codeFixAvailable,
+      if (codeFix != null) 'codeFix': codeFix!.toJson(),
       };
 }
 

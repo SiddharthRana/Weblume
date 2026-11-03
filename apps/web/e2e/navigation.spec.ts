@@ -4,8 +4,10 @@ test('desktop navigation reaches every main page', async ({ page, isMobile }) =>
   test.skip(isMobile, 'desktop nav only');
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Main' });
+  // On wide screens the header's button covers /scan instead of a nav link.
+  await page.getByRole('banner').getByRole('link', { name: 'Scan a website' }).click();
+  await expect(page).toHaveURL('/scan');
   for (const [label, path] of [
-    ['Scan', '/scan'],
     ['Features', '/features'],
     ['How it works', '/how-it-works'],
     ['Sample report', '/sample-report'],

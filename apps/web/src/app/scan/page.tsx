@@ -6,7 +6,7 @@ import { ScanForm } from './scan-form';
 
 export const metadata: Metadata = {
   title: 'Scan a website',
-  description: 'Check a web page for performance, SEO, accessibility and technical issues — free.',
+  description: 'Check a web page for performance, SEO, accessibility and technical issues, free.',
   alternates: { canonical: '/scan' },
 };
 

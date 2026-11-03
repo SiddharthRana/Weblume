@@ -46,7 +46,7 @@ export function lighthouseSeverity(a: LighthouseAudit): Severity {
 
 const WHY_BY_CATEGORY: Record<string, string> = {
   performance:
-    'Slow pages lose visitors — especially on mobile connections — and page speed is one of the signals search engines use.',
+    'Slow pages lose visitors, especially on mobile connections, and page speed is one of the signals search engines use.',
   accessibility:
     'Barriers like this can stop people using screen readers, keyboards or magnifiers from using your site, and may create legal risk in some countries.',
   seo: 'This can make it harder for search engines to understand, index or display your page well.',
@@ -62,7 +62,7 @@ interface Copy {
 const OVERRIDES: Record<string, Copy> = {
   'largest-contentful-paint': {
     whatItMeans:
-      'Largest Contentful Paint (LCP) measures when the biggest piece of content on screen — usually a hero image or heading — finishes loading. Google recommends 2.5 seconds or less.',
+      'Largest Contentful Paint (LCP) measures when the biggest piece of content on screen (usually a hero image or heading) finishes loading. Google recommends 2.5 seconds or less.',
     howToFix: [
       'Compress the main image and serve it in a modern format such as WebP or AVIF, at the size it’s displayed.',
       'Don’t lazy-load the main image; consider fetchpriority="high" on it.',
@@ -72,7 +72,7 @@ const OVERRIDES: Record<string, Copy> = {
   },
   'first-contentful-paint': {
     whatItMeans:
-      'First Contentful Paint (FCP) measures how long it takes before anything — text or an image — appears on screen.',
+      'First Contentful Paint (FCP) measures how long it takes before anything (text or an image) appears on screen.',
     howToFix: [
       'Reduce render-blocking CSS and JavaScript in the <head>.',
       'Speed up the server response with caching or a CDN.',
@@ -90,7 +90,7 @@ const OVERRIDES: Record<string, Copy> = {
   },
   'cumulative-layout-shift': {
     whatItMeans:
-      'Cumulative Layout Shift (CLS) measures how much content jumps around while the page loads — for example when an image or ad pushes text down.',
+      'Cumulative Layout Shift (CLS) measures how much content jumps around while the page loads, for example when an image or ad pushes text down.',
     howToFix: [
       'Give images, videos and embeds width and height attributes (or a CSS aspect-ratio).',
       'Reserve space for ads, banners and cookie notices before they load.',
@@ -115,7 +115,7 @@ const OVERRIDES: Record<string, Copy> = {
   },
   'link-name': {
     whatItMeans:
-      'Some links have no text a screen reader can announce — for example icon-only links.',
+      'Some links have no text a screen reader can announce, for example icon-only links.',
     howToFix: [
       'Add visible text, or an aria-label describing where the link goes, e.g. aria-label="Instagram".',
     ],

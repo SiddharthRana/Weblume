@@ -17,7 +17,7 @@ export function LegalDraft({
         role="note"
         className="mb-8 rounded-lg border-2 border-danger bg-sev-critical-bg p-4 text-sm text-sev-critical"
       >
-        <strong>DRAFT — requires legal review.</strong> This page is a placeholder written by the
+        <strong>DRAFT: requires legal review.</strong> This page is a placeholder written by the
         product team. It is not legal advice and must be reviewed by a qualified lawyer before
         Weblume launches.
       </div>

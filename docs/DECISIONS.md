@@ -2,6 +2,15 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-11-03 — Code fixes, theme switch, scan progress
+
+**Code fixes are a Starter feature, built and gated on the server.** `apps/api/src/scanner/code-fixes.ts` builds copy-paste code for 23 of Weblume's own checks from each finding's evidence and the page's address (the exact canonical URL, the `http://` resources to upgrade, the images missing alt text). Every finding reports `codeFixAvailable`; the code itself (`codeFix`) is only sent when the viewer's plan has the `codeFixes` entitlement, so it never ships in the website's bundle. Shared links show what the owner's plan includes. Lighthouse audits, broken links and page weight get no code: they need judgement, not a snippet.
+_Rejected:_ static snippets in the shared catalogue (public in the JS bundle, and generic).
+
+**Theme switch on the website.** A header button sets `data-theme` on `<html>` and remembers the choice in localStorage; an inline script applies it before paint. Without a choice the site follows the system setting, as before.
+
+**Scan progress is animated without inventing progress.** The API only reports queued or running, so the waiting screen shows activity (a scan beam, an elapsed timer, an indeterminate bar) rather than ticking off steps it can't see.
+
 ## 2026-11-03 — Website on Cloudflare Pages
 
 **The website is a static export on Cloudflare Pages**, as in MirthMix. Every page already rendered in the browser and called the API directly, so the Next.js server was only serving files and headers. Production builds use `output: 'export'`; `next dev` stays a normal server so local development is unchanged.

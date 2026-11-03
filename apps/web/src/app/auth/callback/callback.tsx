@@ -30,7 +30,7 @@ export function AuthCallback() {
       <AuthCard title="Couldn’t sign you in from that link">
         <FormAlert>
           The link may have expired or been used already. If you opened it on a different device or
-          browser, your email may still be confirmed — try logging in.
+          browser, your email may still be confirmed, so try logging in.
         </FormAlert>
         <Link
           href="/login"

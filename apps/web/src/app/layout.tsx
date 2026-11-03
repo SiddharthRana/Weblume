@@ -6,6 +6,7 @@ import { SiteHeader } from '@/components/site-header';
 import { ErrorMonitoring } from '@/components/error-monitoring';
 import { AuthProvider } from '@/lib/auth-context';
 import { site } from '@/lib/site';
+import { themeInitScript } from '@/lib/theme';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -17,7 +18,7 @@ const jetbrains = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: `${site.name} — ${site.tagline}`, template: `%s · ${site.name}` },
+  title: { default: `${site.name}: ${site.tagline}`, template: `%s · ${site.name}` },
   description: site.description,
   applicationName: site.name,
   openGraph: {
@@ -40,7 +41,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+    // The theme script sets data-theme before React hydrates.
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="flex min-h-dvh flex-col">
         <a
           href="#main"

@@ -12,8 +12,8 @@ const fmtDate = new Intl.DateTimeFormat('en', { dateStyle: 'long' });
 const STATUS_LABEL: Record<string, string> = {
   trialing: 'Trial',
   active: 'Active',
-  grace_period: 'Payment issue — still active while it’s retried',
-  on_hold: 'On hold — payment failed',
+  grace_period: 'Payment issue (still active while it’s retried)',
+  on_hold: 'On hold: payment failed',
   paused: 'Paused',
   canceled: 'Cancelled',
   expired: 'Ended',
@@ -62,7 +62,7 @@ export function SubscriptionPanel({ account }: { account: Account }) {
       {active.length > 1 && (
         <p role="alert" className="rounded-md bg-sev-medium-bg p-3 text-sm text-sev-medium">
           You have more than one active subscription (for example on the web and in Google Play).
-          You’re only charged for what you keep — cancel the one you don’t need to avoid paying
+          You’re only charged for what you keep, so cancel the one you don’t need to avoid paying
           twice.
         </p>
       )}

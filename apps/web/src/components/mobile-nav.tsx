@@ -35,7 +35,7 @@ export function MobileNav() {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md border border-border text-fg"

@@ -56,6 +56,8 @@ function LighthouseCard({
 /** Full report body: scores, summary, priorities, findings by category, coverage and limitations. */
 export function ReportView({ report }: { report: ScanReportDto }) {
   const [filter, setFilter] = useState<AuditCategory | 'all'>('all');
+  // Animate the list only after a tab is chosen, not on first load.
+  const [switched, setSwitched] = useState(false);
   const findings = report.findings;
   const visible = filter === 'all' ? findings : findings.filter((f) => f.category === filter);
   const top = findings.filter((f) => f.severity !== 'info').slice(0, 5);
@@ -87,7 +89,7 @@ export function ReportView({ report }: { report: ScanReportDto }) {
             role="note"
             className="mt-4 rounded-md border border-accent bg-sev-medium-bg p-3 text-sm text-sev-medium"
           >
-            Some checks couldn’t be completed — see{' '}
+            Some checks couldn’t be completed. See{' '}
             <a href="#coverage" className="underline">
               audit coverage
             </a>
@@ -176,21 +178,38 @@ export function ReportView({ report }: { report: ScanReportDto }) {
                 key={c}
                 type="button"
                 aria-pressed={filter === c}
-                onClick={() => setFilter(c)}
-                className="min-h-11 rounded-full border border-border bg-surface px-4 text-sm font-medium text-fg aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-on-primary"
+                onClick={() => {
+                  setFilter(c);
+                  setSwitched(true);
+                }}
+                className="group/tab inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full border border-border bg-surface px-4 text-sm font-medium text-fg shadow-sm transition-[background-color,border-color,color,box-shadow,translate] duration-200 ease-out hover:-translate-y-px hover:border-primary/60 hover:bg-primary/5 hover:text-primary hover:shadow-md active:translate-y-0 active:scale-[0.97] aria-pressed:border-transparent aria-pressed:bg-[image:var(--wl-brand-gradient)] aria-pressed:text-white aria-pressed:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
-                {c === 'all' ? 'All' : CATEGORY_LABELS[c]} ({count})
+                {c === 'all' ? 'All' : CATEGORY_LABELS[c]}{' '}
+                <span className="rounded-full bg-surface-muted px-1.5 text-xs tabular-nums text-fg-muted transition-colors group-hover/tab:bg-primary/10 group-hover/tab:text-primary group-aria-pressed/tab:bg-white/20 group-aria-pressed/tab:text-white">
+                  {/* Read as "SEO (1)"; the badge shows just the number. */}
+                  <span className="sr-only">({count})</span>
+                  <span aria-hidden="true">{count}</span>
+                </span>
               </button>
             );
           })}
         </div>
-        <div className="mt-4 space-y-3">
+        {/* Keyed by the filter so the list animates in again on every switch. */}
+        <div key={filter} className="mt-4 space-y-3">
           {visible.length === 0 ? (
             <p className="rounded-md border border-border bg-surface p-4 text-sm text-fg-muted">
               No findings in this category.
             </p>
           ) : (
-            visible.map((f) => <FindingCard key={f.id} finding={f} />)
+            visible.map((f, i) => (
+              <div
+                key={f.id}
+                className={switched ? 'animate-rise' : undefined}
+                style={{ ['--i' as string]: Math.min(i, 8) }}
+              >
+                <FindingCard finding={f} />
+              </div>
+            ))
           )}
         </div>
       </section>

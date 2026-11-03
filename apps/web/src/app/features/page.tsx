@@ -23,7 +23,7 @@ const groups = [
     items: [
       'Lighthouse scores from Google PageSpeed Insights, mobile and desktop',
       'Core Web Vitals lab metrics such as Largest Contentful Paint',
-      'Each score labelled with its source — no invented numbers',
+      'Each score labelled with its source. No invented numbers',
     ],
   },
   {
@@ -53,7 +53,7 @@ const groups = [
     title: 'Safe and respectful scanning',
     items: [
       'A single page per scan, fetched like a normal visitor would',
-      'No intrusive testing — we never try to break in',
+      'No intrusive testing: we never try to break in',
       'Identifies itself honestly as WeblumeBot',
     ],
   },

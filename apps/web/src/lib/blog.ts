@@ -17,7 +17,7 @@ export const posts: PostMeta[] = [
   {
     slug: 'writing-good-alt-text',
     title: 'Writing good alt text: a practical guide for site owners',
-    description: 'How to describe images so everyone can use your website — with examples.',
+    description: 'How to describe images so everyone can use your website, with examples.',
     date: '2026-10-27',
   },
 ];

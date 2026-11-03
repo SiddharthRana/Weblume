@@ -172,18 +172,28 @@ export class ScansService {
 
   /** Returns the full report if the viewer owns the scan (or holds its guest token); 404 otherwise. */
   async get(id: string, viewer: Viewer): Promise<ScanReportDto> {
-    return this.buildReport(await this.findOwned(id, viewer));
+    const row = await this.findOwned(id, viewer);
+    return this.buildReport(row, await this.codeFixesFor(viewer.user?.id));
   }
 
-  /** Full report for a scan row. Callers must have checked access. */
-  async buildReport(row: ScanRow): Promise<ScanReportDto> {
+  /** Whether reports for this user include code fixes. Guests never get them. */
+  async codeFixesFor(userId: string | null | undefined): Promise<boolean> {
+    if (!userId) return false;
+    return (await this.entitlements.forUser(userId)).entitlements.codeFixes;
+  }
+
+  /** Full report for a scan row. Callers must have checked access and decided on code fixes. */
+  async buildReport(row: ScanRow, includeCodeFixes: boolean): Promise<ScanReportDto> {
     const rows = await this.database.db.select().from(findings).where(eq(findings.scanId, row.id));
     return {
       ...toSummary(row),
       sources: row.sources,
       lighthouse: row.lighthouse,
       passedChecks: row.passedChecks,
-      findings: composeFindings(rows),
+      findings: composeFindings(rows, {
+        pageUrl: row.finalUrl ?? row.normalizedUrl,
+        includeCodeFixes,
+      }),
       expiresAt: row.expiresAt.toISOString(),
     };
   }

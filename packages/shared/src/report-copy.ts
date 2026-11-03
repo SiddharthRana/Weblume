@@ -35,11 +35,11 @@ export const SOURCE_ORDER: ReportSource[] = [
 ];
 
 const SOURCE_REASONS: Record<string, string> = {
-  not_configured: 'Not available — not configured on this server',
+  not_configured: 'Not available (not configured on this server)',
   disabled: 'Turned off',
   not_applicable: 'Not applicable',
   timeout: 'Didn’t finish in time',
-  quota_exceeded: 'Daily quota reached — try again later',
+  quota_exceeded: 'Daily quota reached. Try again later',
   upstream_error: 'The service returned an error',
   blocked: 'Blocked',
   invalid_response: 'Returned data we couldn’t read',

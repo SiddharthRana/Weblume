@@ -46,7 +46,7 @@ for (const { path, h1 } of pages) {
 test('legal pages are clearly marked as drafts', async ({ page }) => {
   for (const path of ['/legal/privacy', '/legal/terms', '/legal/refunds']) {
     await page.goto(path);
-    await expect(page.getByText('DRAFT — requires legal review.')).toBeVisible();
+    await expect(page.getByText('DRAFT: requires legal review.')).toBeVisible();
   }
 });
 

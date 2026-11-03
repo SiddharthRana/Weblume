@@ -22,7 +22,7 @@ export function SourcesList({ sources }: { sources: SourcesMap }) {
               {ok ? '✓' : s.status === 'failed' ? '✕' : '–'}
             </span>
             <span className="text-fg-muted">
-              <span className="text-fg">{SOURCE_LABELS[k]}</span> — {describeSourceStatus(s)}
+              <span className="text-fg">{SOURCE_LABELS[k]}:</span> {describeSourceStatus(s)}
             </span>
           </li>
         );

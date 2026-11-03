@@ -69,6 +69,7 @@ Account fakeAccount({int used = 2, int limit = 5, String? name}) => Account.from
     'lighthouseData': true,
     'comparison': false,
     'pdfExport': false,
+    'codeFixes': false,
     'shareLinks': false,
   },
   'usage': {
@@ -133,6 +134,7 @@ Map<String, dynamic> reportJson(String id, {String status = 'completed', bool li
                 {'url': 'https://example.com/old', 'status': 404},
               ],
             },
+            'codeFixAvailable': false,
           },
           {
             'id': 'f2',
@@ -147,6 +149,7 @@ Map<String, dynamic> reportJson(String id, {String status = 'completed', bool li
             'howToFix': ['Add a meta description tag.'],
             'learnMoreUrl': 'https://developers.google.com/search/docs/appearance/snippet',
             'details': <String, dynamic>{},
+            'codeFixAvailable': true,
           },
         ],
 };
@@ -236,6 +239,7 @@ class FakeRepository implements WeblumeRepository {
         'lighthouseData': true,
         'comparison': true,
         'pdfExport': true,
+        'codeFixes': true,
         'shareLinks': true,
       },
     }),
@@ -299,6 +303,7 @@ Account starterAccount() => Account.fromJson({
     'lighthouseData': true,
     'comparison': true,
     'pdfExport': true,
+    'codeFixes': true,
     'shareLinks': true,
   },
 });

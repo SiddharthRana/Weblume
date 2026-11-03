@@ -1,6 +1,11 @@
-import { CHECKS, type FindingDto, type ScanReportDto } from '@weblume/shared';
+import { CHECKS, type CodeFix, type FindingDto, type ScanReportDto } from '@weblume/shared';
 
-function own(id: keyof typeof CHECKS, details: Record<string, unknown> = {}): FindingDto {
+/** Code fixes as the API builds them for this page, to show what Starter includes. */
+function own(
+  id: keyof typeof CHECKS,
+  details: Record<string, unknown> = {},
+  codeFix?: CodeFix,
+): FindingDto {
   const c = CHECKS[id];
   return {
     id,
@@ -15,6 +20,8 @@ function own(id: keyof typeof CHECKS, details: Record<string, unknown> = {}): Fi
     howToFix: c.howToFix,
     learnMoreUrl: c.learnMoreUrl,
     details,
+    codeFixAvailable: !!codeFix,
+    ...(codeFix ? { codeFix } : {}),
   };
 }
 
@@ -79,9 +86,9 @@ export const sampleReport: ScanReportDto = {
       source: 'psi_mobile',
       title: 'Largest Contentful Paint: 4.8 s',
       whatItMeans:
-        'Largest Contentful Paint (LCP) measures when the biggest piece of content on screen — usually a hero image or heading — finishes loading. Google recommends 2.5 seconds or less.',
+        'Largest Contentful Paint (LCP) measures when the biggest piece of content on screen (usually a hero image or heading) finishes loading. Google recommends 2.5 seconds or less.',
       whyItMatters:
-        'Slow pages lose visitors — especially on mobile connections — and page speed is one of the signals search engines use.',
+        'Slow pages lose visitors, especially on mobile connections, and page speed is one of the signals search engines use.',
       howToFix: [
         'Compress the main image and serve it in a modern format such as WebP or AVIF, at the size it’s displayed.',
         'Don’t lazy-load the main image; consider fetchpriority="high" on it.',
@@ -90,13 +97,59 @@ export const sampleReport: ScanReportDto = {
       learnMoreUrl:
         'https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/',
       details: { measured: '4.8 s', strategy: 'mobile' },
+      codeFixAvailable: false,
     },
-    own('seo.meta_description.missing'),
-    own('a11y.image_alt.missing', {
-      count: 6,
-      examples: ['/img/loaf.jpg', '/img/croissant.jpg', '/img/shop.jpg'],
-    }),
-    own('tech.hsts.missing'),
+    own(
+      'seo.meta_description.missing',
+      {},
+      {
+        snippets: [
+          {
+            label: 'In the page’s <head>',
+            language: 'html',
+            code: '<meta name="description" content="One or two sentences that sum up this page and give people a reason to click.">',
+          },
+        ],
+        note: 'Aim for 50–160 characters, written for people rather than keywords.',
+      },
+    ),
+    own(
+      'a11y.image_alt.missing',
+      { count: 6, examples: ['/img/loaf.jpg', '/img/croissant.jpg', '/img/shop.jpg'] },
+      {
+        snippets: [
+          {
+            label: 'Images that carry meaning',
+            language: 'html',
+            code: '<img src="/img/loaf.jpg" alt="Describe what this image shows">\n<img src="/img/croissant.jpg" alt="Describe what this image shows">\n<img src="/img/shop.jpg" alt="Describe what this image shows">',
+          },
+          {
+            label: 'Purely decorative images',
+            language: 'html',
+            code: '<img src="/img/loaf.jpg" alt="">',
+          },
+        ],
+      },
+    ),
+    own(
+      'tech.hsts.missing',
+      {},
+      {
+        snippets: [
+          {
+            label: 'nginx (inside the HTTPS server block)',
+            language: 'nginx',
+            code: 'add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;',
+          },
+          {
+            label: 'Apache',
+            language: 'apache',
+            code: 'Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"',
+          },
+        ],
+        note: 'Only keep includeSubDomains if every subdomain serves HTTPS.',
+      },
+    ),
     own('tech.favicon.missing'),
   ],
 };

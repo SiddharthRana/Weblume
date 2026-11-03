@@ -36,6 +36,7 @@ const starter = (subs: object[]) =>
       lighthouseData: true,
       comparison: true,
       pdfExport: true,
+      codeFixes: true,
       shareLinks: true,
     },
     subscriptions: subs,

@@ -29,6 +29,7 @@ function finding(id: keyof typeof CHECKS, details: Record<string, unknown> = {})
     howToFix: c.howToFix,
     learnMoreUrl: c.learnMoreUrl,
     details,
+    codeFixAvailable: false,
   };
 }
 
