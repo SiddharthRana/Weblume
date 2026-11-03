@@ -100,7 +100,10 @@ export class AccountService {
       sources: r.sources,
       lighthouse: r.lighthouse,
       passedChecks: r.passedChecks,
-      findings: composeFindings(byScan.get(r.id) ?? []),
+      findings: composeFindings(byScan.get(r.id) ?? [], {
+        pageUrl: r.finalUrl ?? r.normalizedUrl,
+        includeCodeFixes: account.entitlements.codeFixes,
+      }),
       expiresAt: r.expiresAt.toISOString(),
     }));
     return {

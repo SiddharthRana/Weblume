@@ -8,6 +8,7 @@ export class EntitlementsDto {
   @ApiProperty() lighthouseData: boolean;
   @ApiProperty() comparison: boolean;
   @ApiProperty() pdfExport: boolean;
+  @ApiProperty() codeFixes: boolean;
   @ApiProperty() shareLinks: boolean;
 }
 

@@ -55,7 +55,7 @@ export default function HowItWorksPage() {
               testing with real users and assistive technology is still needed.
             </li>
             <li>
-              Good SEO signals don’t guarantee rankings — content, competition and links matter too.
+              Good SEO signals don’t guarantee rankings. Content, competition and links matter too.
             </li>
             <li>Weblume is not a security scanner and does not test for vulnerabilities.</li>
             <li>Each scan looks at one page; other pages on the site may differ.</li>

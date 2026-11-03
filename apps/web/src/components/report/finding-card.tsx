@@ -1,4 +1,5 @@
 import { CATEGORY_LABELS, evidenceLines, KIND_LABELS, type FindingDto } from '@weblume/shared';
+import { CodeFixSection } from './code-fix';
 import { SeverityBadge } from './severity-badge';
 
 /** Expandable finding. Native <details> works without JavaScript and with keyboards/screen readers. */
@@ -47,6 +48,7 @@ export function FindingCard({ finding }: { finding: FindingDto }) {
             ))}
           </ol>
         </section>
+        <CodeFixSection fix={finding.codeFix} available={finding.codeFixAvailable} />
         {evidence.length > 0 && (
           <section>
             <h4 className="font-semibold text-fg">What we found</h4>

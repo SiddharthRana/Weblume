@@ -30,8 +30,8 @@ export default function AccountDeletionPage() {
       <p>
         Your profile, scans, findings and share links are deleted within 30 days. Payment providers
         (our merchant of record and Google Play) keep transaction records they are legally required
-        to retain. Cancel any active Google Play subscription in Google Play — deleting your account
-        doesn’t cancel it automatically.
+        to retain. Cancel any active Google Play subscription in Google Play, because deleting your
+        account doesn’t cancel it automatically.
       </p>
     </LegalDraft>
   );

@@ -52,6 +52,7 @@ export const account = (over: Record<string, unknown> = {}) => ({
     lighthouseData: true,
     comparison: false,
     pdfExport: false,
+    codeFixes: false,
     shareLinks: false,
   },
   usage: {

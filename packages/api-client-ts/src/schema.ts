@@ -356,6 +356,7 @@ export interface components {
             lighthouseData: boolean;
             comparison: boolean;
             pdfExport: boolean;
+            codeFixes: boolean;
             shareLinks: boolean;
         };
         DisplayPriceDto: {
@@ -465,6 +466,17 @@ export interface components {
             mobile?: components["schemas"]["LighthouseResultDto"];
             desktop?: components["schemas"]["LighthouseResultDto"];
         };
+        CodeSnippetDto: {
+            /** @description Where the code goes, e.g. "In the page’s <head>" or "nginx" */
+            label: string;
+            /** @enum {string} */
+            language: "html" | "xml" | "nginx" | "apache" | "text";
+            code: string;
+        };
+        CodeFixDto: {
+            snippets: components["schemas"]["CodeSnippetDto"][];
+            note?: string;
+        };
         FindingDtoClass: {
             /** Format: uuid */
             id: string;
@@ -486,6 +498,10 @@ export interface components {
             details: {
                 [key: string]: unknown;
             };
+            /** @description Whether a code fix exists for this finding, even if this plan doesn’t include it */
+            codeFixAvailable: boolean;
+            /** @description Only on plans with code fixes */
+            codeFix?: components["schemas"]["CodeFixDto"];
         };
         ScanReportDtoClass: {
             /** Format: uuid */

@@ -164,7 +164,7 @@ export default function HomePage() {
           <p className="mt-4 text-lg text-fg-muted">
             Every report says what was <strong className="text-fg">measured</strong>, what was{' '}
             <strong className="text-fg">detected automatically</strong>, and what we{' '}
-            <strong className="text-fg">recommend</strong>. If a data source fails, we tell you — we
+            <strong className="text-fg">recommend</strong>. If a data source fails, we tell you. We
             never fill gaps with guesses. Automated audits are a starting point: they can’t
             guarantee accessibility compliance, rankings or security.
           </p>

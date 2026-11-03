@@ -15,6 +15,8 @@ export interface Entitlements {
   lighthouseData: boolean;
   comparison: boolean;
   pdfExport: boolean;
+  /** Copy-paste code fixes on findings. */
+  codeFixes: boolean;
   shareLinks: boolean;
 }
 
@@ -50,6 +52,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       lighthouseData: true,
       comparison: false,
       pdfExport: false,
+      codeFixes: false,
       shareLinks: false,
     },
   },
@@ -64,6 +67,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       lighthouseData: true,
       comparison: false,
       pdfExport: false,
+      codeFixes: false,
       shareLinks: false,
     },
   },
@@ -78,6 +82,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       lighthouseData: true,
       comparison: true,
       pdfExport: true,
+      codeFixes: true,
       shareLinks: true,
     },
     displayPrices: [

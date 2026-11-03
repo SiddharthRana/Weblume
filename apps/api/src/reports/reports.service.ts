@@ -175,7 +175,11 @@ export class ReportsService {
       )
       .limit(1);
     if (!hit || hit.scan.userId !== hit.share.createdBy) throw notFound;
-    const report = await this.scans.buildReport(hit.scan);
+    // A shared report shows what its owner's plan includes.
+    const report = await this.scans.buildReport(
+      hit.scan,
+      await this.scans.codeFixesFor(hit.scan.userId).catch(() => false),
+    );
     return { report, shareExpiresAt: hit.share.expiresAt?.toISOString() ?? null };
   }
 

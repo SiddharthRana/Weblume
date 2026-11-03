@@ -19,6 +19,7 @@ export function own(
     howToFix: c.howToFix,
     learnMoreUrl: c.learnMoreUrl,
     details,
+    codeFixAvailable: false,
     ...over,
   };
 }

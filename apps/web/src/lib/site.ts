@@ -2,7 +2,7 @@ export const site = {
   name: 'Weblume',
   tagline: 'Website audits your clients can actually read',
   description:
-    'Weblume checks a web page for performance, SEO, accessibility and technical issues, then explains what matters and how to fix it — in plain language.',
+    'Weblume checks a web page for performance, SEO, accessibility and technical issues, then explains what matters and how to fix it in plain language.',
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/$/, ''),
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'support@example.com',
 } as const;

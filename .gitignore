@@ -33,3 +33,5 @@ apps/mobile/android/key.properties
 
 # Next.js generated
 next-env.d.ts
+# Local test credentials (see docs/HANDOVER.md for the SQL behind them).
+TEST_ACCOUNT.local.md

@@ -1,10 +1,18 @@
 import { getCheck, type FindingDto, type ReportSource, compareSeverity } from '@weblume/shared';
 import type { FindingRow } from '../database/schema';
+import { codeFixFor } from './code-fixes';
 import { lighthouseCopy } from './psi/lighthouse-copy';
 import type { LighthouseAudit } from './psi/psi.types';
 
+export interface ComposeOptions {
+  /** The scanned page's address, used to tailor code fixes. */
+  pageUrl: string;
+  /** Whether to include code fixes (a paid feature); availability is always reported. */
+  includeCodeFixes: boolean;
+}
+
 /** Turns stored findings into display-ready DTOs with plain-language copy, most severe first. */
-export function composeFindings(rows: FindingRow[]): FindingDto[] {
+export function composeFindings(rows: FindingRow[], opts: ComposeOptions): FindingDto[] {
   return rows
     .map((r): FindingDto | null => {
       const base = {
@@ -29,10 +37,11 @@ export function composeFindings(rows: FindingRow[]): FindingDto[] {
         });
         const details: Record<string, unknown> = { strategy: d.strategy };
         if (d.displayValue) details.measured = d.displayValue;
-        return { ...base, ...copy, details };
+        return { ...base, ...copy, details, codeFixAvailable: false };
       }
       const def = getCheck(r.checkId);
       if (!def) return null; // A check removed from the catalogue: hide rather than show without copy.
+      const fix = codeFixFor(r.checkId, r.details, opts.pageUrl);
       return {
         ...base,
         title: def.title,
@@ -41,6 +50,8 @@ export function composeFindings(rows: FindingRow[]): FindingDto[] {
         howToFix: def.howToFix,
         learnMoreUrl: def.learnMoreUrl,
         details: r.details,
+        codeFixAvailable: fix !== null,
+        ...(fix && opts.includeCodeFixes ? { codeFix: fix } : {}),
       };
     })
     .filter((f): f is FindingDto => f !== null)

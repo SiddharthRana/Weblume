@@ -49,7 +49,7 @@ export function authErrorMessage(
   if (code === 'invalid_credentials' || /invalid login credentials/i.test(msg))
     return 'Incorrect email or password.';
   if (code === 'email_not_confirmed' || /email not confirmed/i.test(msg))
-    return 'Please confirm your email address first — check your inbox.';
+    return 'Please confirm your email address first. Check your inbox.';
   if (code === 'weak_password' || /password/i.test(msg))
     return 'That password is too weak. Use at least 10 characters with upper- and lowercase letters and a number.';
   if (

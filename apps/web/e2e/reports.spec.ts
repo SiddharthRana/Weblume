@@ -23,6 +23,7 @@ function finding(id: keyof typeof CHECKS): FindingDto {
     howToFix: c.howToFix,
     learnMoreUrl: c.learnMoreUrl,
     details: {},
+    codeFixAvailable: false,
   };
 }
 
@@ -74,6 +75,7 @@ const starter = account({
     lighthouseData: true,
     comparison: true,
     pdfExport: true,
+    codeFixes: true,
     shareLinks: true,
   },
 });

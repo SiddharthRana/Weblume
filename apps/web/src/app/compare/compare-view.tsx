@@ -281,7 +281,7 @@ function ScoreTable({ strategy, deltas }: { strategy: string; deltas: ScoreDelta
     ['SEO', deltas.seo],
     ['Best practices', deltas.bestPractices],
   ] as const;
-  const show = (n: number | null) => (n === null ? '—' : String(n));
+  const show = (n: number | null) => (n === null ? 'n/a' : String(n));
   return (
     <table className="w-full rounded-lg border border-border bg-surface text-sm">
       <caption className="p-3 text-left font-semibold text-fg">{strategy}</caption>

@@ -26,7 +26,7 @@ const defs = [
     severity: 'high',
     title: 'Page has no title',
     whatItMeans:
-      'The page is missing a <title> tag — the text shown in browser tabs and as the clickable headline in search results.',
+      'The page is missing a <title> tag: the text shown in browser tabs and as the clickable headline in search results.',
     whyItMatters:
       'Without a title, search engines invent one and people can’t tell what the page is about at a glance. It’s one of the most important on-page SEO signals.',
     howToFix: [
@@ -83,8 +83,7 @@ const defs = [
     category: 'seo',
     severity: 'medium',
     title: 'Page has no main heading (H1)',
-    whatItMeans:
-      'The page has no <h1> element — the main heading that says what the page is about.',
+    whatItMeans: 'The page has no <h1> element, the main heading that says what the page is about.',
     whyItMatters:
       'Search engines and screen-reader users rely on the main heading to understand the page. Without one, the page’s topic is less clear.',
     howToFix: [
@@ -111,7 +110,7 @@ const defs = [
     severity: 'low',
     title: 'Heading levels are skipped',
     whatItMeans:
-      'The page jumps between heading levels — for example from <h2> straight to <h4> — leaving gaps in the outline.',
+      'The page jumps between heading levels (for example from <h2> straight to <h4>), leaving gaps in the outline.',
     whyItMatters:
       'Headings form an outline that screen-reader users navigate by and search engines use to understand structure. Gaps make that outline confusing.',
     howToFix: [
@@ -125,7 +124,7 @@ const defs = [
     severity: 'low',
     title: 'No canonical URL is set',
     whatItMeans:
-      'The page doesn’t declare a canonical URL — the preferred address search engines should index for this content.',
+      'The page doesn’t declare a canonical URL: the preferred address search engines should index for this content.',
     whyItMatters:
       'The same page is often reachable at several addresses (with or without www, tracking parameters, etc.). A canonical tag tells search engines which one counts, avoiding split rankings.',
     howToFix: [
@@ -196,7 +195,7 @@ const defs = [
     title: 'No robots.txt file found',
     whatItMeans: 'The site has no robots.txt file at its root (or it couldn’t be read).',
     whyItMatters:
-      'It isn’t required — without it, search engines assume they may crawl everything. It’s a useful place to point to your sitemap.',
+      'It isn’t required. Without it, search engines assume they may crawl everything. It’s a useful place to point to your sitemap.',
     howToFix: [
       'Optionally add /robots.txt with a “Sitemap: https://www.example.com/sitemap.xml” line.',
     ],
@@ -270,7 +269,7 @@ const defs = [
     whyItMatters:
       'Visitors using old links or typing the address may end up on the insecure version, and search engines may see two copies of the page.',
     howToFix: [
-      'Configure a permanent (301) redirect from every http:// address to its https:// equivalent — most hosts have a one-click “force HTTPS” setting.',
+      'Configure a permanent (301) redirect from every http:// address to its https:// equivalent. Most hosts have a one-click “force HTTPS” setting.',
     ],
   },
   {
@@ -294,7 +293,7 @@ const defs = [
     title: 'Page is reached through several redirects',
     whatItMeans: 'The address you entered redirects more than once before reaching the final page.',
     whyItMatters:
-      'Each redirect adds a delay — especially on mobile — and long chains can dilute search signals.',
+      'Each redirect adds a delay, especially on mobile, and long chains can dilute search signals.',
     howToFix: [
       'Point links and redirects directly at the final address so there’s at most one hop.',
     ],
@@ -369,7 +368,7 @@ const defs = [
     severity: 'info',
     title: 'Some links weren’t checked',
     whatItMeans:
-      'We skipped some links — because the page has more than we check per scan, a site’s robots.txt asked bots not to visit them, or they point to addresses we don’t scan.',
+      'We skipped some links because the page has more than we check per scan, a site’s robots.txt asked bots not to visit them, or they point to addresses we don’t scan.',
     whyItMatters: 'Their status is unknown; they may be fine.',
     howToFix: ['No action needed. Check important links manually if you’re unsure.'],
   },

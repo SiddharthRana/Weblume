@@ -275,6 +275,28 @@
         animation-range: entry 0% entry 90%;
       }
     }
+    /* Scan in progress: a beam sweeps the page preview, skeleton lines shimmer, steps pulse in turn. */
+    .scan-beam {
+      animation: wl-scan-beam 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    .scan-shimmer {
+      background-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        color-mix(in oklab, var(--wl-text) 10%, transparent) 50%,
+        transparent 100%
+      );
+      background-size: 200% 100%;
+      animation: wl-shimmer 1.8s linear infinite;
+      animation-delay: calc(var(--i, 0) * 120ms);
+    }
+    .scan-indeterminate {
+      animation: wl-indeterminate 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    .scan-step {
+      animation: wl-step 3.2s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 0.8s);
+    }
     details::details-content {
       height: 0;
       overflow: clip;
@@ -373,4 +395,51 @@
   .prose strong {
     font-weight: 600;
   }
+}
+@keyframes wl-scan-beam {
+  0% {
+    top: -30%;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@keyframes wl-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes wl-indeterminate {
+  from {
+    translate: -100% 0;
+  }
+  to {
+    translate: 300% 0;
+  }
+}
+@keyframes wl-step {
+  0%,
+  30%,
+  100% {
+    opacity: 0.55;
+    scale: 1;
+  }
+  12% {
+    opacity: 1;
+    scale: 1.25;
+  }
+}
+
+/* Scan beam colours, outside the motion block so the static preview still looks right. */
+.scan-beam-fill {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in oklab, var(--wl-gradient-mid) 22%, transparent)
+  );
+  border-bottom: 2px solid var(--wl-gradient-mid);
+  box-shadow: 0 6px 18px color-mix(in oklab, var(--wl-gradient-mid) 45%, transparent);
 }

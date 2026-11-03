@@ -9,6 +9,7 @@ import {
   SCAN_STATUSES,
   SEVERITIES,
   type AuditCategory,
+  type CodeLanguage,
   type FindingKind,
   type LighthouseByStrategy,
   type ReportSource,
@@ -81,6 +82,18 @@ export class ScanSummaryDtoClass {
   @ApiProperty({ type: String, format: 'date-time', nullable: true }) completedAt: string | null;
 }
 
+export class CodeSnippetDto {
+  @ApiProperty({ description: 'Where the code goes, e.g. "In the page’s <head>" or "nginx"' })
+  label: string;
+  @ApiProperty({ enum: ['html', 'xml', 'nginx', 'apache', 'text'] }) language: CodeLanguage;
+  @ApiProperty() code: string;
+}
+
+export class CodeFixDto {
+  @ApiProperty({ type: [CodeSnippetDto] }) snippets: CodeSnippetDto[];
+  @ApiPropertyOptional() note?: string;
+}
+
 export class FindingDtoClass {
   @ApiProperty({ format: 'uuid' }) id: string;
   @ApiProperty({
@@ -97,6 +110,12 @@ export class FindingDtoClass {
   @ApiProperty({ type: [String] }) howToFix: string[];
   @ApiPropertyOptional() learnMoreUrl?: string;
   @ApiProperty({ type: 'object', additionalProperties: true }) details: Record<string, unknown>;
+  @ApiProperty({
+    description: 'Whether a code fix exists for this finding, even if this plan doesn’t include it',
+  })
+  codeFixAvailable: boolean;
+  @ApiPropertyOptional({ type: CodeFixDto, description: 'Only on plans with code fixes' })
+  codeFix?: CodeFixDto;
 }
 
 export class SourceStatusDto {

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ScanReportDto } from '@weblume/shared';
 import { ReportActions } from '@/components/report/report-actions';
 import { ReportView } from '@/components/report/report-view';
+import { ScanProgress } from '@/components/report/scan-progress';
 import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { getLocalScan, saveLocalScan } from '@/lib/local-scans';
@@ -152,25 +153,7 @@ export function ScanStatus({ id: routeId }: { id: string }) {
       <div className="mx-auto max-w-2xl py-12">
         <p className="text-sm font-semibold uppercase tracking-wide text-primary">Scanning</p>
         <h1 className="mt-1 break-all text-2xl font-bold text-fg">{r.normalizedUrl}</h1>
-        <div role="status" aria-live="polite" className="mt-6 card p-6">
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="size-3 animate-pulse rounded-full bg-brand-gradient"
-            />
-            <p className="font-semibold text-fg">
-              {r.status === 'queued' ? 'Waiting to start…' : 'Scan in progress…'}
-            </p>
-          </div>
-          <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-fg-muted">
-            <li>Fetching the page and checking SEO, technical and accessibility basics</li>
-            <li>Checking up to 50 links, robots.txt and the sitemap</li>
-            <li>Measuring performance with Google PageSpeed Insights (mobile and desktop)</li>
-          </ul>
-          <p className="mt-4 text-sm text-fg-muted">
-            This usually takes under a minute. You can leave this page open.
-          </p>
-        </div>
+        <ScanProgress url={r.normalizedUrl} status={r.status} startedAt={r.createdAt} />
         {tooSlow && (
           <p className="mt-4 text-sm text-fg-muted">
             This is taking longer than expected.{' '}

@@ -143,7 +143,7 @@ export function AccountView() {
       )}
       {checkout === 'pending' && (
         <FormAlert tone="success">
-          Your payment is being processed. Your plan will update shortly — refresh this page in a
+          Your payment is being processed. Your plan will update shortly; refresh this page in a
           minute.
         </FormAlert>
       )}
@@ -191,8 +191,8 @@ export function AccountView() {
 
       <Section id="data" title="Your data">
         <p className="text-sm text-fg-muted">
-          Download everything Weblume holds about your account — profile, plan and all saved reports
-          — as a JSON file.
+          Download everything Weblume holds about your account (profile, plan and all saved reports)
+          as a JSON file.
         </p>
         <button
           type="button"
@@ -229,7 +229,7 @@ export function AccountView() {
         <p className="mt-2 text-sm text-fg-muted">
           This permanently deletes your account, your saved reports and your settings. It can’t be
           undone. If you subscribed through Google Play, cancel the subscription in Google Play
-          first — deleting your account doesn’t cancel it.
+          first, because deleting your account doesn’t cancel it.
         </p>
         <form onSubmit={deleteAccount} className="mt-4 space-y-3">
           <Field

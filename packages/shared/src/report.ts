@@ -78,6 +78,21 @@ export const SCAN_FAILURE_MESSAGES: Record<ScanFailureCode, string> = {
   scan_timeout: 'The scan took too long to finish. Retrying won’t count against your quota.',
 };
 
+export type CodeLanguage = 'html' | 'xml' | 'nginx' | 'apache' | 'text';
+
+export interface CodeSnippet {
+  /** Where the code goes, e.g. "In the page's <head>" or "nginx". */
+  label: string;
+  language: CodeLanguage;
+  code: string;
+}
+
+/** Copy-paste code for fixing a finding, built from the scan's own evidence. */
+export interface CodeFix {
+  snippets: CodeSnippet[];
+  note?: string;
+}
+
 export interface FindingDto {
   id: string;
   checkId: string;
@@ -92,6 +107,10 @@ export interface FindingDto {
   learnMoreUrl?: string;
   /** Check-specific evidence, e.g. offending URLs, measured value. */
   details: Record<string, unknown>;
+  /** True when Weblume has a code fix for this finding, whether or not this viewer's plan includes it. */
+  codeFixAvailable: boolean;
+  /** Only sent when the plan includes code fixes. */
+  codeFix?: CodeFix;
 }
 
 export interface ScanSummaryDto {
