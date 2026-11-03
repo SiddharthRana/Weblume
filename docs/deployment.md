@@ -49,6 +49,8 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      | `PUBLIC_SITE_URL`      | `https://weblume.app`                                                                           |
      | `TRUST_PROXY_HOPS`     | `1` on Fly.io, Render and Railway (one proxy in front)                                          |
      | `GUEST_HASH_SECRET`    | `openssl rand -hex 32`                                                                          |
+     | `MONITOR_LINK_SECRET`  | `openssl rand -hex 32` (signs "pause monitoring" links)                                         |
+     | `RESEND_API_KEY`       | Resend key for monitoring digests; with `EMAIL_FROM` on a verified domain                       |
      | `TURNSTILE_SECRET_KEY` | Required for guest scans in production                                                          |
      | `PSI_API_KEY`          | Google Cloud API key restricted to the PageSpeed Insights API                                   |
      | `METRICS_TOKEN`        | Optional. Enables `/metrics`                                                                    |

@@ -2,6 +2,26 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-11-04: Monitoring (scheduled re-scans with change digests)
+
+**Monitoring is the retention feature, not a bigger free quota.** Free accounts monitor 1 site weekly, Starter 5 sites daily (`monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`; slower frequencies are always allowed). Guests can't monitor. These numbers are proposals awaiting the owner's confirmation; changing them is a one-line edit.
+
+**Scheduled scans don't count against the scan quota.** They are created with `counts_toward_quota = false`. Counting them would use up most of the Free plan's 5 monthly scans with one weekly site, and 5 daily Starter sites (about 150 runs a month) would exceed Starter's 60. Monitoring is bounded instead by its own entitlement (sites × frequency), so the worst case per Starter account is 5 runs a day. PSI's free quota (25,000 calls/day, 2 per scan) covers about 2,500 daily Starter sites before it needs a paid quota. Scheduled scans also don't block a scan started by hand (the "scan already running" check ignores them).
+_Rejected:_ counting them (punishes the behaviour we want); a separate monitoring quota (two meters to explain).
+
+**Scheduler: a pg-boss cron tick claims due rows with `FOR UPDATE SKIP LOCKED`.** Every `MONITOR_TICK_CRON` (default 5 minutes) the worker moves each due monitor's `next_run_at` forward by one interval in the same statement that selects it, so overlapping ticks or several workers never run a site twice. The next run keeps its time of day unless the worker was down for a whole interval (then it restarts from now). A run is skipped while the previous scheduled scan for that site is still queued or running.
+
+**Downgrades pause, they don't delete.** At run time the plan is re-checked: over the new limit, the newest sites are paused (`last_skip_reason = plan_limit`) and the oldest keep running; a frequency the plan no longer allows drops to the plan's fastest. Resuming adopts the plan's frequency. Deleted accounts' monitors are paused and then removed with the account.
+
+**Digests: compare with the previous finished scan of the same address, and stay quiet unless something changed.** After a scheduled scan finishes, `compareReports` runs against the previous comparable scan by the same user (manual or scheduled). The default alert (`any_change`) emails on new issues, fixed issues, or a Lighthouse score change of at least 5 points (smaller changes are run-to-run noise). Other settings: only new issues, only score drops, or never. The baseline run (nothing to compare) sends nothing. A scan that fails because the site couldn't be reached sends one notice, not one per run while it stays down. Starter digests include a comparison link.
+
+**Email through a pluggable sender: Resend's HTTP API, or the log.** With `RESEND_API_KEY` and `EMAIL_FROM` set, digests are sent through Resend (no SDK, one `fetch`). Without a key, development logs the full message (recipient masked) and production logs only that a message was skipped. The address comes from Supabase Auth (`auth.users.email`) at send time; the API keeps no copy.
+
+**Pause links are HMAC-signed monitor ids, and pausing needs a click.** Each digest links to `/monitoring/pause?token=<id>.<HMAC-SHA256(MONITOR_LINK_SECRET)>` and sets `List-Unsubscribe` to it. The page asks for a click before calling `POST /v1/monitors/pause`, so mail-client link scanners don't pause sites. The token only pauses (it can't read or delete anything), so it doesn't expire.
+_Rejected:_ RFC 8058 one-click `List-Unsubscribe-Post` for now (it needs the API's public URL in the header and a form-encoded endpoint); worth adding once the sending domain is set up.
+
+**Android shows monitored sites read-only in v1.** Managing them links to the website's dashboard.
+
 ## 2026-11-03 — Code fixes, theme switch, scan progress
 
 **Code fixes are a Starter feature, built and gated on the server.** `apps/api/src/scanner/code-fixes.ts` builds copy-paste code for 23 of Weblume's own checks from each finding's evidence and the page's address (the exact canonical URL, the `http://` resources to upgrade, the images missing alt text). Every finding reports `codeFixAvailable`; the code itself (`codeFix`) is only sent when the viewer's plan has the `codeFixes` entitlement, so it never ships in the website's bundle. Shared links show what the owner's plan includes. Lighthouse audits, broken links and page weight get no code: they need judgement, not a snippet.

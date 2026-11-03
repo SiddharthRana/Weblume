@@ -101,6 +101,8 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
                       const SizedBox(height: WlSpace.s4),
                       for (final f in [
                         l10n.planFeatureScans(starter.entitlements.scansPerPeriod),
+                        if (starter.entitlements.monitoredSites > 0)
+                          l10n.planFeatureMonitoring(starter.entitlements.monitoredSites),
                         l10n.planFeatureRetention,
                         l10n.planFeatureCompare,
                         l10n.planFeaturePdf,

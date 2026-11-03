@@ -15,6 +15,20 @@ enum EntitlementsQuotaPeriod {
       EntitlementsQuotaPeriod.values.firstWhere((e) => e.value == json, orElse: () => EntitlementsQuotaPeriod.unknown);
 }
 
+enum EntitlementsMonitorFrequency {
+  daily('daily'),
+  weekly('weekly'),
+  monthly('monthly'),
+  /// A value this app version doesn't know yet.
+  unknown('unknown');
+
+  const EntitlementsMonitorFrequency(this.value);
+  final String value;
+
+  static EntitlementsMonitorFrequency fromJson(Object? json) =>
+      EntitlementsMonitorFrequency.values.firstWhere((e) => e.value == json, orElse: () => EntitlementsMonitorFrequency.unknown);
+}
+
 enum DisplayPriceCurrency {
   iNR('INR'),
   uSD('USD'),
@@ -263,6 +277,21 @@ enum WebBillingInterval {
       WebBillingInterval.values.firstWhere((e) => e.value == json, orElse: () => WebBillingInterval.unknown);
 }
 
+enum MonitorAlert {
+  anyChange('any_change'),
+  newFindings('new_findings'),
+  scoreDrop('score_drop'),
+  none('none'),
+  /// A value this app version doesn't know yet.
+  unknown('unknown');
+
+  const MonitorAlert(this.value);
+  final String value;
+
+  static MonitorAlert fromJson(Object? json) =>
+      MonitorAlert.values.firstWhere((e) => e.value == json, orElse: () => MonitorAlert.unknown);
+}
+
 class Health {
   const Health({
     required this.status,
@@ -289,6 +318,8 @@ class Entitlements {
     required this.pdfExport,
     required this.codeFixes,
     required this.shareLinks,
+    required this.monitoredSites,
+    required this.monitorFrequency,
   });
 
   final int scansPerPeriod;
@@ -299,6 +330,10 @@ class Entitlements {
   final bool pdfExport;
   final bool codeFixes;
   final bool shareLinks;
+  /// Sites that can be monitored (0 = none)
+  final int monitoredSites;
+  /// Fastest re-scan frequency allowed; slower ones are allowed too
+  final EntitlementsMonitorFrequency? monitorFrequency;
 
   factory Entitlements.fromJson(Map<String, dynamic> json) => Entitlements(
       scansPerPeriod: (json['scansPerPeriod'] as num).toInt(),
@@ -309,6 +344,8 @@ class Entitlements {
       pdfExport: json['pdfExport'] as bool,
       codeFixes: json['codeFixes'] as bool,
       shareLinks: json['shareLinks'] as bool,
+      monitoredSites: (json['monitoredSites'] as num).toInt(),
+      monitorFrequency: json['monitorFrequency'] == null ? null : EntitlementsMonitorFrequency.fromJson(json['monitorFrequency']),
       );
 
   Map<String, dynamic> toJson() => {
@@ -320,6 +357,8 @@ class Entitlements {
       'pdfExport': pdfExport,
       'codeFixes': codeFixes,
       'shareLinks': shareLinks,
+      'monitoredSites': monitoredSites,
+      'monitorFrequency': monitorFrequency == null ? null : monitorFrequency!.value,
       };
 }
 
@@ -1514,5 +1553,179 @@ class SharedReport {
   Map<String, dynamic> toJson() => {
       'report': report.toJson(),
       'shareExpiresAt': shareExpiresAt == null ? null : shareExpiresAt!.toIso8601String(),
+      };
+}
+
+class Monitor {
+  const Monitor({
+    required this.id,
+    required this.targetUrl,
+    required this.normalizedUrl,
+    required this.frequency,
+    required this.alert,
+    required this.enabled,
+    required this.nextRunAt,
+    required this.lastRunAt,
+    required this.lastDigestAt,
+    required this.lastSkipReason,
+    required this.lastScan,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String targetUrl;
+  final String normalizedUrl;
+  final EntitlementsMonitorFrequency frequency;
+  final MonitorAlert alert;
+  final bool enabled;
+  final DateTime nextRunAt;
+  final DateTime? lastRunAt;
+  final DateTime? lastDigestAt;
+  /// Why the last run was skipped: plan (plan has no monitoring), plan_limit (over the plan limit), previous_run_active, account_deleted
+  final String? lastSkipReason;
+  final ScanSummary? lastScan;
+  final DateTime createdAt;
+
+  factory Monitor.fromJson(Map<String, dynamic> json) => Monitor(
+      id: json['id'] as String,
+      targetUrl: json['targetUrl'] as String,
+      normalizedUrl: json['normalizedUrl'] as String,
+      frequency: EntitlementsMonitorFrequency.fromJson(json['frequency']),
+      alert: MonitorAlert.fromJson(json['alert']),
+      enabled: json['enabled'] as bool,
+      nextRunAt: DateTime.parse(json['nextRunAt'] as String),
+      lastRunAt: json['lastRunAt'] == null ? null : DateTime.parse(json['lastRunAt'] as String),
+      lastDigestAt: json['lastDigestAt'] == null ? null : DateTime.parse(json['lastDigestAt'] as String),
+      lastSkipReason: json['lastSkipReason'] == null ? null : json['lastSkipReason'] as String,
+      lastScan: json['lastScan'] == null ? null : ScanSummary.fromJson(json['lastScan'] as Map<String, dynamic>),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'id': id,
+      'targetUrl': targetUrl,
+      'normalizedUrl': normalizedUrl,
+      'frequency': frequency.value,
+      'alert': alert.value,
+      'enabled': enabled,
+      'nextRunAt': nextRunAt.toIso8601String(),
+      'lastRunAt': lastRunAt == null ? null : lastRunAt!.toIso8601String(),
+      'lastDigestAt': lastDigestAt == null ? null : lastDigestAt!.toIso8601String(),
+      'lastSkipReason': lastSkipReason == null ? null : lastSkipReason!,
+      'lastScan': lastScan == null ? null : lastScan!.toJson(),
+      'createdAt': createdAt.toIso8601String(),
+      };
+}
+
+class MonitorListResponse {
+  const MonitorListResponse({
+    required this.items,
+    required this.limit,
+    required this.fastestFrequency,
+  });
+
+  final List<Monitor> items;
+  /// Sites the plan can monitor
+  final int limit;
+  final EntitlementsMonitorFrequency? fastestFrequency;
+
+  factory MonitorListResponse.fromJson(Map<String, dynamic> json) => MonitorListResponse(
+      items: (json['items'] as List<dynamic>).map((e) => Monitor.fromJson(e as Map<String, dynamic>)).toList(),
+      limit: (json['limit'] as num).toInt(),
+      fastestFrequency: json['fastestFrequency'] == null ? null : EntitlementsMonitorFrequency.fromJson(json['fastestFrequency']),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'items': items.map((e) => e.toJson()).toList(),
+      'limit': limit,
+      'fastestFrequency': fastestFrequency == null ? null : fastestFrequency!.value,
+      };
+}
+
+class CreateMonitorBody {
+  const CreateMonitorBody({
+    required this.url,
+    this.frequency,
+    this.alert,
+  });
+
+  final String url;
+  /// Defaults to the fastest frequency the plan allows (Free: weekly, Starter: daily)
+  final EntitlementsMonitorFrequency? frequency;
+  /// Defaults to any_change
+  final MonitorAlert? alert;
+
+  factory CreateMonitorBody.fromJson(Map<String, dynamic> json) => CreateMonitorBody(
+      url: json['url'] as String,
+      frequency: json['frequency'] == null ? null : EntitlementsMonitorFrequency.fromJson(json['frequency']),
+      alert: json['alert'] == null ? null : MonitorAlert.fromJson(json['alert']),
+      );
+
+  Map<String, dynamic> toJson() => {
+      'url': url,
+      if (frequency != null) 'frequency': frequency!.value,
+      if (alert != null) 'alert': alert!.value,
+      };
+}
+
+class UpdateMonitorBody {
+  const UpdateMonitorBody({
+    this.enabled,
+    this.frequency,
+    this.alert,
+  });
+
+  /// false pauses scheduled scans and emails
+  final bool? enabled;
+  final EntitlementsMonitorFrequency? frequency;
+  final MonitorAlert? alert;
+
+  factory UpdateMonitorBody.fromJson(Map<String, dynamic> json) => UpdateMonitorBody(
+      enabled: json['enabled'] == null ? null : json['enabled'] as bool,
+      frequency: json['frequency'] == null ? null : EntitlementsMonitorFrequency.fromJson(json['frequency']),
+      alert: json['alert'] == null ? null : MonitorAlert.fromJson(json['alert']),
+      );
+
+  Map<String, dynamic> toJson() => {
+      if (enabled != null) 'enabled': enabled!,
+      if (frequency != null) 'frequency': frequency!.value,
+      if (alert != null) 'alert': alert!.value,
+      };
+}
+
+class PauseMonitorBody {
+  const PauseMonitorBody({
+    required this.token,
+  });
+
+  /// The token from the "Pause monitoring" link in a digest email
+  final String token;
+
+  factory PauseMonitorBody.fromJson(Map<String, dynamic> json) => PauseMonitorBody(
+      token: json['token'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'token': token,
+      };
+}
+
+class PauseMonitorResponse {
+  const PauseMonitorResponse({
+    required this.targetUrl,
+    required this.alreadyPaused,
+  });
+
+  final String targetUrl;
+  final bool alreadyPaused;
+
+  factory PauseMonitorResponse.fromJson(Map<String, dynamic> json) => PauseMonitorResponse(
+      targetUrl: json['targetUrl'] as String,
+      alreadyPaused: json['alreadyPaused'] as bool,
+      );
+
+  Map<String, dynamic> toJson() => {
+      'targetUrl': targetUrl,
+      'alreadyPaused': alreadyPaused,
       };
 }

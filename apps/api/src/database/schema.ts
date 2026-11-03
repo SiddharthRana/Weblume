@@ -6,11 +6,14 @@ import {
   pgEnum,
   pgTable,
   primaryKey,
+  smallint,
   text,
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core';
 import type {
+  MonitorAlert,
+  MonitorFrequency,
   PlanId,
   SubscriptionStatus,
   AuditCategory,
@@ -81,6 +84,7 @@ export const scans = pgTable('scans', {
   passedChecks: text('passed_checks').array().notNull().default([]),
   countsTowardQuota: boolean('counts_toward_quota').notNull().default(true),
   retryOf: uuid('retry_of'),
+  scheduledScanId: uuid('scheduled_scan_id'),
   startedAt: ts('started_at'),
   completedAt: ts('completed_at'),
   expiresAt: ts('expires_at').notNull(),
@@ -173,3 +177,31 @@ export const webhookEvents = pgTable('webhook_events', {
 });
 
 export type SubscriptionRow = typeof subscriptions.$inferSelect;
+
+export const scanFrequency = pgEnum('scan_frequency', ['daily', 'weekly', 'monthly']);
+export const changeAlert = pgEnum('change_alert', [
+  'none',
+  'new_findings',
+  'score_drop',
+  'any_change',
+]);
+
+export const scheduledScans = pgTable('scheduled_scans', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull(),
+  targetUrl: text('target_url').notNull(),
+  normalizedUrl: text('normalized_url').notNull(),
+  frequency: scanFrequency('frequency').$type<MonitorFrequency>().notNull(),
+  alert: changeAlert('alert').$type<MonitorAlert>().notNull().default('new_findings'),
+  scoreDropThreshold: smallint('score_drop_threshold'),
+  enabled: boolean('enabled').notNull().default(true),
+  nextRunAt: ts('next_run_at').notNull(),
+  lastRunAt: ts('last_run_at'),
+  lastScanId: uuid('last_scan_id'),
+  lastDigestAt: ts('last_digest_at'),
+  lastSkipReason: text('last_skip_reason'),
+  createdAt: ts('created_at').notNull().defaultNow(),
+  updatedAt: ts('updated_at').notNull().defaultNow(),
+});
+
+export type ScheduledScanRow = typeof scheduledScans.$inferSelect;

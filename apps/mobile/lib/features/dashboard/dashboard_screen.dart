@@ -13,6 +13,7 @@ import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/surface.dart';
 import '../../shared/widgets/usage_meter.dart';
 import '../../theme/tokens.g.dart';
+import 'monitoring_section.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -28,8 +29,13 @@ class DashboardScreen extends ConsumerWidget {
     Future<void> refresh() async {
       ref.invalidate(accountProvider);
       ref.invalidate(recentScansProvider);
+      ref.invalidate(monitorsProvider);
       await Future.wait(
-        [ref.read(accountProvider.future), ref.read(recentScansProvider.future)].map((f) => f.catchError((_) => f)),
+        [
+          ref.read(accountProvider.future),
+          ref.read(recentScansProvider.future),
+          ref.read(monitorsProvider.future),
+        ].map((f) => f.catchError((_) => f)),
       );
     }
 
@@ -143,6 +149,7 @@ class DashboardScreen extends ConsumerWidget {
                                 ],
                               ),
                       ),
+                      const MonitoringSection(),
                     ],
                   ),
                 );

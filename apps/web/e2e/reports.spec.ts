@@ -77,6 +77,8 @@ const starter = account({
     pdfExport: true,
     codeFixes: true,
     shareLinks: true,
+    monitoredSites: 5,
+    monitorFrequency: 'daily',
   },
 });
 

@@ -45,3 +45,7 @@ final accountProvider = FutureProvider.autoDispose<Loaded<Account>>((ref) => ref
 final recentScansProvider = FutureProvider.autoDispose<Loaded<ScanListResponse>>(
   (ref) => ref.watch(repositoryProvider).scans(limit: 5),
 );
+
+final monitorsProvider = FutureProvider.autoDispose<Loaded<MonitorListResponse>>(
+  (ref) => ref.watch(repositoryProvider).monitors(),
+);

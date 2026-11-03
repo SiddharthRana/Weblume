@@ -125,6 +125,9 @@ Never commit real values. Each app has a `.env.example`.
 | `GUEST_HASH_SECRET`                                                | **prod**          | random per process            | ≥ 32 chars; HMAC key for guest IP hashes                                                            |
 | `SUPABASE_SECRET_KEY`                                              | no                | —                             | Server-only. Lets account deletion remove the Supabase Auth user; without it deletions stay pending |
 | `TURNSTILE_SECRET_KEY`                                             | **prod (guests)** | —                             | Without it, guest scans are refused in production (allowed unverified in development)               |
+| `RESEND_API_KEY` / `EMAIL_FROM`                                    | no                | —                             | Sends monitoring digests through Resend. Without a key, digests are logged in development only      |
+| `MONITOR_LINK_SECRET`                                              | **prod**          | random per process            | ≥ 32 chars; signs the "pause monitoring" links in digests                                           |
+| `MONITOR_TICK_CRON`                                                | no                | `*/5 * * * *`                 | How often the worker looks for monitored sites that are due                                         |
 
 ### `apps/web`
 
@@ -180,6 +183,7 @@ Never commit real values. Each app has a `.env.example`.
 - **Web auth flows:** Playwright with Supabase Auth and the API mocked: sign-up, log-in errors, dashboard, guarded routes and safe `?next=` redirects, guest-scan claiming, password reset via PKCE code, callback errors, account settings (name, export, deletion), log-out.
 - **Web scan flow:** Playwright with the API mocked at the network layer: validation, progress polling, report rendering and filters, partial/failed/not-found/offline states, retry, history.
 - **Web:** Playwright on desktop and mobile viewports: every page renders, SEO metadata is present, there are no axe WCAG 2.2 AA violations (light and dark), navigation and the mobile menu work, there's no horizontal scroll, and security headers are set.
+- **Monitoring (database e2e + unit):** creating and gating monitors by plan, ownership, pause/resume/delete, the scheduler (claims once, outside the quota, keeps the time of day, skips while running, downgrades, deleted accounts), digests (what changed, alert settings, baseline and no-change silence, unreachable-site notice, signed pause links), the Resend sender.
 - **Reports (database e2e + unit):** comparison (new/resolved/unchanged/not comparable, score deltas, ordering, different URLs), PDF rendering checked by extracting the text back out with pdf.js (content, limitations notice, page numbers, Unicode, hostile input), share links (hash-only storage, expiry capped by retention, revocation, ownership, limits, same 404 for unknown tokens, no account data), entitlement checks, metrics endpoint.
 - **Observability:** Sentry event scrubbing (through the real SDK with a fake transport), the exception filter (5xx reported, 4xx not), log path masking, per-user rate limits across IPs.
 - **Web reports:** Playwright for PDF download, share-link create/copy/turn off, compare (pick and result), shared page (read-only, `noindex`, `no-referrer`), upgrade prompts, axe on the new pages; CSP header and no CSP violations on key pages.
