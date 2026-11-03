@@ -8,7 +8,7 @@ Website audits your clients can actually read. Users enter a URL; Weblume checks
 
 ```
 apps/
-  web/              Next.js 16 (App Router, React 19, Tailwind 4) — marketing site + scan/report pages
+  web/              Next.js 16 (App Router, React 19, Tailwind 4) — marketing site + scan/report pages, static export on Cloudflare Pages
   api/              NestJS 12 — REST API + scan worker (pg-boss)
     src/scanner/    Guarded HTTP client (SSRF defences), checks, PSI integration, scan runner
   mobile/           Flutter 3.47 — Android-first app (Riverpod 3, go_router)
@@ -85,6 +85,8 @@ supabase db reset       # applies supabase/migrations and seed.sql
 cp apps/api/.env.example apps/api/.env   # adjust DATABASE_URL / SUPABASE_URL from `supabase start`
 pnpm dev:api                             # http://localhost:4000, Swagger UI at /docs (non-production)
 ```
+
+`pnpm dev:api` loads `apps/api/.env` itself (Node's `--env-file-if-exists`); variables already set in your shell take precedence. In production, set real environment variables instead; `node dist/main.js` doesn't read `.env`.
 
 **Web:**
 

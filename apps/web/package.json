@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "wrangler pages dev out",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "echo 'Web unit tests: none yet (see test:e2e)'",
@@ -39,6 +39,7 @@
     "eslint": "^10.13.0",
     "eslint-config-next": "^16.4.3",
     "postcss": "^8.5.32",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "wrangler": "^4.157.0"
   }
 }

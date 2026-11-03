@@ -1,6 +1,9 @@
 import type { MetadataRoute } from 'next';
 import { site } from '@/lib/site';
 
+// Written to a file at build time (static export).
+export const dynamic = 'force-static';
+
 export default function robots(): MetadataRoute.Robots {
   return {
     // Private app routes: reports, shared reports, comparisons, history, dashboard and account.

@@ -1,0 +1,4 @@
+# Cloudflare Pages rewrites (https://developers.cloudflare.com/pages/configuration/redirects/).
+# Reports are exported once, for the placeholder id `_`; serve that page for every real id.
+/scan/*  /scan/_  200
+/r/*     /r/_     200

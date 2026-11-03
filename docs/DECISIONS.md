@@ -2,6 +2,18 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-11-03 — Website on Cloudflare Pages
+
+**The website is a static export on Cloudflare Pages**, as in MirthMix. Every page already rendered in the browser and called the API directly, so the Next.js server was only serving files and headers. Production builds use `output: 'export'`; `next dev` stays a normal server so local development is unchanged.
+_Rejected:_ Vercel Pro ($20/month, and Hobby forbids commercial use), and Cloudflare with the OpenNext adapter (runs a Worker for no benefit here).
+
+**Reports are exported once, for a placeholder id.** `/scan/[id]` and `/r/[token]` can't be listed at build time, so each is built as `/scan/_` and `/r/_`, `public/_redirects` rewrites every id to that page (status 200, the address stays the same), and `useRouteParam` reads the real id from the address. URLs the API, emails and the Android app already produce don't change. Opening a report from a link inside the site is a full page load, because there's no prebuilt data file for a real id.
+_Rejected:_ query-string URLs (`/scan?id=…`), which would break existing share links.
+
+**Headers move to `_headers`, generated at build time.** A static export ignores `headers()`. `next.config.ts` writes `public/_headers` (git-ignored) from the same list `next dev` uses, because the CSP depends on the build's API and Supabase origins. Shared reports drop the site-wide `Referrer-Policy` and send `no-referrer`.
+
+**The API loads `apps/api/.env` in development** (`node --env-file-if-exists=.env` in `pnpm dev:api`). The README already said to create that file, but nothing read it. Production still uses real environment variables.
+
 ## 2026-10-30 — Visual redesign (Linear-inspired)
 
 **Brand gradient instead of a flat blue.** The palette is near-black and off-white with hairline borders, plus an indigo → violet → purple gradient (`gradientStart/Mid/End` tokens) for primary actions, the logo, accents and headline text. White button text is tested at ≥ 4.5:1 on every gradient stop, in both themes. One token source still drives the web (CSS variables), the PDF and Flutter.

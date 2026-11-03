@@ -9,6 +9,7 @@ import { ReportView } from '@/components/report/report-view';
 import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { getLocalScan, saveLocalScan } from '@/lib/local-scans';
+import { useRouteParam } from '@/lib/use-route-param';
 
 const POLL_MS = 2_000;
 const GIVE_UP_MS = 5 * 60_000;
@@ -19,7 +20,8 @@ type State =
   | { kind: 'error'; message: string }
   | { kind: 'report'; report: ScanReportDto };
 
-export function ScanStatus({ id }: { id: string }) {
+export function ScanStatus({ id: routeId }: { id: string }) {
+  const id = useRouteParam(routeId);
   const router = useRouter();
   const { user } = useAuth();
   const [state, setState] = useState<State>({ kind: 'loading' });
