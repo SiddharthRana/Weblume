@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:weblume/api/generated/api.g.dart';
 import 'package:weblume/api/generated/models.g.dart';
@@ -285,6 +286,12 @@ class FakeRepository implements WeblumeRepository {
 
   @override
   Future<List<ShareLink>> shares(String scanId) async => List.of(shareLinks);
+
+  @override
+  Future<Uint8List> reportPdf(String scanId) async {
+    calls.add('pdf:$scanId');
+    return Uint8List.fromList('%PDF-1.7'.codeUnits);
+  }
 
   @override
   Future<void> revokeShare(String shareId) async {

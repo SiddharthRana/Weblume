@@ -136,7 +136,7 @@ abstract class AppLocalizations {
   /// No description provided for @offlineBanner.
   ///
   /// In en, this message translates to:
-  /// **'You’re offline — showing saved data.'**
+  /// **'You’re offline. Showing saved data.'**
   String get offlineBanner;
 
   /// No description provided for @errorNetwork.
@@ -535,11 +535,41 @@ abstract class AppLocalizations {
   /// **'Scan in progress…'**
   String get scanRunning;
 
-  /// No description provided for @scanProgressBody.
+  /// No description provided for @scanStepFetch.
   ///
   /// In en, this message translates to:
-  /// **'This usually takes under a minute. We’re checking the page, up to 50 links, robots.txt and the sitemap, and measuring performance with Google PageSpeed Insights.'**
-  String get scanProgressBody;
+  /// **'Fetching the page and reading its HTML'**
+  String get scanStepFetch;
+
+  /// No description provided for @scanStepContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking titles, headings, links and metadata'**
+  String get scanStepContent;
+
+  /// No description provided for @scanStepLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking up to 50 links, robots.txt and the sitemap'**
+  String get scanStepLinks;
+
+  /// No description provided for @scanStepSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Measuring speed with Google PageSpeed Insights'**
+  String get scanStepSpeed;
+
+  /// No description provided for @scanLeaveOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'This usually takes under a minute. The report appears here when it’s ready.'**
+  String get scanLeaveOpen;
+
+  /// No description provided for @scanElapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Elapsed time {time}'**
+  String scanElapsed(String time);
 
   /// No description provided for @scanTakingLong.
   ///
@@ -604,7 +634,7 @@ abstract class AppLocalizations {
   /// No description provided for @partialNotice.
   ///
   /// In en, this message translates to:
-  /// **'Some checks couldn’t be completed — see audit coverage. Everything shown is real data from the checks that did run.'**
+  /// **'Some checks couldn’t be completed. See audit coverage. Everything shown is real data from the checks that did run.'**
   String get partialNotice;
 
   /// No description provided for @lighthouseTitle.
@@ -814,7 +844,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceNotConfigured.
   ///
   /// In en, this message translates to:
-  /// **'Not available — not configured on this server'**
+  /// **'Not available (not configured on this server)'**
   String get sourceNotConfigured;
 
   /// No description provided for @sourceDisabled.
@@ -832,7 +862,7 @@ abstract class AppLocalizations {
   /// No description provided for @sourceQuota.
   ///
   /// In en, this message translates to:
-  /// **'Daily quota reached — try again later'**
+  /// **'Daily quota reached. Try again later'**
   String get sourceQuota;
 
   /// No description provided for @sourceUpstream.
@@ -1072,7 +1102,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteWarning.
   ///
   /// In en, this message translates to:
-  /// **'This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first — deleting your account doesn’t cancel it.'**
+  /// **'This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first, because deleting your account doesn’t cancel it.'**
   String get deleteWarning;
 
   /// No description provided for @deleteConfirmLabel.
@@ -1246,7 +1276,7 @@ abstract class AppLocalizations {
   /// No description provided for @purchaseVerifyFailed.
   ///
   /// In en, this message translates to:
-  /// **'We couldn’t confirm your purchase yet. It will be checked again automatically — you won’t be charged twice.'**
+  /// **'We couldn’t confirm your purchase yet. It will be checked again automatically, and you won’t be charged twice.'**
   String get purchaseVerifyFailed;
 
   /// No description provided for @subscribedOnWeb.
@@ -1312,13 +1342,13 @@ abstract class AppLocalizations {
   /// No description provided for @subStatusGrace.
   ///
   /// In en, this message translates to:
-  /// **'Payment issue — still active'**
+  /// **'Payment issue (still active)'**
   String get subStatusGrace;
 
   /// No description provided for @subStatusOnHold.
   ///
   /// In en, this message translates to:
-  /// **'On hold — payment failed'**
+  /// **'On hold: payment failed'**
   String get subStatusOnHold;
 
   /// No description provided for @subStatusPaused.
@@ -1330,7 +1360,7 @@ abstract class AppLocalizations {
   /// No description provided for @subStatusCanceled.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled — active until the period ends'**
+  /// **'Cancelled (active until the period ends)'**
   String get subStatusCanceled;
 
   /// No description provided for @subStatusEnded.
@@ -1369,11 +1399,29 @@ abstract class AppLocalizations {
   /// **'Share links, PDF reports and before/after comparisons are part of Starter.'**
   String get reportUpsell;
 
-  /// No description provided for @reportPdfOnWeb.
+  /// No description provided for @reportActionDownloadPdf.
   ///
   /// In en, this message translates to:
-  /// **'PDF reports can be downloaded on the Weblume website.'**
-  String get reportPdfOnWeb;
+  /// **'Download PDF'**
+  String get reportActionDownloadPdf;
+
+  /// No description provided for @reportActionSharePdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Share PDF'**
+  String get reportActionSharePdf;
+
+  /// No description provided for @pdfSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF saved.'**
+  String get pdfSaved;
+
+  /// No description provided for @pdfFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t save the PDF on this device. Try Share PDF instead.'**
+  String get pdfFailed;
 
   /// No description provided for @shareTitle.
   ///

@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   dio: ^5.11.1
+  file_picker: ^13.3.2
   flutter:
     sdk: flutter
   flutter_localizations:
@@ -17,6 +18,7 @@ dependencies:
   in_app_purchase: ^3.3.1
   in_app_purchase_android: ^0.5.5
   intl: ^0.20.3
+  share_plus: ^13.3.1
   shared_preferences: ^2.5.6
   supabase_flutter: ^2.18.3
   url_launcher: ^6.3.3

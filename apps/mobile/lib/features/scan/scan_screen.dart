@@ -14,8 +14,10 @@ import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/surface.dart';
 import '../../router/app_router.dart';
 import '../../theme/tokens.g.dart';
+import '../reports/pdf_actions.dart';
 import '../reports/share_sheet.dart';
 import 'report_view.dart';
+import 'scan_progress.dart';
 
 /// Polls a scan while it runs, then shows the report (or an honest failure).
 class ScanScreen extends ConsumerStatefulWidget {
@@ -135,30 +137,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
           const SizedBox(height: WlSpace.s6),
           Semantics(
             liveRegion: true,
-            child: WlCard(
-              gradientBorder: true,
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2.5)),
-                        const SizedBox(width: WlSpace.s3),
-                        Expanded(
-                          child: Text(
-                            r.status == ScanSummaryStatus.queued ? l10n.scanQueued : l10n.scanRunning,
-                            style: theme.textTheme.titleMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: WlSpace.s3),
-                    Text(l10n.scanProgressBody),
-                  ],
-                ),
-              ),
+            child: ScanProgressCard(
+              url: r.normalizedUrl,
+              queued: r.status == ScanSummaryStatus.queued,
+              startedAt: r.createdAt,
             ),
           ),
           if (_tooSlow) ...[
@@ -217,7 +199,7 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     } else {
       body = ReportView(
         report: _report!,
-        actions: _fromCache ? null : _OwnerActions(scanId: widget.scanId),
+        actions: _fromCache ? null : _OwnerActions(report: _report!),
       );
     }
 
@@ -237,9 +219,11 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
 
 /// Share/compare for the report owner, depending on the plan's entitlements (enforced by the API).
 class _OwnerActions extends ConsumerWidget {
-  const _OwnerActions({required this.scanId});
+  const _OwnerActions({required this.report});
 
-  final String scanId;
+  final ScanReport report;
+
+  String get scanId => report.id;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -284,8 +268,8 @@ class _OwnerActions extends ConsumerWidget {
           ],
         ),
         if (e.pdfExport) ...[
-          const SizedBox(height: WlSpace.s1),
-          Text(l10n.reportPdfOnWeb, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: WlSpace.s2),
+          PdfActions(scanId: scanId, url: report.normalizedUrl, scannedAt: report.completedAt ?? report.createdAt),
         ],
       ],
     );

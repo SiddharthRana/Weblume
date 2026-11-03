@@ -43,7 +43,8 @@ void main() {
     final repo = repoWith();
     await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
     await openReport(tester);
-    expect(find.textContaining('PDF reports can be downloaded on the Weblume website'), findsOneWidget);
+    expect(find.text('Download PDF'), findsOneWidget);
+    expect(find.text('Share PDF'), findsOneWidget);
     await tapText(tester, 'Share link');
     expect(find.text('No active links.'), findsOneWidget);
 
@@ -96,7 +97,7 @@ void main() {
     expect(repo.calls, contains('compare:s0:s1'));
     expect(find.text('New issues (1)'), findsOneWidget);
     expect(find.text('40 → 61 (+21)'), findsOneWidget);
-    expect(find.text('— → 92 (n/a)'), findsOneWidget);
+    expect(find.text('n/a → 92 (n/a)'), findsOneWidget);
     await scrollTo(tester, find.text('Resolved (1)'));
     expect(find.text('Page title is missing'), findsOneWidget);
     await scrollTo(tester, find.text('Was High'));

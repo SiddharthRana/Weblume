@@ -185,7 +185,7 @@ class _ComparisonView extends StatelessWidget {
         );
 
     Widget scores(String strategy, ScoreDeltas d) {
-      String show(int? n) => n?.toString() ?? '—';
+      String show(int? n) => n?.toString() ?? 'n/a';
       String change(int? n) => n == null ? 'n/a' : (n > 0 ? '+$n' : '$n');
       final rows = [
         (l10n.scorePerformance, d.performance),

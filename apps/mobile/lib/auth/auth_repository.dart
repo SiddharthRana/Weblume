@@ -123,7 +123,7 @@ String describeAuthError(String? code, String message, String? status) {
   if (c == 'invalid_credentials' || RegExp('invalid login credentials', caseSensitive: false).hasMatch(message)) {
     return 'Incorrect email or password.';
   }
-  if (c == 'email_not_confirmed') return 'Please confirm your email address first — check your inbox.';
+  if (c == 'email_not_confirmed') return 'Please confirm your email address first. Check your inbox.';
   if (c == 'weak_password') {
     return 'That password is too weak. Use at least 10 characters with upper- and lowercase letters and a number.';
   }

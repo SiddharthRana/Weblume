@@ -31,7 +31,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAgain => 'Try again';
 
   @override
-  String get offlineBanner => 'You’re offline — showing saved data.';
+  String get offlineBanner => 'You’re offline. Showing saved data.';
 
   @override
   String get errorNetwork => 'We couldn’t reach Weblume. Check your connection and try again.';
@@ -252,8 +252,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanRunning => 'Scan in progress…';
 
   @override
-  String get scanProgressBody =>
-      'This usually takes under a minute. We’re checking the page, up to 50 links, robots.txt and the sitemap, and measuring performance with Google PageSpeed Insights.';
+  String get scanStepFetch => 'Fetching the page and reading its HTML';
+
+  @override
+  String get scanStepContent => 'Checking titles, headings, links and metadata';
+
+  @override
+  String get scanStepLinks => 'Checking up to 50 links, robots.txt and the sitemap';
+
+  @override
+  String get scanStepSpeed => 'Measuring speed with Google PageSpeed Insights';
+
+  @override
+  String get scanLeaveOpen => 'This usually takes under a minute. The report appears here when it’s ready.';
+
+  @override
+  String scanElapsed(String time) {
+    return 'Elapsed time $time';
+  }
 
   @override
   String get scanTakingLong => 'This is taking longer than expected.';
@@ -289,7 +305,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get partialNotice =>
-      'Some checks couldn’t be completed — see audit coverage. Everything shown is real data from the checks that did run.';
+      'Some checks couldn’t be completed. See audit coverage. Everything shown is real data from the checks that did run.';
 
   @override
   String get lighthouseTitle => 'Lighthouse scores';
@@ -404,7 +420,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceOk => 'Completed';
 
   @override
-  String get sourceNotConfigured => 'Not available — not configured on this server';
+  String get sourceNotConfigured => 'Not available (not configured on this server)';
 
   @override
   String get sourceDisabled => 'Turned off';
@@ -413,7 +429,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sourceTimeout => 'Didn’t finish in time';
 
   @override
-  String get sourceQuota => 'Daily quota reached — try again later';
+  String get sourceQuota => 'Daily quota reached. Try again later';
 
   @override
   String get sourceUpstream => 'The service returned an error';
@@ -538,7 +554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteWarning =>
-      'This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first — deleting your account doesn’t cancel it.';
+      'This permanently deletes your account, your saved reports and your settings. It can’t be undone. If you subscribed through Google Play, cancel the subscription in Google Play first, because deleting your account doesn’t cancel it.';
 
   @override
   String get deleteConfirmLabel => 'Type \"DELETE\" to confirm';
@@ -640,7 +656,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get purchaseVerifyFailed =>
-      'We couldn’t confirm your purchase yet. It will be checked again automatically — you won’t be charged twice.';
+      'We couldn’t confirm your purchase yet. It will be checked again automatically, and you won’t be charged twice.';
 
   @override
   String get subscribedOnWeb => 'You’re subscribed through the Weblume website. Manage or cancel it there.';
@@ -675,16 +691,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subStatusTrial => 'Trial';
 
   @override
-  String get subStatusGrace => 'Payment issue — still active';
+  String get subStatusGrace => 'Payment issue (still active)';
 
   @override
-  String get subStatusOnHold => 'On hold — payment failed';
+  String get subStatusOnHold => 'On hold: payment failed';
 
   @override
   String get subStatusPaused => 'Paused';
 
   @override
-  String get subStatusCanceled => 'Cancelled — active until the period ends';
+  String get subStatusCanceled => 'Cancelled (active until the period ends)';
 
   @override
   String get subStatusEnded => 'Ended';
@@ -705,7 +721,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportUpsell => 'Share links, PDF reports and before/after comparisons are part of Starter.';
 
   @override
-  String get reportPdfOnWeb => 'PDF reports can be downloaded on the Weblume website.';
+  String get reportActionDownloadPdf => 'Download PDF';
+
+  @override
+  String get reportActionSharePdf => 'Share PDF';
+
+  @override
+  String get pdfSaved => 'PDF saved.';
+
+  @override
+  String get pdfFailed => 'Couldn’t save the PDF on this device. Try Share PDF instead.';
 
   @override
   String get shareTitle => 'Share a read-only copy';
