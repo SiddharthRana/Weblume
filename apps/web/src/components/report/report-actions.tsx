@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Schemas } from '@weblume/api-client-ts';
 import { api, API_URL, errorMessage } from '@/lib/api';
 import { currentAccessToken } from '@/lib/supabase';
+import { Select } from '../select';
 
 type Entitlements = Schemas['AccountDtoClass']['entitlements'];
 type ShareLink = Schemas['ShareLinkDto'];
@@ -118,7 +119,6 @@ function SharePanel({ scanId }: { scanId: string }) {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const expiryId = useId();
 
   const [reload, setReload] = useState(0);
   const refresh = () => setReload((n) => n + 1);
@@ -192,23 +192,15 @@ function SharePanel({ scanId }: { scanId: string }) {
         stay private, and search engines are asked not to index it.
       </p>
       <div className="mt-4 flex flex-wrap items-end gap-3">
-        <div>
-          <label htmlFor={expiryId} className="block text-sm font-medium text-fg">
-            Link works for
-          </label>
-          <select
-            id={expiryId}
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-            className="mt-1 min-h-11 rounded-md border border-border bg-bg px-3 text-sm text-fg"
-          >
-            {EXPIRY_OPTIONS.map((d) => (
-              <option key={d} value={d}>
-                {d === 365 ? '1 year' : `${d} days`}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Link works for"
+          value={days}
+          onChange={setDays}
+          options={EXPIRY_OPTIONS.map((d) => ({
+            value: d,
+            label: d === 365 ? '1 year' : `${d} days`,
+          }))}
+        />
         <button
           type="button"
           onClick={create}

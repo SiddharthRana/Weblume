@@ -276,6 +276,11 @@
       }
     }
     /* Scan in progress: a beam sweeps the page preview, skeleton lines shimmer, steps pulse in turn. */
+    /* Dropdown lists open with a short fade and scale from the top. */
+    .animate-pop {
+      animation: wl-pop 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+      transform-origin: top;
+    }
     .scan-beam {
       animation: wl-scan-beam 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
     }
@@ -394,6 +399,13 @@
   }
   .prose strong {
     font-weight: 600;
+  }
+}
+@keyframes wl-pop {
+  from {
+    opacity: 0;
+    scale: 0.97;
+    translate: 0 -4px;
   }
 }
 @keyframes wl-scan-beam {

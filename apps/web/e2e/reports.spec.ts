@@ -167,7 +167,9 @@ test.describe('report actions', () => {
     await page.goto(`/scan/${NEW}`);
     await page.getByRole('button', { name: 'Share' }).click();
     await expect(page.getByText('No active links.')).toBeVisible();
-    await page.getByLabel('Link works for').selectOption('90');
+    await page.getByRole('combobox', { name: 'Link works for' }).click();
+    await page.getByRole('option', { name: '90 days' }).click();
+    await expect(page.getByRole('combobox', { name: 'Link works for' })).toHaveText('90 days');
     await page.getByRole('button', { name: 'Create link' }).click();
     await expect(page.getByLabel('Share link')).toHaveValue(`http://localhost:3100/r/${TOKEN}`);
     await expect(page.getByText('we only show it once')).toBeVisible();
