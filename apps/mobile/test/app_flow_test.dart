@@ -132,7 +132,7 @@ void main() {
     expect(find.textContaining('Some checks couldn’t be completed'), findsOneWidget);
     expect(find.textContaining('Lighthouse scores aren’t available'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('out of 100')), findsNothing);
-    await scrollTo(tester, find.text('Daily quota reached — try again later'));
+    await scrollTo(tester, find.text('Daily quota reached. Try again later'));
     expect(find.text('Didn’t finish in time'), findsOneWidget);
   });
 
@@ -147,10 +147,10 @@ void main() {
       )
       ..reports['s9'] = [loadedReport('s9', status: 'failed', fromCache: true)];
     await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
-    expect(find.text('You’re offline — showing saved data.'), findsOneWidget);
+    expect(find.text('You’re offline. Showing saved data.'), findsOneWidget);
     await tester.tap(find.text('https://example.com/'));
     await settle(tester);
-    expect(find.text('You’re offline — showing saved data.'), findsOneWidget);
+    expect(find.text('You’re offline. Showing saved data.'), findsOneWidget);
     expect(find.text('Retry scan'), findsNothing);
   });
 
