@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../api/generated/api.g.dart';
 import '../api/generated/models.g.dart';
 import 'local_cache.dart';
@@ -100,4 +102,7 @@ class WeblumeRepository {
   Future<List<ShareLink>> shares(String scanId) async => (await _api.reportsListShares(id: scanId)).items;
 
   Future<void> revokeShare(String shareId) => _api.reportsRevokeShare(shareId: shareId);
+
+  /// The branded PDF of a report (Starter).
+  Future<Uint8List> reportPdf(String scanId) async => Uint8List.fromList(await _api.reportsPdf(id: scanId));
 }
