@@ -17,7 +17,7 @@
 | Android      | Dashboard lists monitored sites (schedule, paused, skip reasons, latest report); setting up and managing open the website                                                                                                                                                                                          | Flutter widget tests                                                                                                                   |
 | Privacy      | Monitors included in the data export and deleted with the account                                                                                                                                                                                                                                                  | API DB e2e                                                                                                                             |
 
-**Test totals:** API 353 (with `TEST_DATABASE_URL`), web Playwright 202 passed / 5 skipped, Flutter 90.
+**Test totals:** API 340 (with `TEST_DATABASE_URL`), shared 86, web Playwright 202 passed / 5 skipped, Flutter 90.
 
 ### Not verified / needs the owner
 
