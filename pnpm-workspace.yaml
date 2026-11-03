@@ -9,6 +9,8 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+  # Cloudflare's local runtime, used by `wrangler pages dev` in the web e2e tests.
+  - workerd
 
 # Telemetry postinstall shipped with swagger-ui; intentionally not run.
 ignoredBuiltDependencies:

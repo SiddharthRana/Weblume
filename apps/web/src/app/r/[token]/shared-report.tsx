@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import type { ScanReportDto } from '@weblume/shared';
 import { ReportView } from '@/components/report/report-view';
 import { api, errorMessage } from '@/lib/api';
+import { useRouteParam } from '@/lib/use-route-param';
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' });
 
@@ -15,7 +16,8 @@ type State =
   | { kind: 'report'; report: ScanReportDto; expiresAt: string | null };
 
 /** Read-only report opened from a share link. Sends no credentials. */
-export function SharedReport({ token }: { token: string }) {
+export function SharedReport({ token: routeToken }: { token: string }) {
+  const token = useRouteParam(routeToken);
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
 

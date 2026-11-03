@@ -8,3 +8,6 @@ packages/design-tokens/dist
 packages/api-client-ts/src/schema.ts
 apps/api/openapi.json
 docs/BUILD_PROMPT.md
+out
+.wrangler
+apps/web/public/_headers

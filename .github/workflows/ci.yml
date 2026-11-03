@@ -102,3 +102,51 @@ jobs:
           java-version: '17'
       - name: Build Android release APK (debug-signed unless a keystore is configured)
         run: flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com
+
+  deploy-web:
+    name: Deploy website (Cloudflare Pages)
+    needs: [typescript, database, flutter]
+    # Skipped (not failed) until the Pages project and the `web` environment exist; see docs/deployment.md.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_WEB == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: web
+      url: ${{ vars.SITE_URL }}
+    concurrency:
+      group: deploy-web
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter "./packages/*" run build
+      # NEXT_PUBLIC_* values are baked into the static files at build time; all of them are public.
+      - name: Build the static site
+        env:
+          NEXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NEXT_PUBLIC_API_URL: ${{ vars.API_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: ${{ vars.PADDLE_CLIENT_TOKEN }}
+          NEXT_PUBLIC_PADDLE_ENV: ${{ vars.PADDLE_ENV }}
+          NEXT_PUBLIC_SENTRY_DSN: ${{ vars.WEB_SENTRY_DSN }}
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_AUTH_GOOGLE_ENABLED: ${{ vars.AUTH_GOOGLE_ENABLED || 'false' }}
+          NEXT_PUBLIC_SUPPORT_EMAIL: ${{ vars.SUPPORT_EMAIL }}
+        run: pnpm --filter @weblume/web build
+      # Deploying to the project's production branch makes this the live site.
+      - name: Upload to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          PAGES_PROJECT: ${{ vars.CLOUDFLARE_PAGES_PROJECT || 'weblume' }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: >-
+          pnpm --filter @weblume/web exec wrangler pages deploy out
+          --project-name "$PAGES_PROJECT" --branch main --commit-hash "$GITHUB_SHA"

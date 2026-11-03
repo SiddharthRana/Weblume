@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build": "nest build",
-    "dev": "nest start --watch",
+    "dev": "nest start --watch --exec \"node --env-file-if-exists=.env\"",
     "start": "node dist/main.js",
     "lint": "eslint src test",
     "typecheck": "tsc --noEmit -p tsconfig.json",
