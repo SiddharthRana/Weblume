@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { CHECKS, compareReports, type FindingDto, type ScanReportDto } from '@weblume/shared';
-import { account, json, logIn, mockBackends, type ApiOverride } from './support';
+import { account, json, logIn, mockBackends, type ApiOverride, axe } from './support';
 
 const OLD = '44444444-4444-4444-8444-444444444444';
 const NEW = '66666666-6666-4666-8666-666666666666';
@@ -221,7 +220,9 @@ test.describe('comparison', () => {
     await signedIn(page, reportsApi());
     await page.goto(`/compare?base=${OLD}&target=${NEW}`);
     await expect(page.getByRole('heading', { name: 'Resolved (1)' })).toBeVisible();
-    const results = await new AxeBuilder({ page })
+    const results = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);
@@ -243,7 +244,9 @@ test.describe('shared report page', () => {
     await expect(page.locator('meta[name="referrer"]')).toHaveAttribute('content', 'no-referrer');
     await expect(page.getByRole('button', { name: 'Share' })).toHaveCount(0);
     expect(calls.api.find((c) => c.path === `/v1/shared/${TOKEN}`)?.auth).toBeUndefined();
-    const results = await new AxeBuilder({ page })
+    const results = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);

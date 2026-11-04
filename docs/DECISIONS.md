@@ -2,6 +2,23 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-11-04 — Launch hardening
+
+**The Android session lives in Keystore-backed storage.** supabase_flutter's `localStorage` and `pkceAsyncStorage` options are given `flutter_secure_storage` implementations (AES-GCM, key wrapped by an Android Keystore RSA key). On first start the old SharedPreferences session is copied across and deleted, so upgrades don't sign anyone out; if both exist, the secure one wins. `resetOnError` wipes data whose key no longer decrypts (a device restore), which only means signing in again.
+_Rejected:_ biometric-gated storage (a prompt on every token refresh).
+
+**Android crash reports go to Sentry only when a DSN is built in, and are scrubbed like the API's.** No user, request, screenshots, view hierarchy, print breadcrumbs or tracing; emails, JWTs, bearer tokens, query strings and share tokens are masked in messages, exceptions and breadcrumbs, because Dio errors and auth messages carry URLs and addresses.
+
+**`minSdk` 26 (Android 8.0).** sentry_flutter 10 requires it; Flutter's default was 24. The app isn't published, and Android 7 is a very small share of active devices.
+_Rejected:_ `tools:overrideLibrary` (unsupported, may crash), an older Sentry SDK.
+
+**Rate-limit counters in Postgres, not Redis.** A `ThrottlerStorage` that calls one plpgsql function per request: a fixed window per key and throttler, upserted under the row lock so concurrent requests on several instances count exactly. The table is unlogged (no WAL; counters lost in a crash just restart) and swept every 5 minutes. Keys are the throttler's SHA-256 hashes, so no raw IPs are stored. Postgres is the default in production; tests and development use the in-memory store (`RATE_LIMIT_STORE`). If the database is unreachable, requests are allowed and a warning logged: the endpoints need the database anyway.
+_Rejected:_ Redis/Upstash (another service and bill for one counter table), sliding windows (more rows per request).
+
+**Supabase CAPTCHA is configured but off.** Supabase applies CAPTCHA to every password sign-up, sign-in and reset at once, and neither client sends a token yet, so enabling it would lock out the Android app. Per-IP auth rate limits cover the gap until both clients send one.
+
+**Axe checks the page at rest.** Axe's colour contrast samples rendered pixels, so text mid-fade failed at random. The e2e helper emulates reduced motion (the site already turns all motion off for it) and waits for finite animations, so the final colours are checked with every rule unchanged. Faded-in content ends at the same colours, so nothing is skipped.
+
 ## 2026-11-03 — Code fixes, theme switch, scan progress
 
 **Code fixes are a Starter feature, built and gated on the server.** `apps/api/src/scanner/code-fixes.ts` builds copy-paste code for 23 of Weblume's own checks from each finding's evidence and the page's address (the exact canonical URL, the `http://` resources to upgrade, the images missing alt text). Every finding reports `codeFixAvailable`; the code itself (`codeFix`) is only sent when the viewer's plan has the `codeFixes` entitlement, so it never ships in the website's bundle. Shared links show what the owner's plan includes. Lighthouse audits, broken links and page weight get no code: they need judgement, not a snippet.

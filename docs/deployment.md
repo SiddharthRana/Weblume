@@ -10,7 +10,7 @@ Nothing has been deployed and no paid resources have been created. This guide co
 | API + scan worker | **One small container**: Fly.io, Render or Railway                  | Built from `apps/api/Dockerfile`. One process runs both the HTTP API and the worker (`WORKER_ENABLED=true`).                       |
 | Web               | **Cloudflare Pages**                                                | Static export (`next build` → `apps/web/out`), deployed by CI with `wrangler pages deploy`. The free plan covers a site this size. |
 | Email             | Resend or Postmark free tier, connected as Supabase **custom SMTP** | Supabase's built-in sender is rate-limited and for testing only.                                                                   |
-| Errors (optional) | Sentry free tier                                                    | `SENTRY_DSN` (API) and `NEXT_PUBLIC_SENTRY_DSN` (web).                                                                             |
+| Errors (optional) | Sentry free tier                                                    | `SENTRY_DSN` (API), `NEXT_PUBLIC_SENTRY_DSN` (web) and `--dart-define=SENTRY_DSN` (Android).                                       |
 | Android           | Google Play Console                                                 | One-time $25 developer fee.                                                                                                        |
 
 Domains: for example, `weblume.app` for the web app and `api.weblume.app` for the API. Using the same parent domain keeps CORS simple.
@@ -24,7 +24,8 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      supabase link --project-ref <ref>
      supabase db push
      ```
-   - Set up Auth (Site URL, redirect URLs, SMTP, optional Google), as described in the [README](../README.md#supabase-auth-setup-manual).
+   - Set up Auth (Site URL, redirect URLs, password policy, leaked-password protection, rate limits, SMTP, optional Google), as described in the [README](../README.md#supabase-auth-setup-manual). Leave CAPTCHA off until both clients send a captcha token (README step 6).
+   - `supabase db push` also creates `rate_limits`, the shared rate-limit counters the API uses in production.
    - Keep the `billing` feature flag **off** until payments are set up.
 2. **API container**
    - Build and push the image:
@@ -36,7 +37,7 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      - Internal port `4000`.
      - Health check path `/health`, readiness `/ready`.
      - At least **512 MB RAM**. PDF rendering and HTML parsing are in-process.
-     - **One instance** to start with. Scaling out works, because the queue is pg-boss in Postgres, but per-instance metrics then need summing.
+     - **One instance** to start with. Scaling out works: the queue is pg-boss and the rate-limit counters are in Postgres (`RATE_LIMIT_STORE=postgres`, the production default), so every instance enforces the same limits. Per-instance metrics then need summing.
    - Set the environment from [`apps/api/.env.example`](../apps/api/.env.example). The minimum for production:
 
      | Variable               | Value                                                                                           |
@@ -52,6 +53,7 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      | `TURNSTILE_SECRET_KEY` | Required for guest scans in production                                                          |
      | `PSI_API_KEY`          | Google Cloud API key restricted to the PageSpeed Insights API                                   |
      | `METRICS_TOKEN`        | Optional. Enables `/metrics`                                                                    |
+     | `RATE_LIMIT_STORE`     | Optional. `postgres` (default in production) or `memory` (one instance only)                    |
      | `SENTRY_DSN`           | Optional                                                                                        |
 
      Payment variables are covered in [`payments-setup.md`](payments-setup.md).
@@ -97,11 +99,12 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
 5. **Android**
    - Build a signed App Bundle, as described in [`apps/mobile/README.md`](../apps/mobile/README.md):
      ```bash
-     flutter build appbundle --release --dart-define=API_BASE_URL=https://api.weblume.app --dart-define=SITE_URL=https://weblume.app --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=...
+     flutter build appbundle --release --dart-define=API_BASE_URL=https://api.weblume.app --dart-define=SITE_URL=https://weblume.app --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=... --dart-define=APP_VERSION=... --dart-define=SENTRY_DSN=...
      ```
+   - The app needs Android 8.0 (API 26) or later (sentry_flutter's minimum). The session is kept in Keystore-backed secure storage; sessions from older builds are migrated on first start.
    - Upload it to an internal testing track first.
    - Play Console requirements:
-     - Data safety form, based on [`privacy-data-map.md`](privacy-data-map.md).
+     - Data safety form, based on [`privacy-data-map.md`](privacy-data-map.md). With `SENTRY_DSN` set, declare crash logs and diagnostics (not linked to the user, not shared).
      - Account deletion URL: `https://weblume.app/legal/account-deletion`.
      - Privacy policy URL.
      - Content rating.
@@ -136,4 +139,6 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
   - Fonts for PDFs are included.
 - The web production build, with Lighthouse run against it locally (see [`quality-review.md`](quality-review.md)).
 - The static export served by `wrangler pages dev` (Cloudflare's local runtime): headers, the report rewrites, a real scan report against the local API, and the web e2e suite.
+- The Postgres rate-limit store against local Supabase Postgres, including two API instances sharing one limit (`apps/api/test/rate-limit-store.e2e.test.ts`).
+- An Android release APK with secure session storage and Sentry (no DSN) builds. Not run on a device yet.
 - Not verified: any real hosting platform, a real Cloudflare Pages deployment, DNS, TLS, Supabase cloud, Play Console, or a deployed CSP with Turnstile and Paddle keys.

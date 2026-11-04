@@ -193,10 +193,16 @@ Web checkout via a Merchant of Record (Paddle or Dodo Payments) and Google Play 
 
 1. Create a Supabase project. Copy the **Project URL** and **publishable key** to the web env, the URL to `SUPABASE_URL` in the API, and the **secret key** to `SUPABASE_SECRET_KEY` (API only, never the web).
 2. Authentication → URL configuration: set **Site URL** to your site, and add redirect URLs `https://<site>/auth/callback` and `https://<site>/auth/reset-password`.
-3. Authentication → Providers → Email: keep **Confirm email** on. Set password requirements to at least 10 characters with lower, upper and digits (matches the web form and `supabase/config.toml`).
-4. Authentication → Emails → SMTP: configure a real SMTP provider (Resend/Postmark free tiers). The built-in sender is rate-limited and only for testing.
-5. Optional: Authentication → Providers → Google (OAuth client from Google Cloud), then set `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=true`.
-6. Apply migrations: `supabase link` then `supabase db push`.
+3. Authentication → Sign In / Providers → Email, matching `supabase/config.toml`:
+   - keep **Confirm email** on, and **Secure email change** on;
+   - turn on **Secure password change** (a password change from a session older than 24 hours needs a code; password resets from the email link aren't affected);
+   - password requirements: minimum length **10**, **lowercase, uppercase and digits** (the web form and app check the same rules);
+   - turn on **Prevent use of leaked passwords** (HaveIBeenPwned check, Pro plan; under Authentication → Attack Protection in newer dashboards). `config.toml` can't express this one, so local development doesn't check it.
+4. Authentication → Sign In / Providers: turn **Allow anonymous sign-ins** off and **Allow manual linking** off.
+5. Authentication → Emails → SMTP: configure a real SMTP provider (Resend/Postmark free tiers). The built-in sender is rate-limited and only for testing. Then Authentication → Rate Limits: set emails sent per hour to suit the SMTP plan (30 locally), and keep sign-ins/sign-ups at 30 and token verifications at 30 per 5 minutes per IP.
+6. **CAPTCHA (Turnstile): leave it off for now.** Authentication → Attack Protection → Enable CAPTCHA protection applies to every password sign-up, sign-in and reset, and Supabase then rejects requests without a token. The web forms don't send `captchaToken` yet and the Android app has no Turnstile widget, so turning it on would lock everyone out. When both clients send a token: create a separate Turnstile widget for auth (hostnames: the site; the app needs its own approach, e.g. a WebView widget), choose provider **Turnstile**, paste its secret key, and locally set `[auth.captcha] enabled = true` with `SUPABASE_AUTH_CAPTCHA_SECRET`. Until then, sign-in abuse is limited by the per-IP rate limits above, and guest scans keep their own Turnstile check in the API.
+7. Optional: Authentication → Providers → Google (OAuth client from Google Cloud), then set `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=true`.
+8. Apply migrations: `supabase link` then `supabase db push`.
 
 See also [`docs/privacy-data-map.md`](docs/privacy-data-map.md).
 

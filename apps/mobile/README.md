@@ -34,9 +34,25 @@ lib/
 | `API_BASE_URL` | Weblume API (default `http://10.0.2.2:4000`, the emulator's host) |
 | `SITE_URL` | Website, for legal links and data export |
 | `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` | Supabase project. Without them the app shows "Accounts aren't configured" |
-| `APP_VERSION` | Shown in Account |
+| `APP_VERSION` | Shown in Account, and the Sentry release (`weblume-android@<version>`) |
+| `SENTRY_DSN` | Sentry project DSN for crash reports. Empty (the default) turns crash reporting off entirely |
+| `SENTRY_ENVIRONMENT` | Sentry environment tag (default `production`; use `staging` for staging builds) |
 
 In Supabase → Authentication → URL configuration, add **`weblume://auth-callback`** to the redirect URLs. Email confirmation and password-reset links open the app through this deep link (registered in `AndroidManifest.xml` and `Info.plist`).
+
+## Session storage
+
+The Supabase session (access and refresh tokens) and the PKCE code verifier are stored with `flutter_secure_storage`, which encrypts them with a key held in the Android Keystore (`lib/auth/secure_session_storage.dart`). Earlier builds kept the session in plain SharedPreferences; on first start after the upgrade it is moved into secure storage and the plain copy deleted, so nobody is signed out. App backup is off (`allowBackup="false"`), and if the Keystore key can't decrypt the data (for example after a device restore), it is wiped and the user signs in again.
+
+## Crash reporting (Sentry)
+
+Build with `--dart-define=SENTRY_DSN=<dsn>` to send crashes and unhandled errors to Sentry (create a Flutter project in Sentry and copy its DSN). Without it, Sentry is never initialised. Reports follow the same rules as the API (`lib/observability/crash_reporting.dart`):
+
+- no user identity, IP, request details, screenshots or view hierarchy (`sendDefaultPii` off);
+- emails, JWTs and bearer tokens in messages, exceptions and breadcrumbs are masked, query strings (scanned addresses, auth codes) are removed, and share-link tokens in `/r/` and `/shared/` paths are masked;
+- no print breadcrumbs and no performance tracing (free tier).
+
+Release builds are obfuscated only if you pass `--obfuscate --split-debug-info=build/symbols`; then upload the symbols with `sentry-cli debug-files upload build/symbols` so stack traces stay readable. Note Sentry in the Play data safety form (crash logs, not linked to the user).
 
 ## Run
 
@@ -61,13 +77,14 @@ flutter test
 
 After changing `packages/design-tokens/tokens.json`, run `pnpm tokens` from the repo root and commit the regenerated `lib/theme/tokens.g.dart`. After changing the API, run `pnpm openapi` to regenerate `lib/api/generated/`. CI fails if either is stale.
 
-Tests: generated client and repository (dio mock adapter, in-memory preferences), shared URL cases, router redirects, auth flows, scan flow (validation → polling → report → finding detail), failures/partial/offline, history, account (name, deletion, log out), and Flutter accessibility guidelines in light and dark.
+Tests: secure session storage and its migration, crash-report scrubbing, generated client and repository (dio mock adapter, in-memory preferences), shared URL cases, router redirects, auth flows, scan flow (validation → polling → report → finding detail), failures/partial/offline, history, account (name, deletion, log out), and Flutter accessibility guidelines in light and dark.
 
 ## Android release build
 
 ```bash
 flutter build apk --release --dart-define=API_BASE_URL=https://api.your-domain.com
-flutter build appbundle --release --dart-define=API_BASE_URL=https://api.your-domain.com   # for Google Play
+flutter build appbundle --release --dart-define=API_BASE_URL=https://api.your-domain.com \
+  --dart-define=SENTRY_DSN=<dsn>   # for Google Play
 ```
 
 Without a keystore, release builds are signed with the debug key (fine locally; **not** accepted by Play). To sign for Play:

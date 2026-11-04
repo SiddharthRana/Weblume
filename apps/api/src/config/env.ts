@@ -27,6 +27,11 @@ export const envSchema = z.object({
   /** Stricter per-IP limit for starting/retrying scans. */
   SCAN_CREATE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
   /**
+   * Where rate-limit counters live. `postgres` (the default in production) shares them across API
+   * instances; `memory` is per process (tests, single-instance development).
+   */
+  RATE_LIMIT_STORE: z.enum(['memory', 'postgres']).optional(),
+  /**
    * Supabase secret key (sb_secret_…, or the legacy service_role key). Used only to delete users
    * from Supabase Auth on account deletion. Optional: without it, deletions stay pending.
    */

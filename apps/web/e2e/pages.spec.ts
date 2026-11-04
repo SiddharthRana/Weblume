@@ -1,5 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { axe } from './support';
 
 const pages = [
   { path: '/', h1: /Website audits your clients can actually read/ },
@@ -33,7 +33,9 @@ for (const { path, h1 } of pages) {
 
     test('has no automatically detectable WCAG 2.2 AA violations', async ({ page }) => {
       await page.goto(path);
-      const results = await new AxeBuilder({ page })
+      const results = await (
+        await axe(page)
+      )
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze();
       expect(

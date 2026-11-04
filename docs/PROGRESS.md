@@ -1,7 +1,28 @@
 # Progress
 
 **Current phase:** 6 of 6 — Reports+ and launch prep ✅ complete. All phases are built; **nothing is deployed**. What remains before a public launch is listed below, in priority order.
-**Last updated:** 2026-10-30
+**Last updated:** 2026-11-04
+
+## Launch hardening (2026-11-04)
+
+### Done (verified in this environment)
+
+| Area                  | What                                                                                                                                                                                                                                  | Verified by                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Android session       | Supabase session and PKCE verifier in Keystore-backed `flutter_secure_storage` (`lib/auth/secure_session_storage.dart`); sessions from older builds move out of SharedPreferences on first start                                      | `test/secure_session_storage_test.dart` (6 tests); release APK builds                                                              |
+| Android crash reports | `sentry_flutter` behind `--dart-define=SENTRY_DSN` (never initialised without it); no PII, screenshots, print breadcrumbs or tracing; emails, tokens, query strings and share tokens masked. `minSdk` raised to 26 for sentry_flutter | `test/crash_reporting_test.dart` (4 tests); release APK builds                                                                     |
+| Shared rate limits    | Pluggable throttler store: Postgres (`rate_limits` unlogged table + atomic `rate_limit_hit` function, swept every 5 min) by default in production, in-memory for tests and development (`RATE_LIMIT_STORE`)                           | `apps/api/test/rate-limit-store.e2e.test.ts` (8 tests, incl. two API instances sharing one limit and 20 concurrent hits); RLS test |
+| Supabase Auth config  | `supabase/config.toml`: password policy, anonymous sign-ins off, rate limits, secure password change, email frequency, Turnstile CAPTCHA settings (off; see P0 6). Dashboard steps in the README                                      | Config parses with the Supabase CLI; not applied to a running local stack                                                          |
+| Web accessibility e2e | Axe runs through `axe(page)` in `e2e/support.ts`: emulates reduced motion and waits for finite animations, so colour contrast is checked on the page at rest, with every rule unchanged                                               | `test:e2e` green 3 runs in a row (189 passed), plus the accessibility tests 5× each (400 passed)                                   |
+| Docs                  | `smoke-test.md` (headers and rewrites on Pages, theme switch, code fixes, auth rules, app PDF, session migration, Sentry), `deployment.md`, `monitoring.md`, privacy data map, mobile README                                          |                                                                                                                                    |
+
+**Test totals:** API 322 (with `TEST_DATABASE_URL`), web Playwright 189 passed / 5 skipped, Flutter 96. Format, lint, typecheck, `flutter analyze` and `db:verify` are clean.
+
+### Not verified / limitations
+
+- **Not run on a device:** secure storage and its migration, and Sentry on Android, are covered by unit tests and a release build only. Check them with the smoke test (section 5) on the internal track.
+- **Supabase Auth settings** are in `config.toml` but weren't applied to a restarted local stack (the stack is shared with other worktrees). Leaked-password protection and production rate limits are dashboard-only.
+- **CAPTCHA stays off** until the web forms send `captchaToken` and the app has a Turnstile flow (P0 6).
 
 ## Phase 6 — Reports+ and launch prep
 
@@ -169,7 +190,8 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
    - Play Billing on an internal track with license testers (purchase, renewal, cancel, refund via RTDN).
    - Share and compare flows.
    - TalkBack and large fonts.
-6. **Harden Supabase Auth.** Enable CAPTCHA (Turnstile) and leaked-password protection, configure SMTP, and set the password policy (README).
+6. **Harden Supabase Auth.** Code side done: `supabase/config.toml` and the README steps. Remaining (owner, in the dashboard): password policy, leaked-password protection (Pro), rate limits and SMTP, per README "Supabase Auth setup".
+   - **CAPTCHA needs code first.** Turning on Supabase CAPTCHA requires a token on every password sign-up, sign-in and reset. Add `captchaToken` to the web auth forms (Turnstile widget, as on `/scan`) and a Turnstile flow to the Android app (e.g. a WebView), then enable it.
 7. **Pricing decisions.**
    - Paddle's fixed $0.50 fee takes ~28% of a ₹149 monthly payment (`docs/unit-economics.md`). Decide INR monthly price, provider, or an annual-first plan.
    - Decide tax-inclusive display.
@@ -177,10 +199,10 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
 
 ### P1: soon after launch
 
-9. Store the mobile session in Keystore-backed secure storage (`flutter_secure_storage`).
-10. Move rate-limit counters to a shared store (e.g. Redis) before running more than one API instance.
-11. Add Sentry (or similar) to the Android app.
-12. PDF download and system share sheet in the Android app (currently: "download on the website").
+9. ✅ Store the mobile session in Keystore-backed secure storage (`flutter_secure_storage`), with migration (2026-11-04).
+10. ✅ Rate-limit counters in a shared Postgres store, so more than one API instance is safe (2026-11-04).
+11. ✅ Sentry in the Android app, behind `SENTRY_DSN` (2026-11-04). Create the Sentry project and pass the DSN in release builds.
+12. ✅ PDF download and system share sheet in the Android app (2026-11-03).
 13. Nonce-based CSP to drop `'unsafe-inline'` scripts.
 14. Wider PDF font coverage (Devanagari, CJK) via Noto fonts.
 15. Set up uptime monitors, metric alerts and cost alerts (`docs/monitoring.md`, `docs/costs.md`).
