@@ -7,19 +7,30 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'auth/auth_repository.dart';
+import 'auth/secure_session_storage.dart';
 import 'billing/billing_controller.dart';
 import 'billing/billing_gateway.dart';
 import 'config/app_config.dart';
 import 'data/providers.dart';
+import 'observability/crash_reporting.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await runWithCrashReporting(_start);
+}
+
+Future<void> _start() async {
   AuthRepository auth = UnconfiguredAuthRepository();
   if (AppConfig.authConfigured) {
     await Supabase.initialize(
       url: AppConfig.supabaseUrl,
       publishableKey: AppConfig.supabasePublishableKey,
-      authOptions: const FlutterAuthClientOptions(authFlowType: AuthFlowType.pkce),
+      authOptions: FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+        // Tokens live in the Android Keystore, not plain SharedPreferences.
+        localStorage: SecureSessionStorage(persistSessionKey: supabaseSessionKey(AppConfig.supabaseUrl)),
+        pkceAsyncStorage: SecurePkceStorage(),
+      ),
     );
     auth = SupabaseAuthRepository(Supabase.instance.client.auth);
   }

@@ -25,7 +25,8 @@ android {
     defaultConfig {
         // Permanent once published on Google Play.
         applicationId = "com.weblume.app"
-        minSdk = flutter.minSdkVersion
+        // 26 (Android 8.0) is the minimum sentry_flutter 10 supports.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

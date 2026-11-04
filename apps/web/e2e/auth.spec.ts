@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { ACCESS_TOKEN, logIn, mockBackends } from './support';
+import { ACCESS_TOKEN, logIn, mockBackends, axe } from './support';
 
 const alertIn = (page: Page) => page.getByRole('main').getByRole('alert');
 
@@ -22,7 +21,9 @@ test.describe('sign up', () => {
 
   test('has no detectable accessibility violations', async ({ page }) => {
     await page.goto('/signup');
-    const r = await new AxeBuilder({ page })
+    const r = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(r.violations.map((v) => v.id)).toEqual([]);
@@ -51,7 +52,9 @@ test.describe('log in', () => {
     await expect(page.getByText('3 left')).toBeVisible();
     await expect(page.getByRole('link', { name: 'https://example.com/' })).toBeVisible();
     expect(calls.api.find((c) => c.path === '/v1/me')!.auth).toBe(`Bearer ${ACCESS_TOKEN}`);
-    const r = await new AxeBuilder({ page })
+    const r = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(r.violations.map((v) => v.id)).toEqual([]);
@@ -181,7 +184,9 @@ test.describe('account settings', () => {
     await page.getByLabel('Display name').fill('Asha');
     await page.getByRole('button', { name: 'Save name' }).click();
     await expect(page.getByRole('main').getByText('Saved.')).toBeVisible();
-    const r = await new AxeBuilder({ page })
+    const r = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(r.violations.map((v) => v.id)).toEqual([]);

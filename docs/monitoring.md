@@ -40,7 +40,10 @@ Useful searches in your host's log viewer:
   - Sends no user identity, cookies, headers or query strings.
   - Masks `/r/<token>`.
   - Drops console and UI-click breadcrumbs.
-- **Mobile:** not integrated yet (see the unfinished items in `PROGRESS.md`).
+- **Android:** build with `--dart-define=SENTRY_DSN=<dsn>` (a separate Sentry Flutter project). Without it, Sentry isn't initialised.
+  - Crashes and unhandled errors only; no performance tracing, screenshots or view hierarchy.
+  - Events carry no user identity or request data; emails, JWTs, bearer tokens, query strings and share tokens are masked in messages, exceptions and breadcrumbs (`apps/mobile/lib/observability/crash_reporting.dart`).
+  - Releases are named `weblume-android@<APP_VERSION>`.
 
 Suggested Sentry alerts: a new issue, and more than 10 events in 5 minutes.
 
