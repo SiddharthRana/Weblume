@@ -153,12 +153,21 @@ describe('Dodo event mapping', () => {
       status: 'active',
       interval: 'monthly',
       providerCustomerId: 'cus_1',
+      customerEmail: 'a@x.dev',
+    });
+  });
+  it('passes the payer email through when metadata is missing', () => {
+    expect(parse(dodoEvent({})).subscription).toMatchObject({
+      userId: null,
+      customerEmail: 'a@x.dev',
     });
   });
   it.each([
     ['active + cancel at end', { cancelAtEnd: true }, 'canceled'],
     ['on_hold', { status: 'on_hold' }, 'on_hold'],
     ['cancelled', { status: 'cancelled' }, 'canceled'],
+    ['past_due (renewal retrying)', { status: 'past_due' }, 'grace_period'],
+    ['paused', { status: 'paused' }, 'paused'],
     ['failed', { status: 'failed' }, 'expired'],
     ['expired', { status: 'expired' }, 'expired'],
   ])('%s → %s', (_l, over, expected) => {

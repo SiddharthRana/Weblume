@@ -17,6 +17,11 @@ export interface NormalizedSubscription {
   cancelAtPeriodEnd: boolean;
   /** Weblume user id when the provider echoes it back (web checkout custom data). */
   userId?: string | null;
+  /**
+   * The payer's email, as a last resort when the provider doesn't echo the user id back
+   * (Dodo doesn't document copying checkout metadata onto the subscription).
+   */
+  customerEmail?: string | null;
   /** Opaque account reference (Google Play obfuscatedAccountId). */
   accountRef?: string | null;
   linkedProviderSubscriptionId?: string | null;

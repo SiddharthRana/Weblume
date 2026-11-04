@@ -2,6 +2,13 @@
 
 Short, dated records of non-trivial choices. Newest first.
 
+## 2026-11-04: Web payments through Dodo
+
+**Launch with Dodo Payments as the web provider.** At ₹149 a month the fixed fee matters most: Paddle's 5% + 50¢ is roughly a third of the price, Dodo's ~4% + 15¢ (+0.5% for subscriptions) roughly 13%. Both are Merchants of Record. Google Play stays for in-app purchases (15%).
+_Rejected for now:_ Paddle (fees at this price point); Razorpay (~2.4% all-in, but not a Merchant of Record, so GST and foreign tax become ours, and it needs a new adapter). Revisit Razorpay when monthly revenue makes the difference worth it.
+
+**Dodo statuses `past_due` and `paused` are mapped, and purchases fall back to the payer's email.** `past_due` (renewal failed, Dodo retrying) becomes `grace_period`, which keeps access; before this it fell through to `expired` and would have cut paying customers off on the first failed renewal. `paused` becomes `paused` (no access). Dodo doesn't document that checkout metadata is copied to the subscription, so when no user id arrives, `SubscriptionStore` matches the subscription's customer email to `auth.users` (case-insensitive). That can only give a plan to the account the payer chose.
+
 ## 2026-11-04: Monitoring (scheduled re-scans with change digests)
 
 **Monitoring is the retention feature, not a bigger free quota.** Free accounts monitor 1 site weekly, Starter 5 sites daily (`monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`; slower frequencies are always allowed). Guests can't monitor. The owner confirmed these numbers on 2026-11-04; changing them later is a one-line edit.

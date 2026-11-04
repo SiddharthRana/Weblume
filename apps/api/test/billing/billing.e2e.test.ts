@@ -15,6 +15,7 @@ import {
 } from '../../src/billing/google-play/play-client';
 import { RTDN_KEY_RESOLVER } from '../../src/billing/google-play/rtdn-verifier';
 import { ProductCatalog } from '../../src/billing/product-catalog';
+import { SubscriptionStore } from '../../src/billing/subscription-store';
 import { PaddleProvider } from '../../src/billing/providers/paddle.provider';
 import { FeatureFlags } from '../../src/common/feature-flags.service';
 import { loadEnv } from '../../src/config/env';
@@ -305,6 +306,38 @@ describe.skipIf(!DB_URL)('billing (database e2e)', () => {
       );
       expect(r2.body).toEqual({ status: 'ignored' });
       expect((await plan()).id).toBe('free');
+    });
+
+    it('matches a subscription without a user id to the payer email (Dodo)', async () => {
+      const store = app.get(SubscriptionStore);
+      const sub = (email: string, id: string) => ({
+        provider: 'dodo' as const,
+        providerSubscriptionId: id,
+        providerCustomerId: 'cus_email',
+        productId: 'pdt_monthly',
+        planId: 'starter' as const,
+        interval: 'monthly' as const,
+        status: 'active' as const,
+        currentPeriodStart: new Date(),
+        currentPeriodEnd: new Date(Date.now() + 30 * 86_400_000),
+        cancelAtPeriodEnd: false,
+        userId: null,
+        customerEmail: email,
+        eventAt: new Date(),
+      });
+      try {
+        expect(await store.apply(sub('nobody@test.dev', 'sub_email_0'))).toEqual({
+          applied: false,
+          reason: 'unknown_user',
+        });
+        expect(await store.apply(sub('Bill-A@Test.dev', 'sub_email_1'))).toEqual({
+          applied: true,
+          userId: USER_A,
+        });
+        expect((await plan()).id).toBe('starter');
+      } finally {
+        await sql`delete from public.subscriptions where provider_subscription_id like 'sub_email_%'`;
+      }
     });
   });
 
