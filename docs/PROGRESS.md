@@ -200,10 +200,9 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
 
 ### P0: before a public launch
 
-1. **Choose and confirm the web payment provider.**
-   - Confirm seller eligibility (India) and fees with Paddle and Dodo.
-   - Run one sandbox purchase end to end.
-   - Fix any Dodo field mismatches (`docs/payments-setup.md` §0, §3).
+1. **Set up Dodo Payments (chosen 2026-11-04).**
+   - Complete Dodo's business verification as an India-based seller and confirm the fees.
+   - Run one test-mode purchase end to end (`docs/payments-setup.md` §3). The adapter was checked against Dodo's API reference; the purchase confirms it for real, including whether checkout metadata reaches the subscription (an email fallback covers it if not).
 2. **Test with a real PageSpeed Insights key.** Run scans and compare with pagespeed.web.dev; so far the mapper is tested only against a hand-built fixture.
 3. **Deploy a staging environment.** Follow `docs/deployment.md` and run `docs/smoke-test.md`. That includes the CSP with real Turnstile and Paddle keys, email delivery, and the Android build against staging.
 4. **Get a legal review** of the privacy policy, terms and refund policy (all marked DRAFT), and fill in the Play data safety form from `docs/privacy-data-map.md`.

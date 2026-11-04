@@ -12,9 +12,18 @@ import { verifyStandardWebhook } from './signatures';
 
 interface DodoSubscription {
   subscription_id: string;
-  status: 'pending' | 'active' | 'on_hold' | 'cancelled' | 'failed' | 'expired' | string;
+  status:
+    | 'pending'
+    | 'active'
+    | 'on_hold'
+    | 'paused'
+    | 'cancelled'
+    | 'failed'
+    | 'expired'
+    | 'past_due'
+    | string;
   product_id: string;
-  customer?: { customer_id?: string };
+  customer?: { customer_id?: string; email?: string };
   metadata?: { user_id?: string } | null;
   previous_billing_date?: string | null;
   next_billing_date?: string | null;
@@ -23,9 +32,9 @@ interface DodoSubscription {
 
 /**
  * Dodo Payments (India-based Merchant of Record; supports UPI AutoPay and RBI e-mandates for Indian
- * buyers). Webhooks follow the Standard Webhooks spec. NOTE: request/response field names follow
- * Dodo's documentation as of this writing but were not verified against the live API from the
- * build environment — confirm in test mode before launch (docs/payments-setup.md).
+ * buyers). Webhooks follow the Standard Webhooks spec. Paths, request and response fields were
+ * checked against Dodo's API reference on 2026-11-04; still confirm one test-mode purchase end to
+ * end before launch (docs/payments-setup.md).
  */
 export class DodoProvider implements WebPaymentProvider {
   readonly id = 'dodo' as const;
@@ -124,11 +133,15 @@ export class DodoProvider implements WebPaymentProvider {
         ? cancelAtEnd
           ? 'canceled'
           : 'active'
-        : d.status === 'on_hold' || d.status === 'pending'
-          ? 'on_hold'
-          : d.status === 'cancelled'
-            ? 'canceled' // keeps access only until next_billing_date (if in the future)
-            : 'expired'; // failed / expired / unknown
+        : d.status === 'past_due'
+          ? 'grace_period' // renewal failed; Dodo keeps the customer's access while it retries
+          : d.status === 'on_hold' || d.status === 'pending'
+            ? 'on_hold'
+            : d.status === 'paused'
+              ? 'paused'
+              : d.status === 'cancelled'
+                ? 'canceled' // keeps access only until next_billing_date (if in the future)
+                : 'expired'; // failed / expired / unknown
     const sub: NormalizedSubscription = {
       provider: 'dodo',
       providerSubscriptionId: d.subscription_id,
@@ -141,6 +154,7 @@ export class DodoProvider implements WebPaymentProvider {
       currentPeriodEnd: d.next_billing_date ? new Date(d.next_billing_date) : null,
       cancelAtPeriodEnd: cancelAtEnd,
       userId: d.metadata?.user_id ?? null,
+      customerEmail: d.customer?.email ?? null,
       eventAt: new Date(event.timestamp),
     };
     return { eventId: id!, eventType: event.type, subscription: sub };

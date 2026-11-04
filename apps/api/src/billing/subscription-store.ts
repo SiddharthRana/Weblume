@@ -15,7 +15,11 @@ export class SubscriptionStore {
 
   constructor(private readonly database: Database) {}
 
-  /** Finds the Weblume user an event belongs to: explicit id, existing row, linked token, or account ref. */
+  /**
+   * Finds the Weblume user an event belongs to: explicit id, existing row, linked token, account
+   * ref, then the payer's email. The email match can only ever give a plan to the account the
+   * payer chose, so it can't hand out access for free.
+   */
   private async resolveUser(s: NormalizedSubscription): Promise<string | null> {
     const db = this.database.db;
     if (s.userId) return s.userId;
@@ -41,6 +45,18 @@ export class SubscriptionStore {
         .where(eq(profiles.billingAccountRef, s.accountRef))
         .limit(1);
       if (p) return p.id;
+    }
+    if (s.customerEmail) {
+      const found = await db.execute<{ id: string }>(
+        sql`select id from auth.users where lower(email) = lower(${s.customerEmail}) limit 1`,
+      );
+      const rows = Array.isArray(found)
+        ? found
+        : ((found as { rows?: { id: string }[] }).rows ?? []);
+      if (rows[0]) {
+        this.logger.log(`Matched a ${s.provider} subscription to its user by email`);
+        return rows[0].id;
+      }
     }
     return null;
   }

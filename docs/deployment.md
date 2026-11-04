@@ -13,7 +13,7 @@ Nothing has been deployed and no paid resources have been created. This guide co
 | Errors (optional) | Sentry free tier                                                    | `SENTRY_DSN` (API), `NEXT_PUBLIC_SENTRY_DSN` (web) and `--dart-define=SENTRY_DSN` (Android).                                       |
 | Android           | Google Play Console                                                 | One-time $25 developer fee.                                                                                                        |
 
-Domains: for example, `weblume.app` for the web app and `api.weblume.app` for the API. Using the same parent domain keeps CORS simple.
+Domains: `weblu.me` for the web app and `api.weblu.me` for the API (dev: `dev.weblu.me` and `api-dev.weblu.me`; see "Dev environment" below). Using the same parent domain keeps CORS simple.
 
 ## Order of work
 
@@ -46,8 +46,8 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      | `DATABASE_URL`         | Supabase **pooler** connection string, session mode, port 5432. pg-boss needs session features. |
      | `SUPABASE_URL`         | `https://<ref>.supabase.co`                                                                     |
      | `SUPABASE_SECRET_KEY`  | Lets account deletion remove the auth user                                                      |
-     | `CORS_ORIGINS`         | `https://weblume.app`                                                                           |
-     | `PUBLIC_SITE_URL`      | `https://weblume.app`                                                                           |
+     | `CORS_ORIGINS`         | `https://weblu.me`                                                                              |
+     | `PUBLIC_SITE_URL`      | `https://weblu.me`                                                                              |
      | `TRUST_PROXY_HOPS`     | `1` on Fly.io, Render and Railway (one proxy in front)                                          |
      | `GUEST_HASH_SECRET`    | `openssl rand -hex 32`                                                                          |
      | `MONITOR_LINK_SECRET`  | `openssl rand -hex 32` (signs "pause monitoring" links)                                         |
@@ -82,8 +82,8 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
      | secret   | `CLOUDFLARE_API_TOKEN`     | The token                                        |
      | variable | `CLOUDFLARE_ACCOUNT_ID`    | Account ID                                       |
      | variable | `CLOUDFLARE_PAGES_PROJECT` | Project name, if not `weblume`                   |
-     | variable | `SITE_URL`                 | `https://weblume.app`                            |
-     | variable | `API_URL`                  | `https://api.weblume.app`                        |
+     | variable | `SITE_URL`                 | `https://weblu.me`                               |
+     | variable | `API_URL`                  | `https://api.weblu.me`                           |
      | variable | `SUPABASE_URL`             | `https://<ref>.supabase.co`                      |
      | variable | `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` (public by design)            |
      | variable | `TURNSTILE_SITE_KEY`       | Turnstile site key (public by design)            |
@@ -101,17 +101,39 @@ Domains: for example, `weblume.app` for the web app and `api.weblume.app` for th
 5. **Android**
    - Build a signed App Bundle, as described in [`apps/mobile/README.md`](../apps/mobile/README.md):
      ```bash
-     flutter build appbundle --release --dart-define=API_BASE_URL=https://api.weblume.app --dart-define=SITE_URL=https://weblume.app --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=... --dart-define=APP_VERSION=... --dart-define=SENTRY_DSN=...
+     flutter build appbundle --release --dart-define=API_BASE_URL=https://api.weblu.me --dart-define=SITE_URL=https://weblu.me --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_PUBLISHABLE_KEY=... --dart-define=APP_VERSION=... --dart-define=SENTRY_DSN=...
      ```
    - The app needs Android 8.0 (API 26) or later (sentry_flutter's minimum). The session is kept in Keystore-backed secure storage; sessions from older builds are migrated on first start.
    - Upload it to an internal testing track first.
    - Play Console requirements:
      - Data safety form, based on [`privacy-data-map.md`](privacy-data-map.md). With `SENTRY_DSN` set, declare crash logs and diagnostics (not linked to the user, not shared).
-     - Account deletion URL: `https://weblume.app/legal/account-deletion`.
+     - Account deletion URL: `https://weblu.me/legal/account-deletion`.
      - Privacy policy URL.
      - Content rating.
 6. **Payments**: follow [`payments-setup.md`](payments-setup.md), sandbox first.
 7. **Smoke test**: run [`smoke-test.md`](smoke-test.md) against production, then turn on monitoring ([`monitoring.md`](monitoring.md)).
+
+## Dev environment (dev.weblu.me)
+
+A full second copy for testing before production. It shares nothing with production except the Cloudflare account and the Resend domain, so a broken dev deploy or a test purchase can't touch real users.
+
+| Part     | Production                             | Dev                                                         |
+| -------- | -------------------------------------- | ----------------------------------------------------------- |
+| Website  | Pages project `weblume` → `weblu.me`   | Pages project `weblume-dev` → `dev.weblu.me`                |
+| API      | Fly app `weblume-api` → `api.weblu.me` | Fly app `weblume-api-dev` → `api-dev.weblu.me`              |
+| Database | Supabase project (Pro)                 | Separate Supabase project (Free is fine; it pauses idle)    |
+| Payments | Dodo live mode                         | Dodo test mode                                              |
+| Deploys  | push to `main` (environment `web`)     | push to `dev` (environment `web-dev`)                       |
+| Search   | indexed                                | `NEXT_PUBLIC_NOINDEX=true`: robots.txt, header and meta tag |
+
+The API is `api-dev`, not `api.dev`: Cloudflare's free certificate covers one level of subdomain (`*.weblu.me`).
+
+1. **Pages:** create a second project, `weblume-dev`, with production branch `main` (the workflow uploads with `--branch main` to whichever project the environment names). Add the custom domain `dev.weblu.me`.
+2. **GitHub:** create an environment `web-dev` (deployment branch `dev`). Give it the same variables as `web` but pointing at dev: `SITE_URL=https://dev.weblu.me`, `API_URL=https://api-dev.weblu.me`, the dev Supabase URL and key, `CLOUDFLARE_PAGES_PROJECT=weblume-dev`, `CLOUDFLARE_ACCOUNT_ID`, and the `CLOUDFLARE_API_TOKEN` secret. Set the repository variable `DEPLOY_WEB_DEV=true`.
+3. **API:** deploy the same image as a second Fly app with the dev environment: `CORS_ORIGINS=https://dev.weblu.me`, `PUBLIC_SITE_URL=https://dev.weblu.me`, the dev `DATABASE_URL` and `SUPABASE_URL`, `WEB_PAYMENT_PROVIDER=dodo` with `DODO_ENV=test`, its own `GUEST_HASH_SECRET` and `MONITOR_LINK_SECRET`, and `EMAIL_FROM=Weblume Dev <dev@weblu.me>`. Add `api-dev.weblu.me` as a Fly certificate and a DNS-only CNAME in Cloudflare.
+4. **Supabase (dev project):** Site URL `https://dev.weblu.me`; redirect URLs `https://dev.weblu.me/auth/callback`, `https://dev.weblu.me/auth/reset-password` and `weblume://auth-callback`. Apply migrations with `supabase link --project-ref <dev-ref>` then `supabase db push`.
+5. **Android:** build a dev APK with `--dart-define=API_BASE_URL=https://api-dev.weblu.me --dart-define=SITE_URL=https://dev.weblu.me` plus the dev Supabase values, and `--dart-define=SENTRY_ENVIRONMENT=dev` if Sentry is set.
+6. **Flow:** branch from `dev`, merge into `dev` to try it on dev.weblu.me, then merge `dev` into `main` to release.
 
 ## Updating
 

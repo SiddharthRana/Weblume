@@ -30,6 +30,8 @@ Lemon Squeezy wasn't implemented: for India, payouts appear to be PayPal-only, b
 
 Set `WEB_PAYMENT_PROVIDER=paddle` or `dodo` in the API env. Only one web provider is active at a time.
 
+**Decision (2026-11-04): launch with Dodo.** At ₹149 a month, fixed fees dominate: Paddle's 5% + 50¢ takes about a third of each payment (and Paddle routes products under $10 to custom pricing), while Dodo's India rate of about 4% + 15¢ plus 0.5% for subscriptions takes about 13%. Both are Merchants of Record, so GST and foreign taxes are handled for us. Razorpay (about 2% + GST on the fee) would be much cheaper for Indian buyers but isn't a Merchant of Record and has no adapter yet; revisit it once revenue makes the fee gap worth the tax work. Fee figures came from third-party 2026 sources; confirm on each provider's pricing page.
+
 ## 1. Plans and prices
 
 - **Plan limits** live in `packages/shared/src/plans.ts`.
@@ -67,7 +69,7 @@ Set `WEB_PAYMENT_PROVIDER=paddle` or `dodo` in the API env. Only one web provide
 2. **Products:** create subscription products "Starter monthly" and "Starter annual". Copy the product IDs.
 3. **Developer → API keys:** create a key → `DODO_API_KEY`, and set `DODO_ENV=test`.
 4. **Developer → Webhooks:** add `https://<your-api>/v1/billing/webhooks/dodo`. Subscribe to the `subscription.*` events, then copy the signing secret (`whsec_…`) into `DODO_WEBHOOK_SECRET`.
-5. Run one test purchase end to end. Because the adapter wasn't verified against Dodo's live API, check:
+5. Run one test purchase end to end. The paths and fields were checked against Dodo's API reference on 2026-11-04 (checkout `POST /checkouts` → `checkout_url`, portal `POST /customers/{id}/customer-portal/session` → `link`, Standard Webhooks headers, subscription statuses including `past_due` and `paused`). One thing the docs don't promise is that checkout `metadata.user_id` is copied onto the subscription, so the API falls back to matching the payer's email to a Weblume account. In the test purchase, check:
    - **Checkout:** a checkout URL comes back, and the payment completes.
    - **Webhook:** the API logs a processed `subscription.active` event, and **Account** shows Starter.
    - **Portal:** "Manage subscription" opens the customer portal.
