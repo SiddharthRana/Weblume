@@ -4,7 +4,7 @@ Short, dated records of non-trivial choices. Newest first.
 
 ## 2026-11-04: Monitoring (scheduled re-scans with change digests)
 
-**Monitoring is the retention feature, not a bigger free quota.** Free accounts monitor 1 site weekly, Starter 5 sites daily (`monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`; slower frequencies are always allowed). Guests can't monitor. These numbers are proposals awaiting the owner's confirmation; changing them is a one-line edit.
+**Monitoring is the retention feature, not a bigger free quota.** Free accounts monitor 1 site weekly, Starter 5 sites daily (`monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`; slower frequencies are always allowed). Guests can't monitor. The owner confirmed these numbers on 2026-11-04; changing them later is a one-line edit.
 
 **Scheduled scans don't count against the scan quota.** They are created with `counts_toward_quota = false`. Counting them would use up most of the Free plan's 5 monthly scans with one weekly site, and 5 daily Starter sites (about 150 runs a month) would exceed Starter's 60. Monitoring is bounded instead by its own entitlement (sites × frequency), so the worst case per Starter account is 5 runs a day. PSI's free quota (25,000 calls/day, 2 per scan) covers about 2,500 daily Starter sites before it needs a paid quota. Scheduled scans also don't block a scan started by hand (the "scan already running" check ignores them).
 _Rejected:_ counting them (punishes the behaviour we want); a separate monitoring quota (two meters to explain).
