@@ -7,6 +7,7 @@ import { GuardedHttpClient } from '../scanner/http/guarded-client';
 import { PgBossScanQueue } from './pg-boss.queue';
 import { GUARDED_CLIENT, HTTP_PROBE_PORT, ScanProcessor } from './scan.processor';
 import { SCAN_QUEUE } from './scan-queue';
+import { ScanHooks } from './scan-hooks';
 import { ScansController } from './scans.controller';
 import { ScansService } from './scans.service';
 import {
@@ -21,9 +22,10 @@ export function botUserAgent(siteUrl: string): string {
 
 @Module({
   controllers: [ScansController],
-  exports: [ScansService],
+  exports: [ScansService, ScanHooks, SCAN_QUEUE],
   providers: [
     ScansService,
+    ScanHooks,
     ScanProcessor,
     PsiService,
     { provide: SCAN_QUEUE, useClass: PgBossScanQueue },

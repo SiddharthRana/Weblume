@@ -1177,6 +1177,12 @@ abstract class AppLocalizations {
   /// **'{scans} scans per billing period'**
   String planFeatureScans(int scans);
 
+  /// No description provided for @planFeatureMonitoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor {sites} sites daily, with email alerts'**
+  String planFeatureMonitoring(int sites);
+
   /// No description provided for @planFeatureRetention.
   ///
   /// In en, this message translates to:
@@ -1662,6 +1668,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose how to pay'**
   String get choosePlan;
+
+  /// No description provided for @monitoringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring'**
+  String get monitoringTitle;
+
+  /// No description provided for @monitoringSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We re-scan these sites automatically and email you when something changes.'**
+  String get monitoringSubtitle;
+
+  /// No description provided for @monitoringEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Get an email when new issues appear on your site or its scores change. Scheduled scans don’t use your monthly scans.'**
+  String get monitoringEmpty;
+
+  /// No description provided for @monitoringSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up on the website'**
+  String get monitoringSetUp;
+
+  /// No description provided for @monitoringManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage on the website'**
+  String get monitoringManage;
+
+  /// No description provided for @monitoringPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get monitoringPaused;
+
+  /// No description provided for @monitoringNext.
+  ///
+  /// In en, this message translates to:
+  /// **'{frequency} · next scan {date}'**
+  String monitoringNext(String frequency, String date);
+
+  /// No description provided for @monitoringCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{used} of {limit} monitored'**
+  String monitoringCount(int used, int limit);
+
+  /// No description provided for @frequencyDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get frequencyDaily;
+
+  /// No description provided for @frequencyWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get frequencyWeekly;
+
+  /// No description provided for @frequencyMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get frequencyMonthly;
+
+  /// No description provided for @monitoringSkipPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: your plan doesn’t include monitoring.'**
+  String get monitoringSkipPlan;
+
+  /// No description provided for @monitoringSkipLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: your plan includes fewer monitored sites.'**
+  String get monitoringSkipLimit;
+
+  /// No description provided for @monitoringSkipBusy.
+  ///
+  /// In en, this message translates to:
+  /// **'The last run was skipped because the one before was still going.'**
+  String get monitoringSkipBusy;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

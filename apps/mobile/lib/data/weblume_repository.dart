@@ -61,6 +61,10 @@ class WeblumeRepository {
     }
   }
 
+  /// Monitored sites (scheduled re-scans). Managing them happens on the website for now.
+  Future<Loaded<MonitorListResponse>> monitors() =>
+      _cached('monitors', _api.monitorsList, (r) => r.toJson(), MonitorListResponse.fromJson);
+
   Future<CreateScanResponse> createScan(String url) => _api.scansCreate(body: CreateScanBody(url: url));
 
   Future<CreateScanResponse> retryScan(String id) => _api.scansRetry(id: id);

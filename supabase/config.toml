@@ -30,13 +30,40 @@ additional_redirect_urls = ["http://localhost:3000/auth/callback", "http://local
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 enable_signup = true
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+# Production must match (Authentication -> Sign In / Providers -> Email). The web form checks the same rules.
 minimum_password_length = 10
 password_requirements = "lower_upper_letters_digits"
+# Leaked-password protection (HaveIBeenPwned) can't be set here: it's a dashboard toggle on the Pro plan
+# ("Prevent use of leaked passwords", under Authentication -> Attack Protection or Providers -> Email). See the README.
+
+# Per-IP limits. Production sets these in Authentication -> Rate Limits; keep the two in step.
+[auth.rate_limit]
+# Emails per hour across the project (confirmations, resets). Raise it once custom SMTP is set up.
+email_sent = 30
+sign_in_sign_ups = 30
+token_refresh = 150
+token_verifications = 30
+anonymous_users = 0
+
+# Bot protection on sign-up, password sign-in and password reset. Off locally and in production until
+# the Android app can send a captcha token: once enabled, Supabase rejects every password request
+# without one, which would lock out the app. The web forms would also need to pass `captchaToken`.
+[auth.captcha]
+enabled = false
+provider = "turnstile"
+secret = "env(SUPABASE_AUTH_CAPTCHA_SECRET)"
 
 [auth.email]
 enable_signup = true
 enable_confirmations = true
 double_confirm_changes = true
+# Changing the password from a session older than 24 hours needs a reauthentication code.
+secure_password_change = true
+# At most one confirmation or reset email per address per minute.
+max_frequency = "60s"
+otp_expiry = 3600
 
 [auth.external.google]
 enabled = false

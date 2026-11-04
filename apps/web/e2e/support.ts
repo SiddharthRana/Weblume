@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { type Page, type Route } from '@playwright/test';
 
 // Requires a build made with `pnpm build:e2e` (Supabase URL http://localhost:54321). Supabase Auth and
@@ -54,6 +55,8 @@ export const account = (over: Record<string, unknown> = {}) => ({
     pdfExport: false,
     codeFixes: false,
     shareLinks: false,
+    monitoredSites: 1,
+    monitorFrequency: 'weekly',
   },
   usage: {
     used: 2,
@@ -168,6 +171,8 @@ export async function mockBackends(
       ].filter((s) => !q || s.normalizedUrl.includes(q));
       return json(route, 200, { items, nextCursor: null });
     }
+    if (url.pathname === '/v1/monitors' && req.method() === 'GET')
+      return json(route, 200, { items: [], limit: 1, fastestFrequency: 'weekly' });
     if (url.pathname.endsWith('/claim')) return json(route, 200, {});
     return json(route, 404, { statusCode: 404, code: 'not_found', message: 'Not found' });
   });
@@ -179,4 +184,23 @@ export async function logIn(page: Page, next = '') {
   await page.getByLabel('Email').fill('asha@example.com');
   await page.getByLabel('Password').fill('Correct-horse-1');
   await page.getByRole('button', { name: 'Log in', exact: true }).click();
+}
+
+/**
+ * An axe builder for the page at rest. Axe's colour-contrast rule samples rendered pixels, so text
+ * still fading in (`animate-page`, `animate-rise`, `.reveal`) reads as low contrast at random. The
+ * site switches all of that motion off for reduced-motion users, so emulate that and wait for any
+ * finite animation still running: axe then checks the final colours, with every rule unchanged.
+ */
+export async function axe(page: Page): Promise<AxeBuilder> {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getComputedTiming().iterations !== Infinity)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
+  return new AxeBuilder({ page });
 }

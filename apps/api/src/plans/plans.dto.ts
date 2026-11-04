@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PLAN_IDS, type PlanId, type QuotaPeriod } from '@weblume/shared';
+import {
+  MONITOR_FREQUENCIES,
+  PLAN_IDS,
+  type MonitorFrequency,
+  type PlanId,
+  type QuotaPeriod,
+} from '@weblume/shared';
 
 export class EntitlementsDto {
   @ApiProperty({ type: 'integer' }) scansPerPeriod: number;
@@ -10,6 +16,14 @@ export class EntitlementsDto {
   @ApiProperty() pdfExport: boolean;
   @ApiProperty() codeFixes: boolean;
   @ApiProperty() shareLinks: boolean;
+  @ApiProperty({ type: 'integer', description: 'Sites that can be monitored (0 = none)' })
+  monitoredSites: number;
+  @ApiProperty({
+    enum: MONITOR_FREQUENCIES,
+    nullable: true,
+    description: 'Fastest re-scan frequency allowed; slower ones are allowed too',
+  })
+  monitorFrequency: MonitorFrequency | null;
 }
 
 export class DisplayPriceDto {

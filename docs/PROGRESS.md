@@ -1,7 +1,49 @@
 # Progress
 
 **Current phase:** 6 of 6 — Reports+ and launch prep ✅ complete. All phases are built; **nothing is deployed**. What remains before a public launch is listed below, in priority order.
-**Last updated:** 2026-10-30
+**Last updated:** 2026-11-04
+
+## Monitoring (scheduled re-scans with email digests)
+
+### Done (verified in this environment)
+
+| Area         | What                                                                                                                                                                                                                                                                                                               | Verified by                                                                                                                            |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Entitlements | `monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`: Free 1 site weekly, Starter 5 daily (confirmed by the owner), guests none; gated on the server (`upgrade_required`, `monitor_limit_reached`)                                                                                              | API DB e2e                                                                                                                             |
+| API          | `GET/POST /v1/monitors`, `PATCH/DELETE /v1/monitors/:id` (pause/resume, frequency, what to email), public `POST /v1/monitors/pause` (signed link); migration `20261103000000_monitoring.sql` adds `daily` and digest bookkeeping columns                                                                           | API DB e2e (ownership, limits, validation, private addresses, guests)                                                                  |
+| Scheduler    | pg-boss cron (`MONITOR_TICK_CRON`, default every 5 minutes) claims due monitors with `SKIP LOCKED`, queues scans outside the scan quota, keeps the time of day, skips while a run is active, pauses over-limit sites after a downgrade and monitors of deleted accounts                                            | API DB e2e; a live local run with the built API (cron every minute) queued the scan on time, scanned example.com and logged the digest |
+| Digests      | `compareReports` against the previous finished scan; plain-language email (new issues, fixed issues, score changes of 5+ points, report and comparison links, manage and pause links, `List-Unsubscribe`); one notice when the site can't be reached; nothing for the baseline or no changes; Resend sender or log | Unit tests (rendering, thresholds, alert settings, escaping, no em dashes, Resend request), API DB e2e                                 |
+| Web          | Dashboard "Monitoring" section (add, frequency, what to email, pause/resume, stop, skip reasons, upgrade hint); "Monitor this site" on reports; `/monitoring/pause` page; pricing lists monitoring                                                                                                                 | Playwright (desktop and mobile, axe WCAG 2.2 AA)                                                                                       |
+| Android      | Dashboard lists monitored sites (schedule, paused, skip reasons, latest report); setting up and managing open the website                                                                                                                                                                                          | Flutter widget tests                                                                                                                   |
+| Privacy      | Monitors included in the data export and deleted with the account                                                                                                                                                                                                                                                  | API DB e2e                                                                                                                             |
+
+**Test totals:** API 340 (with `TEST_DATABASE_URL`), shared 86, web Playwright 202 passed / 5 skipped, Flutter 90.
+
+### Not verified / needs the owner
+
+- **Real email delivery.** No Resend key was available here; digests were checked as logged output. To send for real: verify a sending domain in Resend, then set `RESEND_API_KEY`, `EMAIL_FROM` and `MONITOR_LINK_SECRET`.
+- Playwright now emulates reduced motion, so axe never checks a page mid-fade (the old dashboard check was timing-dependent).
+
+## Launch hardening (2026-11-04)
+
+### Done (verified in this environment)
+
+| Area                  | What                                                                                                                                                                                                                                  | Verified by                                                                                                                        |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Android session       | Supabase session and PKCE verifier in Keystore-backed `flutter_secure_storage` (`lib/auth/secure_session_storage.dart`); sessions from older builds move out of SharedPreferences on first start                                      | `test/secure_session_storage_test.dart` (6 tests); release APK builds                                                              |
+| Android crash reports | `sentry_flutter` behind `--dart-define=SENTRY_DSN` (never initialised without it); no PII, screenshots, print breadcrumbs or tracing; emails, tokens, query strings and share tokens masked. `minSdk` raised to 26 for sentry_flutter | `test/crash_reporting_test.dart` (4 tests); release APK builds                                                                     |
+| Shared rate limits    | Pluggable throttler store: Postgres (`rate_limits` unlogged table + atomic `rate_limit_hit` function, swept every 5 min) by default in production, in-memory for tests and development (`RATE_LIMIT_STORE`)                           | `apps/api/test/rate-limit-store.e2e.test.ts` (8 tests, incl. two API instances sharing one limit and 20 concurrent hits); RLS test |
+| Supabase Auth config  | `supabase/config.toml`: password policy, anonymous sign-ins off, rate limits, secure password change, email frequency, Turnstile CAPTCHA settings (off; see P0 6). Dashboard steps in the README                                      | Config parses with the Supabase CLI; not applied to a running local stack                                                          |
+| Web accessibility e2e | Axe runs through `axe(page)` in `e2e/support.ts`: emulates reduced motion and waits for finite animations, so colour contrast is checked on the page at rest, with every rule unchanged                                               | `test:e2e` green 3 runs in a row (189 passed), plus the accessibility tests 5× each (400 passed)                                   |
+| Docs                  | `smoke-test.md` (headers and rewrites on Pages, theme switch, code fixes, auth rules, app PDF, session migration, Sentry), `deployment.md`, `monitoring.md`, privacy data map, mobile README                                          |                                                                                                                                    |
+
+**Test totals:** API 322 (with `TEST_DATABASE_URL`), web Playwright 189 passed / 5 skipped, Flutter 96. Format, lint, typecheck, `flutter analyze` and `db:verify` are clean.
+
+### Not verified / limitations
+
+- **Not run on a device:** secure storage and its migration, and Sentry on Android, are covered by unit tests and a release build only. Check them with the smoke test (section 5) on the internal track.
+- **Supabase Auth settings** are in `config.toml` but weren't applied to a restarted local stack (the stack is shared with other worktrees). Leaked-password protection and production rate limits are dashboard-only.
+- **CAPTCHA stays off** until the web forms send `captchaToken` and the app has a Turnstile flow (P0 6).
 
 ## Phase 6 — Reports+ and launch prep
 
@@ -169,7 +211,8 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
    - Play Billing on an internal track with license testers (purchase, renewal, cancel, refund via RTDN).
    - Share and compare flows.
    - TalkBack and large fonts.
-6. **Harden Supabase Auth.** Enable CAPTCHA (Turnstile) and leaked-password protection, configure SMTP, and set the password policy (README).
+6. **Harden Supabase Auth.** Code side done: `supabase/config.toml` and the README steps. Remaining (owner, in the dashboard): password policy, leaked-password protection (Pro), rate limits and SMTP, per README "Supabase Auth setup".
+   - **CAPTCHA needs code first.** Turning on Supabase CAPTCHA requires a token on every password sign-up, sign-in and reset. Add `captchaToken` to the web auth forms (Turnstile widget, as on `/scan`) and a Turnstile flow to the Android app (e.g. a WebView), then enable it.
 7. **Pricing decisions.**
    - Paddle's fixed $0.50 fee takes ~28% of a ₹149 monthly payment (`docs/unit-economics.md`). Decide INR monthly price, provider, or an annual-first plan.
    - Decide tax-inclusive display.
@@ -177,10 +220,10 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
 
 ### P1: soon after launch
 
-9. Store the mobile session in Keystore-backed secure storage (`flutter_secure_storage`).
-10. Move rate-limit counters to a shared store (e.g. Redis) before running more than one API instance.
-11. Add Sentry (or similar) to the Android app.
-12. PDF download and system share sheet in the Android app (currently: "download on the website").
+9. ✅ Store the mobile session in Keystore-backed secure storage (`flutter_secure_storage`), with migration (2026-11-04).
+10. ✅ Rate-limit counters in a shared Postgres store, so more than one API instance is safe (2026-11-04).
+11. ✅ Sentry in the Android app, behind `SENTRY_DSN` (2026-11-04). Create the Sentry project and pass the DSN in release builds.
+12. ✅ PDF download and system share sheet in the Android app (2026-11-03).
 13. Nonce-based CSP to drop `'unsafe-inline'` scripts.
 14. Wider PDF font coverage (Devanagari, CJK) via Noto fonts.
 15. Set up uptime monitors, metric alerts and cost alerts (`docs/monitoring.md`, `docs/costs.md`).
@@ -189,7 +232,7 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
 ### P2: later / v2 (schema already in place)
 
 17. Custom branding on PDFs and shared reports (`report_branding`).
-18. Scheduled re-scans with change alerts (`scheduled_scans`, `scans.scheduled_scan_id`), reusing `compareReports`.
+18. ~~Scheduled re-scans with change alerts~~ Built (see Monitoring above). Next: RFC 8058 one-click unsubscribe, monitoring several pages per site, managing monitors in the Android app.
 19. Agency plan (the entitlement model supports adding one in `packages/shared/src/plans.ts`).
 20. iOS app and App Store purchases.
 21. Plan changes (monthly ↔ annual), proration and promotional offers.

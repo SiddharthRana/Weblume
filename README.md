@@ -125,6 +125,9 @@ Never commit real values. Each app has a `.env.example`.
 | `GUEST_HASH_SECRET`                                                | **prod**          | random per process            | ≥ 32 chars; HMAC key for guest IP hashes                                                            |
 | `SUPABASE_SECRET_KEY`                                              | no                | —                             | Server-only. Lets account deletion remove the Supabase Auth user; without it deletions stay pending |
 | `TURNSTILE_SECRET_KEY`                                             | **prod (guests)** | —                             | Without it, guest scans are refused in production (allowed unverified in development)               |
+| `RESEND_API_KEY` / `EMAIL_FROM`                                    | no                | —                             | Sends monitoring digests through Resend. Without a key, digests are logged in development only      |
+| `MONITOR_LINK_SECRET`                                              | **prod**          | random per process            | ≥ 32 chars; signs the "pause monitoring" links in digests                                           |
+| `MONITOR_TICK_CRON`                                                | no                | `*/5 * * * *`                 | How often the worker looks for monitored sites that are due                                         |
 
 ### `apps/web`
 
@@ -180,6 +183,7 @@ Never commit real values. Each app has a `.env.example`.
 - **Web auth flows:** Playwright with Supabase Auth and the API mocked: sign-up, log-in errors, dashboard, guarded routes and safe `?next=` redirects, guest-scan claiming, password reset via PKCE code, callback errors, account settings (name, export, deletion), log-out.
 - **Web scan flow:** Playwright with the API mocked at the network layer: validation, progress polling, report rendering and filters, partial/failed/not-found/offline states, retry, history.
 - **Web:** Playwright on desktop and mobile viewports: every page renders, SEO metadata is present, there are no axe WCAG 2.2 AA violations (light and dark), navigation and the mobile menu work, there's no horizontal scroll, and security headers are set.
+- **Monitoring (database e2e + unit):** creating and gating monitors by plan, ownership, pause/resume/delete, the scheduler (claims once, outside the quota, keeps the time of day, skips while running, downgrades, deleted accounts), digests (what changed, alert settings, baseline and no-change silence, unreachable-site notice, signed pause links), the Resend sender.
 - **Reports (database e2e + unit):** comparison (new/resolved/unchanged/not comparable, score deltas, ordering, different URLs), PDF rendering checked by extracting the text back out with pdf.js (content, limitations notice, page numbers, Unicode, hostile input), share links (hash-only storage, expiry capped by retention, revocation, ownership, limits, same 404 for unknown tokens, no account data), entitlement checks, metrics endpoint.
 - **Observability:** Sentry event scrubbing (through the real SDK with a fake transport), the exception filter (5xx reported, 4xx not), log path masking, per-user rate limits across IPs.
 - **Web reports:** Playwright for PDF download, share-link create/copy/turn off, compare (pick and result), shared page (read-only, `noindex`, `no-referrer`), upgrade prompts, axe on the new pages; CSP header and no CSP violations on key pages.
@@ -193,10 +197,16 @@ Web checkout via a Merchant of Record (Paddle or Dodo Payments) and Google Play 
 
 1. Create a Supabase project. Copy the **Project URL** and **publishable key** to the web env, the URL to `SUPABASE_URL` in the API, and the **secret key** to `SUPABASE_SECRET_KEY` (API only, never the web).
 2. Authentication → URL configuration: set **Site URL** to your site, and add redirect URLs `https://<site>/auth/callback` and `https://<site>/auth/reset-password`.
-3. Authentication → Providers → Email: keep **Confirm email** on. Set password requirements to at least 10 characters with lower, upper and digits (matches the web form and `supabase/config.toml`).
-4. Authentication → Emails → SMTP: configure a real SMTP provider (Resend/Postmark free tiers). The built-in sender is rate-limited and only for testing.
-5. Optional: Authentication → Providers → Google (OAuth client from Google Cloud), then set `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=true`.
-6. Apply migrations: `supabase link` then `supabase db push`.
+3. Authentication → Sign In / Providers → Email, matching `supabase/config.toml`:
+   - keep **Confirm email** on, and **Secure email change** on;
+   - turn on **Secure password change** (a password change from a session older than 24 hours needs a code; password resets from the email link aren't affected);
+   - password requirements: minimum length **10**, **lowercase, uppercase and digits** (the web form and app check the same rules);
+   - turn on **Prevent use of leaked passwords** (HaveIBeenPwned check, Pro plan; under Authentication → Attack Protection in newer dashboards). `config.toml` can't express this one, so local development doesn't check it.
+4. Authentication → Sign In / Providers: turn **Allow anonymous sign-ins** off and **Allow manual linking** off.
+5. Authentication → Emails → SMTP: configure a real SMTP provider (Resend/Postmark free tiers). The built-in sender is rate-limited and only for testing. Then Authentication → Rate Limits: set emails sent per hour to suit the SMTP plan (30 locally), and keep sign-ins/sign-ups at 30 and token verifications at 30 per 5 minutes per IP.
+6. **CAPTCHA (Turnstile): leave it off for now.** Authentication → Attack Protection → Enable CAPTCHA protection applies to every password sign-up, sign-in and reset, and Supabase then rejects requests without a token. The web forms don't send `captchaToken` yet and the Android app has no Turnstile widget, so turning it on would lock everyone out. When both clients send a token: create a separate Turnstile widget for auth (hostnames: the site; the app needs its own approach, e.g. a WebView widget), choose provider **Turnstile**, paste its secret key, and locally set `[auth.captcha] enabled = true` with `SUPABASE_AUTH_CAPTCHA_SECRET`. Until then, sign-in abuse is limited by the per-IP rate limits above, and guest scans keep their own Turnstile check in the API.
+7. Optional: Authentication → Providers → Google (OAuth client from Google Cloud), then set `NEXT_PUBLIC_AUTH_GOOGLE_ENABLED=true`.
+8. Apply migrations: `supabase link` then `supabase db push`.
 
 See also [`docs/privacy-data-map.md`](docs/privacy-data-map.md).
 

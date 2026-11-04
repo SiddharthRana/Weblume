@@ -40,6 +40,20 @@ do $$ begin
   assert (select count(*) from public.scheduled_scans) = 1, 'user A must only see their own schedules';
 end $$;
 
+-- Rate-limit counters and their function are API-only.
+do $$ begin
+  begin
+    perform count(*) from public.rate_limits;
+    raise exception 'rate_limits should not be readable by users';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.rate_limit_hit('k', 'default', 60000, 10, 60000);
+    raise exception 'rate_limit_hit should not be callable by users';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+
 -- Users cannot create schedules or branding directly (API only).
 do $$ begin
   begin

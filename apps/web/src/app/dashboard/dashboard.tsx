@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { ScanSummaryDto } from '@weblume/shared';
 import type { Schemas } from '@weblume/api-client-ts';
+import { MonitoringSection } from '@/components/app/monitoring-section';
 import { ScanList } from '@/components/app/scan-list';
 import { UsageMeter } from '@/components/app/usage-meter';
 import { FormAlert } from '@/components/auth/form-bits';
@@ -88,6 +89,7 @@ export function Dashboard() {
           />
         </section>
       )}
+      {account && <MonitoringSection />}
       {scans && (
         <section aria-labelledby="recent" className="space-y-4">
           <div className="flex items-baseline justify-between">

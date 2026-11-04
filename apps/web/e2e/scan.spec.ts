@@ -1,4 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
+import { axe } from './support';
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { CHECKS, type FindingDto, type ScanReportDto } from '@weblume/shared';
 
@@ -175,7 +175,9 @@ test.describe('new scan form', () => {
 
   test('has no detectable accessibility violations', async ({ page }) => {
     await page.goto('/scan');
-    const results = await new AxeBuilder({ page })
+    const results = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);
@@ -221,7 +223,9 @@ test.describe('scan flow', () => {
     await findingsSection.getByText('Some links on this page are broken').click();
     await expect(findingsSection.getByText('https://example.com/old → HTTP 404')).toBeVisible();
 
-    const results = await new AxeBuilder({ page })
+    const results = await (
+      await axe(page)
+    )
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
     expect(results.violations.map((v) => v.id)).toEqual([]);

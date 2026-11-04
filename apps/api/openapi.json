@@ -1134,6 +1134,243 @@
           "reports"
         ]
       }
+    },
+    "/v1/monitors": {
+      "get": {
+        "operationId": "Monitors_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorListResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "monitors"
+        ]
+      },
+      "post": {
+        "operationId": "Monitors_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMonitorBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "201 Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "upgrade_required (plan has no monitoring or not this frequency) or monitor_limit_reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "already_monitored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "monitors"
+        ]
+      }
+    },
+    "/v1/monitors/{id}": {
+      "patch": {
+        "operationId": "Monitors_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMonitorBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonitorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "upgrade_required (plan has no monitoring or not this frequency) or monitor_limit_reached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "monitors"
+        ]
+      },
+      "delete": {
+        "operationId": "Monitors_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "monitors"
+        ]
+      }
+    },
+    "/v1/monitors/pause": {
+      "post": {
+        "operationId": "Monitors_pause",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PauseMonitorBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PauseMonitorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invalid link or site no longer monitored",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "monitors"
+        ]
+      }
     }
   },
   "info": {
@@ -1196,6 +1433,20 @@
           },
           "shareLinks": {
             "type": "boolean"
+          },
+          "monitoredSites": {
+            "type": "integer",
+            "description": "Sites that can be monitored (0 = none)"
+          },
+          "monitorFrequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "nullable": true,
+            "description": "Fastest re-scan frequency allowed; slower ones are allowed too"
           }
         },
         "required": [
@@ -1206,7 +1457,9 @@
           "comparison",
           "pdfExport",
           "codeFixes",
-          "shareLinks"
+          "shareLinks",
+          "monitoredSites",
+          "monitorFrequency"
         ]
       },
       "DisplayPriceDto": {
@@ -2408,6 +2661,201 @@
         "required": [
           "report",
           "shareExpiresAt"
+        ]
+      },
+      "MonitorDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetUrl": {
+            "type": "string"
+          },
+          "normalizedUrl": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "alert": {
+            "type": "string",
+            "enum": [
+              "any_change",
+              "new_findings",
+              "score_drop",
+              "none"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "nextRunAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastRunAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lastDigestAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "lastSkipReason": {
+            "type": "string",
+            "nullable": true,
+            "description": "Why the last run was skipped: plan (plan has no monitoring), plan_limit (over the plan limit), previous_run_active, account_deleted"
+          },
+          "lastScan": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ScanSummaryDtoClass"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "targetUrl",
+          "normalizedUrl",
+          "frequency",
+          "alert",
+          "enabled",
+          "nextRunAt",
+          "lastRunAt",
+          "lastDigestAt",
+          "lastSkipReason",
+          "lastScan",
+          "createdAt"
+        ]
+      },
+      "MonitorListResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonitorDto"
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Sites the plan can monitor"
+          },
+          "fastestFrequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "nullable": true
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "fastestFrequency"
+        ]
+      },
+      "CreateMonitorBody": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "example": "example.com",
+            "maxLength": 2048
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ],
+            "description": "Defaults to the fastest frequency the plan allows (Free: weekly, Starter: daily)"
+          },
+          "alert": {
+            "type": "string",
+            "enum": [
+              "any_change",
+              "new_findings",
+              "score_drop",
+              "none"
+            ],
+            "description": "Defaults to any_change"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "UpdateMonitorBody": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "false pauses scheduled scans and emails"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "daily",
+              "weekly",
+              "monthly"
+            ]
+          },
+          "alert": {
+            "type": "string",
+            "enum": [
+              "any_change",
+              "new_findings",
+              "score_drop",
+              "none"
+            ]
+          }
+        }
+      },
+      "PauseMonitorBody": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "The token from the \"Pause monitoring\" link in a digest email"
+          }
+        },
+        "required": [
+          "token"
+        ]
+      },
+      "PauseMonitorResponse": {
+        "type": "object",
+        "properties": {
+          "targetUrl": {
+            "type": "string"
+          },
+          "alreadyPaused": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "targetUrl",
+          "alreadyPaused"
         ]
       }
     }

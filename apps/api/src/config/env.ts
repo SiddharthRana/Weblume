@@ -27,6 +27,11 @@ export const envSchema = z.object({
   /** Stricter per-IP limit for starting/retrying scans. */
   SCAN_CREATE_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
   /**
+   * Where rate-limit counters live. `postgres` (the default in production) shares them across API
+   * instances; `memory` is per process (tests, single-instance development).
+   */
+  RATE_LIMIT_STORE: z.enum(['memory', 'postgres']).optional(),
+  /**
    * Supabase secret key (sb_secret_…, or the legacy service_role key). Used only to delete users
    * from Supabase Auth on account deletion. Optional: without it, deletions stay pending.
    */
@@ -128,6 +133,25 @@ export const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v ? v : undefined)),
+  // ---- Site monitoring (scheduled re-scans) and email
+  /** Resend API key. Without it, change digests are only logged (development) or skipped. */
+  RESEND_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** Sender for digests, e.g. "Weblume <alerts@mail.example.com>" (a domain verified in Resend). */
+  EMAIL_FROM: z
+    .string()
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+  /** HMAC key for the "pause monitoring" links in digests (>= 32 chars). Required in production. */
+  MONITOR_LINK_SECRET: z
+    .string()
+    .min(32)
+    .optional()
+    .or(z.literal('').transform(() => undefined)),
+  /** How often the worker looks for due monitors (cron, UTC). */
+  MONITOR_TICK_CRON: z.string().default('*/5 * * * *'),
   // ---- Monitoring
   /** Sentry DSN. Without it, errors are only logged. Requests are scrubbed of personal data. */
   SENTRY_DSN: z
@@ -154,6 +178,7 @@ function productionRules(env: Env): string[] {
   if (env.NODE_ENV !== 'production') return [];
   const problems: string[] = [];
   if (!env.GUEST_HASH_SECRET) problems.push('  - GUEST_HASH_SECRET: required in production');
+  if (!env.MONITOR_LINK_SECRET) problems.push('  - MONITOR_LINK_SECRET: required in production');
   if (
     env.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON &&
     (!env.BILLING_ACCOUNT_SECRET || env.BILLING_ACCOUNT_SECRET.length < 32)
@@ -175,6 +200,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     throw new Error(`Invalid environment configuration:\n${problems}`);
   }
   const extra = productionRules(parsed.data);
+  if (parsed.data.RESEND_API_KEY && !parsed.data.EMAIL_FROM)
+    extra.push('  - EMAIL_FROM: required when RESEND_API_KEY is set');
   if (extra.length) throw new Error(`Invalid environment configuration:\n${extra.join('\n')}`);
   return parsed.data;
 }

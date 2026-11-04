@@ -16,5 +16,9 @@ abstract final class AppConfig {
 
   static const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: '0.1.0');
 
+  /// Sentry crash reporting. Empty (the default) turns it off.
+  static const sentryDsn = String.fromEnvironment('SENTRY_DSN');
+  static const sentryEnvironment = String.fromEnvironment('SENTRY_ENVIRONMENT', defaultValue: 'production');
+
   static bool get authConfigured => supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

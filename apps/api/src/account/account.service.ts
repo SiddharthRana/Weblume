@@ -3,7 +3,14 @@ import { eq, inArray } from 'drizzle-orm';
 import type { Entitlements, ScanReportDto } from '@weblume/shared';
 import type { AuthUser } from '../auth/auth.types';
 import { Database } from '../database/database.module';
-import { findings, profiles, scans, shareLinks, subscriptions } from '../database/schema';
+import {
+  findings,
+  profiles,
+  scans,
+  scheduledScans,
+  shareLinks,
+  subscriptions,
+} from '../database/schema';
 import { EntitlementService } from '../entitlements/entitlement.service';
 import { composeFindings } from '../scanner/report-composer';
 import { toSummary } from '../scans/scans.service';
@@ -106,12 +113,25 @@ export class AccountService {
       }),
       expiresAt: r.expiresAt.toISOString(),
     }));
+    const monitors = await db
+      .select({
+        targetUrl: scheduledScans.targetUrl,
+        normalizedUrl: scheduledScans.normalizedUrl,
+        frequency: scheduledScans.frequency,
+        alert: scheduledScans.alert,
+        enabled: scheduledScans.enabled,
+        lastRunAt: scheduledScans.lastRunAt,
+        createdAt: scheduledScans.createdAt,
+      })
+      .from(scheduledScans)
+      .where(eq(scheduledScans.userId, user.id));
     return {
       format: 'weblume-export',
       version: 1,
       exportedAt: new Date().toISOString(),
       account,
       scans: reports,
+      monitors,
     };
   }
 
@@ -124,6 +144,7 @@ export class AccountService {
     await this.entitlements.forUser(user.id); // 403 if already deleted
     await this.database.db.transaction(async (tx) => {
       await tx.delete(shareLinks).where(eq(shareLinks.createdBy, user.id));
+      await tx.delete(scheduledScans).where(eq(scheduledScans.userId, user.id));
       await tx.delete(scans).where(eq(scans.userId, user.id));
       await tx
         .update(profiles)

@@ -72,6 +72,8 @@ Account fakeAccount({int used = 2, int limit = 5, String? name}) => Account.from
     'pdfExport': false,
     'codeFixes': false,
     'shareLinks': false,
+    'monitoredSites': 1,
+    'monitorFrequency': 'weekly',
   },
   'usage': {
     'used': used,
@@ -169,6 +171,9 @@ class FakeRepository implements WeblumeRepository {
     'deduplicated': false,
   });
   Object deleteResult = DeleteAccountResponse.fromJson({'status': 'deleted'});
+  Object monitorsResult = Loaded(
+    MonitorListResponse.fromJson({'items': <Object>[], 'limit': 1, 'fastestFrequency': 'weekly'}),
+  );
   final calls = <String>[];
 
   T _ret<T>(Object v) => v is Exception ? throw v : v as T;
@@ -188,6 +193,12 @@ class FakeRepository implements WeblumeRepository {
     final queue = reports[id] ?? (throw ApiException(statusCode: 404, code: 'not_found', message: 'Scan not found.'));
     final next = queue.length > 1 ? queue.removeAt(0) : queue.first;
     return _ret(next);
+  }
+
+  @override
+  Future<Loaded<MonitorListResponse>> monitors() async {
+    calls.add('monitors');
+    return _ret(monitorsResult);
   }
 
   @override
@@ -242,6 +253,8 @@ class FakeRepository implements WeblumeRepository {
         'pdfExport': true,
         'codeFixes': true,
         'shareLinks': true,
+        'monitoredSites': 5,
+        'monitorFrequency': 'daily',
       },
     }),
   ];
@@ -312,6 +325,8 @@ Account starterAccount() => Account.fromJson({
     'pdfExport': true,
     'codeFixes': true,
     'shareLinks': true,
+    'monitoredSites': 5,
+    'monitorFrequency': 'daily',
   },
 });
 
@@ -407,3 +422,25 @@ Loaded<ScanReport> loadedReport(
   ScanReport.fromJson(reportJson(id, status: status, lighthouse: lighthouse)),
   fromCache: fromCache,
 );
+
+Map<String, dynamic> monitorJson(
+  String id, {
+  String url = 'https://example.com/',
+  String frequency = 'weekly',
+  bool enabled = true,
+  String? skip,
+  Map<String, dynamic>? lastScan,
+}) => {
+  'id': id,
+  'targetUrl': url,
+  'normalizedUrl': url,
+  'frequency': frequency,
+  'alert': 'any_change',
+  'enabled': enabled,
+  'nextRunAt': '2026-11-05T10:00:00.000Z',
+  'lastRunAt': null,
+  'lastDigestAt': null,
+  'lastSkipReason': skip,
+  'lastScan': lastScan,
+  'createdAt': '2026-10-29T10:00:00.000Z',
+};
