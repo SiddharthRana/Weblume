@@ -38,6 +38,8 @@ const starter = (subs: object[]) =>
       pdfExport: true,
       codeFixes: true,
       shareLinks: true,
+      monitoredSites: 5,
+      monitorFrequency: 'daily',
     },
     subscriptions: subs,
   });

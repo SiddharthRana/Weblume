@@ -7,6 +7,14 @@ export type PlanId = (typeof PLAN_IDS)[number];
 
 export type QuotaPeriod = 'day' | 'calendar_month' | 'billing_period';
 
+/** How often a monitored site is re-scanned, fastest first. */
+export const MONITOR_FREQUENCIES = ['daily', 'weekly', 'monthly'] as const;
+export type MonitorFrequency = (typeof MONITOR_FREQUENCIES)[number];
+
+/** When a scheduled scan emails its owner. */
+export const MONITOR_ALERTS = ['any_change', 'new_findings', 'score_drop', 'none'] as const;
+export type MonitorAlert = (typeof MONITOR_ALERTS)[number];
+
 export interface Entitlements {
   scansPerPeriod: number;
   quotaPeriod: QuotaPeriod;
@@ -18,6 +26,10 @@ export interface Entitlements {
   /** Copy-paste code fixes on findings. */
   codeFixes: boolean;
   shareLinks: boolean;
+  /** Sites that can be re-scanned automatically ("monitoring"). 0 = not available. */
+  monitoredSites: number;
+  /** Fastest re-scan frequency allowed; slower ones are always allowed too. */
+  monitorFrequency: MonitorFrequency | null;
 }
 
 export interface DisplayPrice {
@@ -54,6 +66,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       pdfExport: false,
       codeFixes: false,
       shareLinks: false,
+      monitoredSites: 0,
+      monitorFrequency: null,
     },
   },
   free: {
@@ -69,6 +83,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       pdfExport: false,
       codeFixes: false,
       shareLinks: false,
+      monitoredSites: 1,
+      monitorFrequency: 'weekly',
     },
   },
   starter: {
@@ -84,6 +100,8 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       pdfExport: true,
       codeFixes: true,
       shareLinks: true,
+      monitoredSites: 5,
+      monitorFrequency: 'daily',
     },
     displayPrices: [
       { currency: 'INR', monthly: 14900, annual: 119900 },
@@ -91,6 +109,18 @@ export const PLANS: Record<PlanId, PlanConfig> = {
     ],
   },
 };
+
+/** Whether a plan may monitor at `frequency` (its own fastest frequency, or anything slower). */
+export function monitorFrequencyAllowed(
+  entitlements: Pick<Entitlements, 'monitorFrequency' | 'monitoredSites'>,
+  frequency: MonitorFrequency,
+): boolean {
+  if (!entitlements.monitorFrequency || entitlements.monitoredSites <= 0) return false;
+  return (
+    MONITOR_FREQUENCIES.indexOf(frequency) >=
+    MONITOR_FREQUENCIES.indexOf(entitlements.monitorFrequency)
+  );
+}
 
 export function getPlan(id: PlanId): PlanConfig {
   return PLANS[id];

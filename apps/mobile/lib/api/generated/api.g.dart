@@ -299,4 +299,54 @@ class WeblumeApi {
         );
         return SharedReport.fromJson(res.data as Map<String, dynamic>);
       });
+
+  Future<MonitorListResponse> monitorsList() => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/monitors',
+          options: Options(method: 'GET'),
+          
+          
+        );
+        return MonitorListResponse.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Monitor> monitorsCreate({required CreateMonitorBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/monitors',
+          options: Options(method: 'POST'),
+          
+          data: body.toJson(),
+        );
+        return Monitor.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Monitor> monitorsUpdate({required String id, required UpdateMonitorBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/monitors/${Uri.encodeComponent(id)}',
+          options: Options(method: 'PATCH'),
+          
+          data: body.toJson(),
+        );
+        return Monitor.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  Future<Map<String, dynamic>> monitorsRemove({required String id}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/monitors/${Uri.encodeComponent(id)}',
+          options: Options(method: 'DELETE'),
+          
+          
+        );
+        return Map<String, dynamic>.from(res.data as Map);
+      });
+
+  Future<PauseMonitorResponse> monitorsPause({required PauseMonitorBody body}) => _call(() async {
+        final res = await _dio.request<Object?>(
+          '/v1/monitors/pause',
+          options: Options(method: 'POST'),
+          
+          data: body.toJson(),
+        );
+        return PauseMonitorResponse.fromJson(res.data as Map<String, dynamic>);
+      });
 }

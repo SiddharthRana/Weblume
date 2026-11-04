@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ScanReportDto } from '@weblume/shared';
+import { MonitorSite } from '@/components/report/monitor-site';
 import { ReportActions } from '@/components/report/report-actions';
 import { ReportView } from '@/components/report/report-view';
 import { ScanProgress } from '@/components/report/scan-progress';
@@ -212,7 +213,12 @@ export function ScanStatus({ id: routeId }: { id: string }) {
   return (
     <div className="space-y-8 py-12">
       {/* Only scans in the signed-in account have owner actions; guest scans don't. */}
-      {user && !getLocalScan(id)?.scanToken && <ReportActions scanId={r.id} />}
+      {user && !getLocalScan(id)?.scanToken && (
+        <>
+          <ReportActions scanId={r.id} />
+          <MonitorSite normalizedUrl={r.normalizedUrl} />
+        </>
+      )}
       <ReportView report={r} />
     </div>
   );

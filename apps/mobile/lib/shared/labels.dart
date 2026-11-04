@@ -21,6 +21,19 @@ extension Labels on AppLocalizations {
     ScanSummaryStatus.failed || ScanSummaryStatus.unknown => statusFailed,
   };
 
+  String frequency(EntitlementsMonitorFrequency f) => switch (f) {
+    EntitlementsMonitorFrequency.daily => frequencyDaily,
+    EntitlementsMonitorFrequency.monthly => frequencyMonthly,
+    _ => frequencyWeekly,
+  };
+
+  String? monitorSkip(String? reason) => switch (reason) {
+    'plan' => monitoringSkipPlan,
+    'plan_limit' => monitoringSkipLimit,
+    'previous_run_active' => monitoringSkipBusy,
+    _ => null,
+  };
+
   String kind(FindingKind k) => switch (k) {
     FindingKind.measured => kindMeasured,
     FindingKind.recommendation => kindRecommendation,

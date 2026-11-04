@@ -10,6 +10,7 @@ import { PsiService } from '../scanner/psi/psi-cache.service';
 import { runScan, type ScanResult } from '../scanner/scan-runner';
 import { ERROR_REPORTER, type ErrorReporter } from '../observability/error-reporter';
 import { MetricsService } from '../observability/metrics.service';
+import { ScanHooks } from './scan-hooks';
 
 export const GUARDED_CLIENT = Symbol('GUARDED_CLIENT');
 /** Test seam for the http→https probe port. */
@@ -29,6 +30,7 @@ export class ScanProcessor implements OnApplicationShutdown {
     @Inject(HTTP_PROBE_PORT) private readonly httpPort: number | undefined,
     @Inject(ERROR_REPORTER) private readonly reporter: ErrorReporter,
     private readonly metrics: MetricsService,
+    private readonly hooks: ScanHooks,
   ) {}
 
   async process(scanId: string): Promise<void> {
@@ -66,6 +68,7 @@ export class ScanProcessor implements OnApplicationShutdown {
       result = { status: 'failed', failureCode: 'internal_error', finalUrl: null };
     }
     await this.persist(scanId, result);
+    await this.hooks.runFinished(scanId);
     this.metrics.inc(
       'weblume_scans_finished_total',
       { status: result.status, reason: result.status === 'failed' ? result.failureCode : 'none' },

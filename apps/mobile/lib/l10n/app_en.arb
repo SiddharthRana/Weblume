@@ -337,6 +337,14 @@
       }
     }
   },
+  "planFeatureMonitoring": "Monitor {sites} sites daily, with email alerts",
+  "@planFeatureMonitoring": {
+    "placeholders": {
+      "sites": {
+        "type": "int"
+      }
+    }
+  },
   "planFeatureRetention": "Reports kept for 12 months",
   "planFeatureCompare": "Compare scans over time",
   "planFeaturePdf": "PDF reports and private share links",
@@ -523,5 +531,39 @@
   "newScanSubtitle": "Performance, SEO, accessibility and technical health, explained in plain language.",
   "whatWeCheck": "What we check",
   "starterTagline": "For freelancers and agencies who send reports to clients.",
-  "choosePlan": "Choose how to pay"
+  "choosePlan": "Choose how to pay",
+  "monitoringTitle": "Monitoring",
+  "monitoringSubtitle": "We re-scan these sites automatically and email you when something changes.",
+  "monitoringEmpty": "Get an email when new issues appear on your site or its scores change. Scheduled scans don’t use your monthly scans.",
+  "monitoringSetUp": "Set up on the website",
+  "monitoringManage": "Manage on the website",
+  "monitoringPaused": "Paused",
+  "monitoringNext": "{frequency} · next scan {date}",
+  "@monitoringNext": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "monitoringCount": "{used} of {limit} monitored",
+  "@monitoringCount": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "frequencyDaily": "Every day",
+  "frequencyWeekly": "Every week",
+  "frequencyMonthly": "Every month",
+  "monitoringSkipPlan": "Paused: your plan doesn’t include monitoring.",
+  "monitoringSkipLimit": "Paused: your plan includes fewer monitored sites.",
+  "monitoringSkipBusy": "The last run was skipped because the one before was still going."
 }

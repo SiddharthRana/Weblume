@@ -54,6 +54,8 @@ export const account = (over: Record<string, unknown> = {}) => ({
     pdfExport: false,
     codeFixes: false,
     shareLinks: false,
+    monitoredSites: 1,
+    monitorFrequency: 'weekly',
   },
   usage: {
     used: 2,
@@ -168,6 +170,8 @@ export async function mockBackends(
       ].filter((s) => !q || s.normalizedUrl.includes(q));
       return json(route, 200, { items, nextCursor: null });
     }
+    if (url.pathname === '/v1/monitors' && req.method() === 'GET')
+      return json(route, 200, { items: [], limit: 1, fastestFrequency: 'weekly' });
     if (url.pathname.endsWith('/claim')) return json(route, 200, {});
     return json(route, 404, { statusCode: 404, code: 'not_found', message: 'Not found' });
   });

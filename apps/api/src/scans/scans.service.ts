@@ -55,7 +55,8 @@ export class ScansService {
     this.guestSecret = env.GUEST_HASH_SECRET ?? randomBytes(32).toString('hex');
   }
 
-  async create(rawUrl: string, requester: Requester): Promise<CreateScanResult> {
+  /** Normalises a submitted address and rejects ones the scanner must never fetch. */
+  normalizeTarget(rawUrl: string): string {
     const normalized = normalizeUrl(rawUrl);
     if (!normalized.ok)
       throw new ApiError(HttpStatus.BAD_REQUEST, normalized.code, normalized.message);
@@ -71,6 +72,11 @@ export class ScansService {
       }
       throw e;
     }
+    return normalized.url;
+  }
+
+  async create(rawUrl: string, requester: Requester): Promise<CreateScanResult> {
+    const normalized = { url: this.normalizeTarget(rawUrl) };
 
     const db = this.database.db;
     let owner: SQL;
@@ -130,10 +136,11 @@ export class ScansService {
       if (recent) return { scan: toSummary(recent), deduplicated: true };
     }
 
+    // Scheduled (monitoring) scans run in the background and don't block a scan started by hand.
     const [active] = await db
       .select({ id: scans.id })
       .from(scans)
-      .where(and(owner, inArray(scans.status, [...ACTIVE])))
+      .where(and(owner, inArray(scans.status, [...ACTIVE]), isNull(scans.scheduledScanId)))
       .limit(1);
     if (active) {
       throw new ApiError(

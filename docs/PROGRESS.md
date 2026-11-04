@@ -1,7 +1,28 @@
 # Progress
 
 **Current phase:** 6 of 6 — Reports+ and launch prep ✅ complete. All phases are built; **nothing is deployed**. What remains before a public launch is listed below, in priority order.
-**Last updated:** 2026-10-30
+**Last updated:** 2026-11-04
+
+## Monitoring (scheduled re-scans with email digests)
+
+### Done (verified in this environment)
+
+| Area         | What                                                                                                                                                                                                                                                                                                               | Verified by                                                                                                                            |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Entitlements | `monitoredSites` / `monitorFrequency` in `packages/shared/src/plans.ts`: Free 1 site weekly, Starter 5 daily (confirmed by the owner), guests none; gated on the server (`upgrade_required`, `monitor_limit_reached`)                                                                                              | API DB e2e                                                                                                                             |
+| API          | `GET/POST /v1/monitors`, `PATCH/DELETE /v1/monitors/:id` (pause/resume, frequency, what to email), public `POST /v1/monitors/pause` (signed link); migration `20261103000000_monitoring.sql` adds `daily` and digest bookkeeping columns                                                                           | API DB e2e (ownership, limits, validation, private addresses, guests)                                                                  |
+| Scheduler    | pg-boss cron (`MONITOR_TICK_CRON`, default every 5 minutes) claims due monitors with `SKIP LOCKED`, queues scans outside the scan quota, keeps the time of day, skips while a run is active, pauses over-limit sites after a downgrade and monitors of deleted accounts                                            | API DB e2e; a live local run with the built API (cron every minute) queued the scan on time, scanned example.com and logged the digest |
+| Digests      | `compareReports` against the previous finished scan; plain-language email (new issues, fixed issues, score changes of 5+ points, report and comparison links, manage and pause links, `List-Unsubscribe`); one notice when the site can't be reached; nothing for the baseline or no changes; Resend sender or log | Unit tests (rendering, thresholds, alert settings, escaping, no em dashes, Resend request), API DB e2e                                 |
+| Web          | Dashboard "Monitoring" section (add, frequency, what to email, pause/resume, stop, skip reasons, upgrade hint); "Monitor this site" on reports; `/monitoring/pause` page; pricing lists monitoring                                                                                                                 | Playwright (desktop and mobile, axe WCAG 2.2 AA)                                                                                       |
+| Android      | Dashboard lists monitored sites (schedule, paused, skip reasons, latest report); setting up and managing open the website                                                                                                                                                                                          | Flutter widget tests                                                                                                                   |
+| Privacy      | Monitors included in the data export and deleted with the account                                                                                                                                                                                                                                                  | API DB e2e                                                                                                                             |
+
+**Test totals:** API 340 (with `TEST_DATABASE_URL`), shared 86, web Playwright 202 passed / 5 skipped, Flutter 90.
+
+### Not verified / needs the owner
+
+- **Real email delivery.** No Resend key was available here; digests were checked as logged output. To send for real: verify a sending domain in Resend, then set `RESEND_API_KEY`, `EMAIL_FROM` and `MONITOR_LINK_SECRET`.
+- Playwright now emulates reduced motion, so axe never checks a page mid-fade (the old dashboard check was timing-dependent).
 
 ## Phase 6 — Reports+ and launch prep
 
@@ -189,7 +210,7 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
 ### P2: later / v2 (schema already in place)
 
 17. Custom branding on PDFs and shared reports (`report_branding`).
-18. Scheduled re-scans with change alerts (`scheduled_scans`, `scans.scheduled_scan_id`), reusing `compareReports`.
+18. ~~Scheduled re-scans with change alerts~~ Built (see Monitoring above). Next: RFC 8058 one-click unsubscribe, monitoring several pages per site, managing monitors in the Android app.
 19. Agency plan (the entitlement model supports adding one in `packages/shared/src/plans.ts`).
 20. iOS app and App Store purchases.
 21. Plan changes (monthly ↔ annual), proration and promotional offers.

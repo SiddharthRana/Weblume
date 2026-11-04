@@ -50,7 +50,9 @@ export default function PrivacyPage() {
       <h2>Retention</h2>
       <p>
         Guest scans are deleted after 24 hours. Account scans are kept according to your plan (for
-        example 30 days on Free and 12 months on Starter) and then deleted automatically.
+        example 30 days on Free and 12 months on Starter) and then deleted automatically. Sites you
+        monitor are kept until you stop monitoring them or delete your account, and we email change
+        summaries for them to your account address.
       </p>
       <h2>Your rights</h2>
       <p>

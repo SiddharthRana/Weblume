@@ -19,6 +19,8 @@ import { AccountModule } from './account/account.module';
 import { BillingModule } from './billing/billing.module';
 import { EntitlementsModule } from './entitlements/entitlements.module';
 import { JobsModule } from './jobs/pg-boss.service';
+import { EmailModule } from './email/email';
+import { MonitorsModule } from './monitors/monitors.module';
 
 const REQUEST_ID = /^[A-Za-z0-9-]{8,64}$/;
 
@@ -78,6 +80,8 @@ export function logPath(url: string): string {
     AccountModule,
     BillingModule,
     ReportsModule,
+    EmailModule,
+    MonitorsModule,
   ],
   controllers: [HealthController, PlansController],
   providers: [{ provide: APP_GUARD, useClass: IpThrottlerGuard }],

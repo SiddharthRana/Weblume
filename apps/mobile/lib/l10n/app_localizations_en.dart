@@ -601,6 +601,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String planFeatureMonitoring(int sites) {
+    return 'Monitor $sites sites daily, with email alerts';
+  }
+
+  @override
   String get planFeatureRetention => 'Reports kept for 12 months';
 
   @override
@@ -875,4 +880,51 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choosePlan => 'Choose how to pay';
+
+  @override
+  String get monitoringTitle => 'Monitoring';
+
+  @override
+  String get monitoringSubtitle => 'We re-scan these sites automatically and email you when something changes.';
+
+  @override
+  String get monitoringEmpty =>
+      'Get an email when new issues appear on your site or its scores change. Scheduled scans don’t use your monthly scans.';
+
+  @override
+  String get monitoringSetUp => 'Set up on the website';
+
+  @override
+  String get monitoringManage => 'Manage on the website';
+
+  @override
+  String get monitoringPaused => 'Paused';
+
+  @override
+  String monitoringNext(String frequency, String date) {
+    return '$frequency · next scan $date';
+  }
+
+  @override
+  String monitoringCount(int used, int limit) {
+    return '$used of $limit monitored';
+  }
+
+  @override
+  String get frequencyDaily => 'Every day';
+
+  @override
+  String get frequencyWeekly => 'Every week';
+
+  @override
+  String get frequencyMonthly => 'Every month';
+
+  @override
+  String get monitoringSkipPlan => 'Paused: your plan doesn’t include monitoring.';
+
+  @override
+  String get monitoringSkipLimit => 'Paused: your plan includes fewer monitored sites.';
+
+  @override
+  String get monitoringSkipBusy => 'The last run was skipped because the one before was still going.';
 }

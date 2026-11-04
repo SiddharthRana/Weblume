@@ -340,6 +340,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/monitors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["Monitors_list"];
+        put?: never;
+        post: operations["Monitors_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/monitors/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["Monitors_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["Monitors_update"];
+        trace?: never;
+    };
+    "/v1/monitors/pause": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["Monitors_pause"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -358,6 +406,13 @@ export interface components {
             pdfExport: boolean;
             codeFixes: boolean;
             shareLinks: boolean;
+            /** @description Sites that can be monitored (0 = none) */
+            monitoredSites: number;
+            /**
+             * @description Fastest re-scan frequency allowed; slower ones are allowed too
+             * @enum {string|null}
+             */
+            monitorFrequency: "daily" | "weekly" | "monthly" | null;
         };
         DisplayPriceDto: {
             /** @enum {string} */
@@ -695,6 +750,65 @@ export interface components {
             report: components["schemas"]["ScanReportDtoClass"];
             /** Format: date-time */
             shareExpiresAt: string | null;
+        };
+        MonitorDto: {
+            /** Format: uuid */
+            id: string;
+            targetUrl: string;
+            normalizedUrl: string;
+            /** @enum {string} */
+            frequency: "daily" | "weekly" | "monthly";
+            /** @enum {string} */
+            alert: "any_change" | "new_findings" | "score_drop" | "none";
+            enabled: boolean;
+            /** Format: date-time */
+            nextRunAt: string;
+            /** Format: date-time */
+            lastRunAt: string | null;
+            /** Format: date-time */
+            lastDigestAt: string | null;
+            /** @description Why the last run was skipped: plan (plan has no monitoring), plan_limit (over the plan limit), previous_run_active, account_deleted */
+            lastSkipReason: string | null;
+            lastScan: components["schemas"]["ScanSummaryDtoClass"] | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        MonitorListResponse: {
+            items: components["schemas"]["MonitorDto"][];
+            /** @description Sites the plan can monitor */
+            limit: number;
+            /** @enum {string|null} */
+            fastestFrequency: "daily" | "weekly" | "monthly" | null;
+        };
+        CreateMonitorBody: {
+            /** @example example.com */
+            url: string;
+            /**
+             * @description Defaults to the fastest frequency the plan allows (Free: weekly, Starter: daily)
+             * @enum {string}
+             */
+            frequency?: "daily" | "weekly" | "monthly";
+            /**
+             * @description Defaults to any_change
+             * @enum {string}
+             */
+            alert?: "any_change" | "new_findings" | "score_drop" | "none";
+        };
+        UpdateMonitorBody: {
+            /** @description false pauses scheduled scans and emails */
+            enabled?: boolean;
+            /** @enum {string} */
+            frequency?: "daily" | "weekly" | "monthly";
+            /** @enum {string} */
+            alert?: "any_change" | "new_findings" | "score_drop" | "none";
+        };
+        PauseMonitorBody: {
+            /** @description The token from the "Pause monitoring" link in a digest email */
+            token: string;
+        };
+        PauseMonitorResponse: {
+            targetUrl: string;
+            alreadyPaused: boolean;
         };
     };
     responses: never;
@@ -1502,6 +1616,176 @@ export interface operations {
                 };
             };
             /** @description Unknown, revoked or expired link */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Monitors_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorListResponse"];
+                };
+            };
+        };
+    };
+    Monitors_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMonitorBody"];
+            };
+        };
+        responses: {
+            /** @description 201 Created */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorDto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description upgrade_required (plan has no monitoring or not this frequency) or monitor_limit_reached */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            /** @description already_monitored */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Monitors_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Monitors_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMonitorBody"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonitorDto"];
+                };
+            };
+            /** @description upgrade_required (plan has no monitoring or not this frequency) or monitor_limit_reached */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiErrorDto"];
+                };
+            };
+        };
+    };
+    Monitors_pause: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PauseMonitorBody"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PauseMonitorResponse"];
+                };
+            };
+            /** @description Invalid link or site no longer monitored */
             404: {
                 headers: {
                     [name: string]: unknown;

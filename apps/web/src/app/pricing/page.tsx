@@ -7,7 +7,7 @@ import { SubscribeButtons } from '@/components/billing/subscribe-buttons';
 export const metadata: Metadata = {
   title: 'Pricing',
   description:
-    'Start free. Upgrade to Starter for more scans, code fixes, longer history, PDF exports and share links.',
+    'Start free. Upgrade to Starter for more scans, daily monitoring, code fixes, longer history, PDF exports and share links.',
   alternates: { canonical: '/pricing' },
 };
 
@@ -16,6 +16,13 @@ function features(e: Entitlements, period: string): string[] {
     `${e.scansPerPeriod} scans per ${period}`,
     `History kept for ${e.retentionDays >= 365 ? '12 months' : `${e.retentionDays} days`}`,
     'Lighthouse scores (mobile & desktop)',
+    ...(e.monitoredSites > 0
+      ? [
+          `Monitor ${e.monitoredSites} ${e.monitoredSites === 1 ? 'site' : 'sites'} ${
+            e.monitorFrequency === 'daily' ? 'daily' : 'weekly'
+          }, with email alerts`,
+        ]
+      : []),
     ...(e.comparison ? ['Compare scans over time'] : []),
     ...(e.codeFixes ? ['Copy-paste code fixes for each issue'] : []),
     ...(e.pdfExport ? ['PDF export'] : []),
