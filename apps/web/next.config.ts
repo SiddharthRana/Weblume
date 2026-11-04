@@ -12,6 +12,10 @@ const securityHeaders = [
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
   { key: 'Content-Security-Policy', value: buildCsp() },
+  // Non-production builds (e.g. dev.weblu.me) stay out of search results.
+  ...(process.env.NEXT_PUBLIC_NOINDEX === 'true'
+    ? [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+    : []),
 ];
 
 // Shared reports: the token is in the path, so never send it to other sites.
