@@ -1468,7 +1468,6 @@
           "currency": {
             "type": "string",
             "enum": [
-              "INR",
               "USD"
             ]
           },

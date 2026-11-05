@@ -45,9 +45,9 @@ describe('plan configuration', () => {
 });
 
 describe('formatPrice', () => {
-  it('formats INR and USD from minor units', () => {
-    expect(formatPrice(14900, 'INR', 'en-IN')).toBe('₹149');
+  it('formats USD from minor units, and shows prices in US dollars only', () => {
     expect(formatPrice(399, 'USD', 'en-US')).toBe('$3.99');
+    expect(PLANS.starter.displayPrices?.map((p) => p.currency)).toEqual(['USD']);
   });
 });
 

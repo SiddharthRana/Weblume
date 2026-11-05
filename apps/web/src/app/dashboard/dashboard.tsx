@@ -10,6 +10,7 @@ import { ScanList } from '@/components/app/scan-list';
 import { UsageMeter } from '@/components/app/usage-meter';
 import { FormAlert } from '@/components/auth/form-bits';
 import { api, errorMessage } from '@/lib/api';
+import { DashboardSkeleton } from '@/components/loading';
 
 type Account = Schemas['AccountDtoClass'];
 
@@ -60,11 +61,7 @@ export function Dashboard() {
         <FormAlert tone="success">Your password has been updated.</FormAlert>
       )}
       <FormAlert>{error}</FormAlert>
-      {!error && !account && (
-        <p role="status" className="text-fg-muted">
-          Loading…
-        </p>
-      )}
+      {!error && !account && <DashboardSkeleton />}
       {account && (
         <section aria-labelledby="usage" className="grid gap-6 card p-6 md:grid-cols-2">
           <div>

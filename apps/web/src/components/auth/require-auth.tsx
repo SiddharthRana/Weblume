@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { Container } from '../container';
 import { NotConfigured } from './form-bits';
+import { PageLoader } from '../loading';
 
 /** Client-side gate for signed-in pages. The API enforces authorisation regardless. */
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -25,11 +26,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     );
   }
   if (loading || !user) {
-    return (
-      <p role="status" className="py-16 text-center text-fg-muted">
-        Loading…
-      </p>
-    );
+    return <PageLoader label="Checking your sign-in" />;
   }
   return <>{children}</>;
 }

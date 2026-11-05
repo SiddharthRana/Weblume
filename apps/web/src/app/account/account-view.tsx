@@ -8,6 +8,7 @@ import { Field, FormAlert } from '@/components/auth/form-bits';
 import { API_URL, api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { currentAccessToken } from '@/lib/supabase';
+import { AccountSkeleton } from '@/components/loading';
 
 type Account = Schemas['AccountDtoClass'];
 
@@ -126,11 +127,7 @@ export function AccountView() {
 
   if (loadError) return <FormAlert>{loadError}</FormAlert>;
   if (!account) {
-    return (
-      <p role="status" className="text-fg-muted">
-        Loading…
-      </p>
-    );
+    return <AccountSkeleton />;
   }
 
   return (

@@ -416,7 +416,7 @@ export interface components {
         };
         DisplayPriceDto: {
             /** @enum {string} */
-            currency: "INR" | "USD";
+            currency: "USD";
             /** @description Monthly price in minor units (paise/cents) */
             monthly: number;
             /** @description Annual price in minor units (paise/cents) */

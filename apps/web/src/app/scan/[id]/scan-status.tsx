@@ -12,6 +12,7 @@ import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { getLocalScan, saveLocalScan } from '@/lib/local-scans';
 import { useRouteParam } from '@/lib/use-route-param';
+import { PageLoader } from '@/components/loading';
 
 const POLL_MS = 2_000;
 const GIVE_UP_MS = 5 * 60_000;
@@ -103,11 +104,7 @@ export function ScanStatus({ id: routeId }: { id: string }) {
   }
 
   if (state.kind === 'loading') {
-    return (
-      <p role="status" className="py-16 text-center text-fg-muted">
-        Loading report…
-      </p>
-    );
+    return <PageLoader label="Opening your report" />;
   }
 
   if (state.kind === 'not_found') {

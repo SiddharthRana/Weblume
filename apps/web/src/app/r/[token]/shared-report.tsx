@@ -6,6 +6,7 @@ import type { ScanReportDto } from '@weblume/shared';
 import { ReportView } from '@/components/report/report-view';
 import { api, errorMessage } from '@/lib/api';
 import { useRouteParam } from '@/lib/use-route-param';
+import { PageLoader } from '@/components/loading';
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'long', timeZone: 'UTC' });
 
@@ -46,12 +47,7 @@ export function SharedReport({ token: routeToken }: { token: string }) {
     };
   }, [token, attempt]);
 
-  if (state.kind === 'loading')
-    return (
-      <p role="status" className="py-16 text-center text-fg-muted">
-        Loading report…
-      </p>
-    );
+  if (state.kind === 'loading') return <PageLoader label="Opening the report" />;
 
   if (state.kind === 'not_found')
     return (

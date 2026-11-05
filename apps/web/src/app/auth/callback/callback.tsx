@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AuthCard, FormAlert, safeNext } from '@/components/auth/form-bits';
 import { getSupabase } from '@/lib/supabase';
+import { PageLoader } from '@/components/loading';
 
 /** Landing page for email confirmation and OAuth links. supabase-js exchanges the ?code= automatically. */
 export function AuthCallback() {
@@ -41,9 +42,5 @@ export function AuthCallback() {
       </AuthCard>
     );
   }
-  return (
-    <p role="status" className="py-16 text-center text-fg-muted">
-      Signing you in…
-    </p>
-  );
+  return <PageLoader label="Signing you in" />;
 }

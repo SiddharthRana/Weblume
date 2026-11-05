@@ -32,9 +32,13 @@ export interface Entitlements {
   monitorFrequency: MonitorFrequency | null;
 }
 
+/**
+ * Prices shown on the website, in US dollars only. Customers can still pay in their own currency:
+ * Dodo converts at checkout (Adaptive Currency) and Google Play converts per country.
+ */
 export interface DisplayPrice {
-  currency: 'INR' | 'USD';
-  /** Minor units (paise / cents) to avoid float rounding. */
+  currency: 'USD';
+  /** Minor units (cents) to avoid float rounding. */
   monthly: number;
   annual: number;
 }
@@ -103,10 +107,7 @@ export const PLANS: Record<PlanId, PlanConfig> = {
       monitoredSites: 5,
       monitorFrequency: 'daily',
     },
-    displayPrices: [
-      { currency: 'INR', monthly: 14900, annual: 119900 },
-      { currency: 'USD', monthly: 399, annual: 2999 },
-    ],
+    displayPrices: [{ currency: 'USD', monthly: 399, annual: 2999 }],
   },
 };
 

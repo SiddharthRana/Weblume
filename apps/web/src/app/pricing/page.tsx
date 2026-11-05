@@ -33,8 +33,9 @@ function features(e: Entitlements, period: string): string[] {
 export default function PricingPage() {
   const free = PLANS.free;
   const starter = PLANS.starter;
-  const inr = starter.displayPrices?.find((p) => p.currency === 'INR');
   const usd = starter.displayPrices?.find((p) => p.currency === 'USD');
+  // e.g. $29.99 a year instead of 12 × $3.99 = $47.88.
+  const annualSaving = usd ? Math.round((1 - usd.annual / (usd.monthly * 12)) * 100) : 0;
 
   return (
     <>
@@ -69,16 +70,15 @@ export default function PricingPage() {
                 Best for client work
               </span>
             </div>
-            {usd && inr && (
+            {usd && (
               <div className="mt-2">
                 <p className="text-4xl font-bold text-fg">
                   {formatPrice(usd.monthly, 'USD', 'en-US')}
                   <span className="text-base font-normal text-fg-muted"> / month</span>
                 </p>
                 <p className="mt-1 text-sm text-fg-muted">
-                  or {formatPrice(usd.annual, 'USD', 'en-US')} / year · India:{' '}
-                  {formatPrice(inr.monthly, 'INR', 'en-IN')} / month or{' '}
-                  {formatPrice(inr.annual, 'INR', 'en-IN')} / year
+                  or {formatPrice(usd.annual, 'USD', 'en-US')} / year
+                  {annualSaving > 0 && ` (save ${annualSaving}%)`}
                 </p>
               </div>
             )}
@@ -92,8 +92,8 @@ export default function PricingPage() {
         </div>
         <div className="mt-10 max-w-3xl space-y-2 text-sm text-fg-muted">
           <p>
-            Prices shown are indicative. The final price, currency and any applicable taxes (such as
-            VAT or GST) are shown at checkout and depend on your billing country.
+            Prices are in US dollars. At checkout you can pay in your local currency, and the final
+            amount, including any taxes such as VAT or GST, is shown before you pay.
           </p>
           <p>
             Subscriptions bought in the Android app are billed through Google Play and managed
