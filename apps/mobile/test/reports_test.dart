@@ -143,4 +143,15 @@ void main() {
     await expectLater(tester, meetsGuideline(textContrastGuideline));
     handle.dispose();
   });
+
+  testWidgets('monitors the report’s site, then shows its schedule', (tester) async {
+    final repo = repoWith();
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await openReport(tester);
+    await tapText(tester, 'Monitor this site');
+    await tapText(tester, 'Start monitoring');
+    expect(repo.calls, contains('createMonitor:https://example.com/:weekly:any_change'));
+    expect(find.text('Monitored · Every week'), findsOneWidget);
+    expect(find.text('Monitor this site'), findsNothing);
+  });
 }

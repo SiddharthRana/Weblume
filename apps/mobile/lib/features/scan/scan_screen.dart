@@ -14,6 +14,7 @@ import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/surface.dart';
 import '../../router/app_router.dart';
 import '../../theme/tokens.g.dart';
+import '../monitoring/monitor_sheets.dart';
 import '../reports/pdf_actions.dart';
 import '../reports/share_sheet.dart';
 import 'report_view.dart';
@@ -231,19 +232,27 @@ class _OwnerActions extends ConsumerWidget {
     final account = ref.watch(accountProvider).value?.data;
     if (account == null) return const SizedBox.shrink();
     final e = account.entitlements;
+    final monitor = _MonitorThisSite(url: report.normalizedUrl);
     if (!e.shareLinks && !e.comparison) {
-      return WlCard(
-        padding: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(WlSpace.s3, WlSpace.s3, WlSpace.s3, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(l10n.reportUpsell),
-              TextButton(onPressed: () => context.push(Routes.subscription), child: Text(l10n.seePlans)),
-            ],
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          monitor,
+          const SizedBox(height: WlSpace.s2),
+          WlCard(
+            padding: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(WlSpace.s3, WlSpace.s3, WlSpace.s3, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.reportUpsell),
+                  TextButton(onPressed: () => context.push(Routes.subscription), child: Text(l10n.seePlans)),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       );
     }
     return Column(
@@ -265,6 +274,7 @@ class _OwnerActions extends ConsumerWidget {
                 icon: const Icon(Icons.compare_arrows),
                 label: Text(l10n.reportActionCompare),
               ),
+            monitor,
           ],
         ),
         if (e.pdfExport) ...[
@@ -272,6 +282,37 @@ class _OwnerActions extends ConsumerWidget {
           PdfActions(scanId: scanId, url: report.normalizedUrl, scannedAt: report.completedAt ?? report.createdAt),
         ],
       ],
+    );
+  }
+}
+
+/// "Monitor this site" for the report's address, or its current schedule when it's already
+/// monitored (tap to change). Hidden for plans without monitoring and when every slot is used.
+class _MonitorThisSite extends ConsumerWidget {
+  const _MonitorThisSite({required this.url});
+
+  final String url;
+
+  static String _key(String u) => u.replaceFirst(RegExp(r'/$'), '').toLowerCase();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final list = ref.watch(monitorsProvider).value?.data;
+    if (list == null || list.limit <= 0) return const SizedBox.shrink();
+    final existing = list.items.where((m) => _key(m.normalizedUrl) == _key(url)).firstOrNull;
+    if (existing != null) {
+      return OutlinedButton.icon(
+        onPressed: () => MonitorSettingsSheet.show(context, existing, list.fastestFrequency),
+        icon: const Icon(Icons.radar),
+        label: Text(l10n.monitoringActive(l10n.frequency(existing.frequency))),
+      );
+    }
+    if (list.items.length >= list.limit) return const SizedBox.shrink();
+    return OutlinedButton.icon(
+      onPressed: () => AddMonitorSheet.show(context, url: url, fastest: list.fastestFrequency),
+      icon: const Icon(Icons.radar),
+      label: Text(l10n.monitoringThisSite),
     );
   }
 }

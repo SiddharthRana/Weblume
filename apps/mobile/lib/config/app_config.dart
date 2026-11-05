@@ -23,5 +23,8 @@ abstract final class AppConfig {
   /// Cloudflare Turnstile site key for sign-up, sign-in and password reset. Empty turns the check off.
   static const turnstileSiteKey = String.fromEnvironment('TURNSTILE_SITE_KEY');
 
+  /// Shows "Continue with Google". Turn on only once the Google provider is set up in Supabase.
+  static const googleSignInEnabled = bool.fromEnvironment('AUTH_GOOGLE_ENABLED');
+
   static bool get authConfigured => supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

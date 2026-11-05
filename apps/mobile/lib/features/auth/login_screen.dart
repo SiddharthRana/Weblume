@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/status_views.dart';
 import 'auth_scaffold.dart';
 import 'auth_captcha.dart';
+import 'google_sign_in_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key, this.notice});
@@ -66,6 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         if (widget.notice != null) ...[FormMessage(text: widget.notice!, isError: false), gap],
         if (_error != null) ...[FormMessage(text: _error!), gap],
+        GoogleSignInButton(onError: (m) => setState(() => _error = m)),
         TextField(
           controller: _email,
           decoration: InputDecoration(labelText: l10n.emailLabel),

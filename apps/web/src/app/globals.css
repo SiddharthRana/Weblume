@@ -61,6 +61,23 @@
     font-family: var(--font-sans);
     line-height: 1.5;
   }
+  /* Tailwind v4 gives buttons the default arrow; show the hand on everything clickable. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='menuitem'],
+  [role='option'],
+  [role='switch'],
+  summary,
+  label[for],
+  select:not(:disabled),
+  input:is([type='checkbox'], [type='radio'], [type='file'], [type='submit'], [type='button'], [type='reset']):not(:disabled) {
+    cursor: pointer;
+  }
+  :is(button, select, input):disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
   :focus-visible {
     outline: 2px solid var(--wl-focus);
     outline-offset: 2px;

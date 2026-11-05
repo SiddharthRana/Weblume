@@ -185,6 +185,10 @@ void main() {
     expect(repo.calls, contains('name:Asha'));
     expect(find.text('Saved.'), findsOneWidget);
 
+    // Data export happens in the app (file saved or shared), not on the website.
+    await scrollTo(tester, find.text('Download my data'));
+    expect(find.text('Share my data'), findsOneWidget);
+
     await scrollTo(tester, find.text('Permanently delete my account'));
     await tapText(tester, 'Permanently delete my account');
     expect(find.text('Type DELETE (in capitals) to confirm.'), findsOneWidget);

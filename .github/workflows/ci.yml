@@ -238,6 +238,7 @@ jobs:
           SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          AUTH_GOOGLE_ENABLED: ${{ vars.AUTH_GOOGLE_ENABLED || 'false' }}
         run: |
           DEFINES=(
             --dart-define=API_BASE_URL="$API_URL"
@@ -245,6 +246,7 @@ jobs:
             --dart-define=SUPABASE_URL="$SUPABASE_URL"
             --dart-define=SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY"
             --dart-define=TURNSTILE_SITE_KEY="$TURNSTILE_SITE_KEY"
+            --dart-define=AUTH_GOOGLE_ENABLED="$AUTH_GOOGLE_ENABLED"
             --dart-define=SENTRY_ENVIRONMENT=dev
             --dart-define=APP_VERSION=0.1.0-dev.${{ github.run_number }}
           )

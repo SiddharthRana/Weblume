@@ -167,7 +167,7 @@ class WeblumeApi {
           
           
         );
-        return Map<String, dynamic>.from(res.data as Map);
+        return res.data is Map ? Map<String, dynamic>.from(res.data as Map) : <String, dynamic>{};
       });
 
   Future<BillingConfig> billingConfig() => _call(() async {
@@ -237,7 +237,7 @@ class WeblumeApi {
           
           
         );
-        return Map<String, dynamic>.from(res.data as Map);
+        return res.data is Map ? Map<String, dynamic>.from(res.data as Map) : <String, dynamic>{};
       });
 
   Future<ReportComparison> reportsCompare({required String base, required String target}) => _call(() async {
@@ -337,7 +337,7 @@ class WeblumeApi {
           
           
         );
-        return Map<String, dynamic>.from(res.data as Map);
+        return res.data is Map ? Map<String, dynamic>.from(res.data as Map) : <String, dynamic>{};
       });
 
   Future<PauseMonitorResponse> monitorsPause({required PauseMonitorBody body}) => _call(() async {

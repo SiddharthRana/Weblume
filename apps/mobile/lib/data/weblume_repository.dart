@@ -61,9 +61,35 @@ class WeblumeRepository {
     }
   }
 
-  /// Monitored sites (scheduled re-scans). Managing them happens on the website for now.
+  /// Monitored sites (scheduled re-scans).
   Future<Loaded<MonitorListResponse>> monitors() =>
       _cached('monitors', _api.monitorsList, (r) => r.toJson(), MonitorListResponse.fromJson);
+
+  /// Starts monitoring a site. Without a frequency the server uses the plan's fastest.
+  Future<Monitor> createMonitor(String url, {EntitlementsMonitorFrequency? frequency, MonitorAlert? alert}) =>
+      _api.monitorsCreate(
+        body: CreateMonitorBody(url: url, frequency: frequency, alert: alert),
+      );
+
+  /// Pauses or resumes ([enabled]), or changes how often it runs and when it emails.
+  Future<Monitor> updateMonitor(
+    String id, {
+    bool? enabled,
+    EntitlementsMonitorFrequency? frequency,
+    MonitorAlert? alert,
+  }) => _api.monitorsUpdate(
+    id: id,
+    body: UpdateMonitorBody(enabled: enabled, frequency: frequency, alert: alert),
+  );
+
+  /// Stops monitoring a site. Its past reports are kept.
+  Future<void> removeMonitor(String id) => _api.monitorsRemove(id: id);
+
+  /// Everything Weblume holds about the account, as JSON (data portability).
+  Future<Map<String, dynamic>> exportData() => _api.accountExport();
+
+  /// The payment provider's customer page for a subscription bought on the website.
+  Future<String> billingPortalUrl() async => (await _api.billingPortal()).url;
 
   Future<CreateScanResponse> createScan(String url) => _api.scansCreate(body: CreateScanBody(url: url));
 

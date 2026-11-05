@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../api/generated/models.g.dart';
 import '../../billing/billing_controller.dart';
 import '../../billing/billing_gateway.dart';
-import '../../config/app_config.dart';
 import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/surface.dart';
@@ -224,15 +223,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
           child: WlCard(child: SubscriptionStatusTile(subscription: s)),
         ),
       const SizedBox(height: WlSpace.s3),
-      if (web) ...[
-        Text(l10n.subscribedOnWeb),
-        const SizedBox(height: WlSpace.s2),
-        OutlinedButton.icon(
-          onPressed: () => launchUrl(Uri.parse('${AppConfig.siteUrl}/account'), mode: LaunchMode.externalApplication),
-          icon: const Icon(Icons.open_in_new),
-          label: Text(l10n.manageOnWeb),
-        ),
-      ],
+      if (web) ...[Text(l10n.subscribedOnWeb), const SizedBox(height: WlSpace.s2), const _WebPortalButton()],
       if (play) ...[
         const SizedBox(height: WlSpace.s3),
         Text(l10n.subscribedOnPlay),
@@ -245,5 +236,42 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
       ],
       if (play && web) ...[const SizedBox(height: WlSpace.s3), FormMessage(text: l10n.purchaseDuplicate)],
     ];
+  }
+}
+
+/// Opens the payment partner's customer page for a subscription bought on the website, where the
+/// customer can update payment details or cancel. The API creates a fresh, short-lived link.
+class _WebPortalButton extends ConsumerStatefulWidget {
+  const _WebPortalButton();
+
+  @override
+  ConsumerState<_WebPortalButton> createState() => _WebPortalButtonState();
+}
+
+class _WebPortalButtonState extends ConsumerState<_WebPortalButton> {
+  bool _busy = false;
+
+  Future<void> _open() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      final url = await ref.read(repositoryProvider).billingPortalUrl();
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.apiError(e))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : _open,
+      icon: const Icon(Icons.open_in_new),
+      label: Text(_busy ? l10n.portalOpening : l10n.manageOnWeb),
+    );
   }
 }

@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/generated/models.g.dart';
-import '../../config/app_config.dart';
 import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/surface.dart';
 import '../../theme/tokens.g.dart';
+import '../monitoring/monitor_sheets.dart';
 
-/// Monitored sites on the dashboard. Read-only in v1: adding and changing them links to the web.
+/// Monitored sites on the dashboard: add one, and tap a site to change, pause or stop it.
 class MonitoringSection extends ConsumerWidget {
   const MonitoringSection({super.key});
-
-  static Uri get manageUri => Uri.parse('${AppConfig.siteUrl}/dashboard#monitoring');
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +22,8 @@ class MonitoringSection extends ConsumerWidget {
     final list = monitors.value?.data;
     // Hidden while loading, on errors, and for plans without monitoring.
     if (list == null || list.limit <= 0) return const SizedBox.shrink();
-    void openWeb() => launchUrl(manageUri, mode: LaunchMode.externalApplication);
+    void add() => AddMonitorSheet.show(context, fastest: list.fastestFrequency);
+    final full = list.items.length >= list.limit;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -48,24 +45,33 @@ class MonitoringSection extends ConsumerWidget {
               children: [
                 Text(l10n.monitoringEmpty, style: theme.textTheme.bodyMedium),
                 const SizedBox(height: WlSpace.s3),
-                OutlinedButton.icon(
-                  onPressed: openWeb,
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: Text(l10n.monitoringSetUp),
+                FilledButton.icon(
+                  onPressed: add,
+                  icon: const Icon(Icons.radar, size: 18),
+                  label: Text(l10n.monitoringAddButton),
                 ),
               ],
             ),
           )
         else ...[
-          for (final m in list.items) _MonitorTile(monitor: m),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: openWeb,
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: Text(l10n.monitoringManage),
+          for (final m in list.items) _MonitorTile(monitor: m, fastest: list.fastestFrequency),
+          if (full)
+            Padding(
+              padding: const EdgeInsets.only(top: WlSpace.s1),
+              child: Text(
+                l10n.monitoringFull(list.limit),
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            )
+          else
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: add,
+                icon: const Icon(Icons.add, size: 18),
+                label: Text(l10n.monitoringAddButton),
+              ),
             ),
-          ),
         ],
       ],
     );
@@ -73,9 +79,10 @@ class MonitoringSection extends ConsumerWidget {
 }
 
 class _MonitorTile extends StatelessWidget {
-  const _MonitorTile({required this.monitor});
+  const _MonitorTile({required this.monitor, required this.fastest});
 
   final Monitor monitor;
+  final EntitlementsMonitorFrequency? fastest;
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +90,11 @@ class _MonitorTile extends StatelessWidget {
     final theme = Theme.of(context);
     final m = monitor;
     final skip = l10n.monitorSkip(m.lastSkipReason);
-    final last = m.lastScan;
     return Padding(
       padding: const EdgeInsets.only(bottom: WlSpace.s2),
       child: WlCard(
         padding: const EdgeInsets.symmetric(horizontal: WlSpace.s3, vertical: WlSpace.s3),
-        onTap: last == null ? null : () => context.push('/scan/${last.id}'),
+        onTap: () => MonitorSettingsSheet.show(context, monitor, fastest),
         child: Row(
           children: [
             Icon(
@@ -123,7 +129,7 @@ class _MonitorTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (last != null) Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+            Icon(Icons.tune, color: theme.colorScheme.onSurfaceVariant),
           ],
         ),
       ),
