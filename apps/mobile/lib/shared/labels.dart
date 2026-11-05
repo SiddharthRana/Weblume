@@ -27,6 +27,13 @@ extension Labels on AppLocalizations {
     _ => frequencyWeekly,
   };
 
+  String alert(MonitorAlert a) => switch (a) {
+    MonitorAlert.newFindings => alertNewFindings,
+    MonitorAlert.scoreDrop => alertScoreDrop,
+    MonitorAlert.none => alertNone,
+    _ => alertAnyChange,
+  };
+
   String? monitorSkip(String? reason) => switch (reason) {
     'plan' => monitoringSkipPlan,
     'plan_limit' => monitoringSkipLimit,

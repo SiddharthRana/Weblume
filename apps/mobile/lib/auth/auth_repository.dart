@@ -35,6 +35,13 @@ abstract class AuthRepository {
   /// Returns true if the account is ready to use, false if email confirmation is required.
   Future<bool> signUp({required String email, required String password, String? captchaToken});
   Future<void> sendPasswordReset(String email, {String? captchaToken});
+
+  /// Whether "Continue with Google" is offered.
+  bool get googleEnabled;
+
+  /// Opens Google's sign-in page in the browser. It returns to the app through the
+  /// weblume://auth-callback deep link, and [events] reports signedIn when it's done.
+  Future<void> signInWithGoogle();
   Future<void> updatePassword(String password);
   Future<void> signOut();
 }
@@ -98,6 +105,19 @@ class SupabaseAuthRepository implements AuthRepository {
   );
 
   @override
+  bool get googleEnabled => AppConfig.googleSignInEnabled;
+
+  @override
+  Future<void> signInWithGoogle() => _guard(() async {
+    final opened = await _auth.signInWithOAuth(
+      sb.OAuthProvider.google,
+      redirectTo: AppConfig.authRedirectUrl,
+      authScreenLaunchMode: sb.LaunchMode.externalApplication,
+    );
+    if (!opened) throw AuthFailure('We couldn’t open Google sign-in. Please try again.');
+  });
+
+  @override
   Future<void> updatePassword(String password) => _guard(() => _auth.updateUser(sb.UserAttributes(password: password)));
 
   @override
@@ -123,6 +143,10 @@ class UnconfiguredAuthRepository implements AuthRepository {
   Future<void> sendPasswordReset(String email, {String? captchaToken}) async => _fail();
   @override
   Future<void> updatePassword(String password) async => _fail();
+  @override
+  bool get googleEnabled => false;
+  @override
+  Future<void> signInWithGoogle() async => _fail();
   @override
   Future<void> signOut() async {}
 }

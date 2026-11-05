@@ -38,6 +38,7 @@ lib/
 | `SENTRY_DSN` | Sentry project DSN for crash reports. Empty (the default) turns crash reporting off entirely |
 | `SENTRY_ENVIRONMENT` | Sentry environment tag (default `production`; use `staging` for staging builds) |
 | `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key. Shows the security check on sign-up, sign-in and password reset (needed once Supabase CAPTCHA is on). Empty turns it off. The check runs in a web view loaded as `SITE_URL`, which must be one of the widget's hostnames |
+| `AUTH_GOOGLE_ENABLED` | `true` shows "Continue with Google" on log in and sign up. Needs the Google provider on in Supabase, with `weblume://auth-callback` in its redirect URLs. Default `false` |
 
 **Dev builds from CI:** every push to `dev` builds an APK (and, with an upload key, an App Bundle) pointed at the dev environment; download it from the run's **Artifacts**. It uses the `web-dev` environment's variables. Add the repository secrets `ANDROID_KEYSTORE_BASE64` (`base64 -i weblume-upload.jks`), `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` and `ANDROID_KEY_PASSWORD` to sign with your upload key; without them it uses a throwaway key and each new build must be installed after uninstalling the old one.
 
