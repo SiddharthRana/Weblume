@@ -32,6 +32,16 @@ void main() {
     });
   });
 
+  test('a failed Turnstile check is recognised and explained without revealing the account', () {
+    expect(isCaptchaError('captcha_failed', 'captcha protection: request disallowed'), isTrue);
+    expect(isCaptchaError(null, 'captcha verification process failed'), isTrue);
+    expect(isCaptchaError('invalid_credentials', 'Invalid login credentials'), isFalse);
+    expect(
+      describeAuthError('captcha_failed', 'captcha protection: request disallowed', '400'),
+      'The security check didn’t go through. Complete it again, then try again.',
+    );
+  });
+
   testWidgets('shows the not-configured screen when the build has no auth config', (tester) async {
     await pumpApp(tester, auth: FakeAuth(configured: false));
     expect(find.text('Accounts aren’t configured'), findsOneWidget);

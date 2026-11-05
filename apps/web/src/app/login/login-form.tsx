@@ -11,6 +11,7 @@ import {
   safeNext,
   SubmitButton,
 } from '@/components/auth/form-bits';
+import { CAPTCHA_NOT_READY, useAuthCaptcha } from '@/components/auth/captcha';
 import { GoogleButton } from '@/components/auth/google-button';
 import { authConfigured, authErrorMessage, getSupabase } from '@/lib/supabase';
 
@@ -21,6 +22,7 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const captcha = useAuthCaptcha();
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -29,12 +31,18 @@ export function LoginForm() {
       setError('Enter your email and password.');
       return;
     }
+    if (!captcha.ready) {
+      setError(CAPTCHA_NOT_READY);
+      return;
+    }
     setBusy(true);
     const { error: err } = await getSupabase()!.auth.signInWithPassword({
       email: email.trim(),
       password,
+      options: { captchaToken: captcha.token },
     });
     setBusy(false);
+    captcha.reset();
     if (err) {
       setError(authErrorMessage(err));
       return;
@@ -84,6 +92,7 @@ export function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            {captcha.widget}
             <SubmitButton busy={busy}>{busy ? 'Logging in…' : 'Log in'}</SubmitButton>
             <p className="text-center text-sm">
               <Link href="/forgot-password" className="text-primary underline">

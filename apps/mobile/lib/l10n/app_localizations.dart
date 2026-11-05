@@ -181,6 +181,12 @@ abstract class AppLocalizations {
   /// **'Enter your email and password.'**
   String get enterEmailPassword;
 
+  /// No description provided for @captchaNotReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait for the security check above to finish, then try again.'**
+  String get captchaNotReady;
+
   /// No description provided for @passwordHint.
   ///
   /// In en, this message translates to:

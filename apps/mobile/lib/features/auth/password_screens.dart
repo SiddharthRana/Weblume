@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/status_views.dart';
 import 'auth_scaffold.dart';
+import 'auth_captcha.dart';
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -20,10 +23,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   String? _error;
   bool _sent = false;
   bool _busy = false;
+  final _captcha = AuthCaptchaController();
 
   @override
   void dispose() {
     _email.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
@@ -31,15 +36,28 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final l10n = AppLocalizations.of(context);
     final email = _email.text.trim();
     if (!emailPattern.hasMatch(email)) return setState(() => _error = l10n.invalidEmail);
+    if (!_captcha.ready) return setState(() => _error = l10n.captchaNotReady);
     setState(() {
       _error = null;
       _busy = true;
     });
     try {
-      await ref.read(authRepositoryProvider).sendPasswordReset(email);
-    } on AuthFailure {
-      // Never reveal whether the account exists; the same confirmation is shown either way.
+      await ref.read(authRepositoryProvider).sendPasswordReset(email, captchaToken: _captcha.token);
+    } on AuthFailure catch (e) {
+      // Never reveal whether the account exists; the same confirmation is shown either way, except
+      // when the security check failed, which says nothing about the account.
+      if (e.captcha) {
+        unawaited(_captcha.reset());
+        if (mounted) {
+          setState(() {
+            _busy = false;
+            _error = e.message;
+          });
+        }
+        return;
+      }
     }
+    unawaited(_captcha.reset());
     if (mounted) {
       setState(() {
         _busy = false;
@@ -70,6 +88,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                 onSubmitted: (_) => _submit(),
               ),
               gap,
+              AuthCaptcha(controller: _captcha),
               FilledButton(onPressed: _busy ? null : _submit, child: Text(_busy ? l10n.sending : l10n.resetButton)),
             ],
     );
