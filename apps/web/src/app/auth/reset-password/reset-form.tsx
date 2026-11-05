@@ -6,6 +6,7 @@ import { useState, type FormEvent } from 'react';
 import { AuthCard, Field, FormAlert, SubmitButton } from '@/components/auth/form-bits';
 import { useAuth } from '@/lib/auth-context';
 import { authErrorMessage, getSupabase, passwordProblems } from '@/lib/supabase';
+import { PageLoader } from '@/components/loading';
 
 /** Reached from the password-reset email; the recovery code is exchanged for a session on load. */
 export function ResetForm() {
@@ -17,11 +18,7 @@ export function ResetForm() {
   const [busy, setBusy] = useState(false);
 
   if (loading) {
-    return (
-      <p role="status" className="py-16 text-center text-fg-muted">
-        Checking your link…
-      </p>
-    );
+    return <PageLoader label="Checking your link" />;
   }
   if (!user) {
     return (

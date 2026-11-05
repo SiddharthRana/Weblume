@@ -14,6 +14,7 @@ import type { Schemas } from '@weblume/api-client-ts';
 import { FindingCard } from '@/components/report/finding-card';
 import { SeverityBadge } from '@/components/report/severity-badge';
 import { api, errorMessage, type ApiErrorBody } from '@/lib/api';
+import { PageLoader } from '@/components/loading';
 
 type Comparison = Schemas['ReportComparisonDto'];
 type ScoreDeltas = Schemas['ScoreDeltasDto'];
@@ -80,12 +81,7 @@ export function CompareView() {
     };
   }, [base, target]);
 
-  if (state.kind === 'loading')
-    return (
-      <p role="status" className="py-16 text-center text-fg-muted">
-        Loading comparison…
-      </p>
-    );
+  if (state.kind === 'loading') return <PageLoader label="Comparing your scans" />;
 
   if (state.kind === 'upgrade')
     return (

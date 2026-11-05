@@ -13,6 +13,7 @@ import {
   type MonitorList,
 } from '@/lib/monitoring';
 import { Select } from '../select';
+import { ListSkeleton } from '../loading';
 
 const dateFmt = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -108,7 +109,7 @@ export function MonitoringSection() {
         </p>
       )}
       {!list ? (
-        !error && <p className="text-sm text-fg-muted">Loading…</p>
+        !error && <ListSkeleton rows={2} label="Loading your monitored sites" />
       ) : (
         <>
           {list.items.length > 0 && (

@@ -6,6 +6,7 @@ import type { Schemas } from '@weblume/api-client-ts';
 import { api, API_URL, errorMessage } from '@/lib/api';
 import { currentAccessToken } from '@/lib/supabase';
 import { Select } from '../select';
+import { InlineLoader } from '../loading';
 
 type Entitlements = Schemas['AccountDtoClass']['entitlements'];
 type ShareLink = Schemas['ShareLinkDto'];
@@ -246,7 +247,7 @@ function SharePanel({ scanId }: { scanId: string }) {
 
       <h3 className="mt-5 text-sm font-semibold text-fg">Active links</h3>
       {links === null ? (
-        <p className="mt-2 text-sm text-fg-muted">Loading…</p>
+        <InlineLoader label="Loading your links" className="mt-2" />
       ) : active.length === 0 ? (
         <p className="mt-2 text-sm text-fg-muted">No active links.</p>
       ) : (
