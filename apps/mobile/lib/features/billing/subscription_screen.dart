@@ -11,6 +11,7 @@ import '../../shared/widgets/surface.dart';
 import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
 import '../../theme/tokens.g.dart';
+import 'purchase_status_card.dart';
 import 'subscription_status.dart';
 
 /// Google Play subscription purchase. Never sells a second subscription to someone already subscribed.
@@ -65,11 +66,7 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
         padding: const EdgeInsets.all(WlSpace.s4),
         children: [
           if (billing.phase == PurchasePhase.success) ...[
-            FormMessage(text: l10n.purchaseSuccess, isError: false),
-            if (billing.duplicateWarning) ...[
-              const SizedBox(height: WlSpace.s2),
-              FormMessage(text: l10n.purchaseDuplicate),
-            ],
+            PurchaseStatusCard(state: billing),
             const SizedBox(height: WlSpace.s4),
           ],
           if (active.isNotEmpty)
@@ -190,22 +187,13 @@ class _SubscriptionScreenState extends ConsumerState<SubscriptionScreen> {
   List<Widget> _status(AppLocalizations l10n, BillingState s) => switch (s.phase) {
     PurchasePhase.loading ||
     PurchasePhase.purchasing => const [Padding(padding: EdgeInsets.all(WlSpace.s4), child: LoadingView())],
-    PurchasePhase.pending => [
-      FormMessage(text: l10n.purchasePending, isError: false),
-      const SizedBox(height: WlSpace.s3),
-    ],
-    PurchasePhase.verifying => [
-      FormMessage(text: l10n.purchaseVerifying, isError: false),
-      const SizedBox(height: WlSpace.s3),
-    ],
-    PurchasePhase.error => [
-      FormMessage(
-        text: switch (s.error) {
-          'store_unavailable' => l10n.storeUnavailable,
-          'account_mismatch' => l10n.purchaseAccountMismatch,
-          'verify_failed' || 'network' => l10n.purchaseVerifyFailed,
-          _ => l10n.purchaseFailed,
-        },
+    PurchasePhase.pending || PurchasePhase.verifying || PurchasePhase.error => [
+      PurchaseStatusCard(
+        state: s,
+        // A purchase that was paid but not yet confirmed can be checked again right away.
+        onRetry: s.error == 'verify_failed' || s.error == 'network'
+            ? () => ref.read(billingControllerProvider.notifier).restore()
+            : null,
       ),
       const SizedBox(height: WlSpace.s3),
     ],
