@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:weblume/api/generated/api.g.dart';
@@ -40,13 +42,20 @@ void main() {
 
     store.emit(const StorePurchaseUpdate(status: StorePurchaseStatus.pending));
     await settle(tester);
-    expect(find.text('Waiting for your payment to complete…'), findsOneWidget);
+    expect(find.text('Waiting for your payment'), findsOneWidget);
 
+    repo.verifyGate = Completer();
     store.emit(const StorePurchaseUpdate(status: StorePurchaseStatus.purchased, purchaseToken: 'tok-1'));
+    await settle(tester);
+    expect(find.text('Confirming your purchase'), findsOneWidget);
+    expect(store.completed, isEmpty);
+
+    repo.verifyGate!.complete();
     await settle(tester);
     expect(repo.calls, contains('verify:tok-1'));
     expect(store.completed, ['tok-1']); // only after server verification
-    expect(find.text('You’re on Starter. Thank you!'), findsOneWidget);
+    expect(find.text('You’re on Starter'), findsOneWidget);
+    expect(find.text('Thank you! Your new limits and features are ready to use.'), findsOneWidget);
   });
 
   testWidgets('does not complete a purchase the server rejects', (tester) async {
@@ -68,8 +77,12 @@ void main() {
     await openSubscription(tester);
     store.emit(const StorePurchaseUpdate(status: StorePurchaseStatus.purchased, purchaseToken: 'tok-3'));
     await settle(tester);
+    expect(find.text('Still confirming your purchase'), findsOneWidget);
     expect(find.textContaining('It will be checked again automatically'), findsOneWidget);
     expect(store.completed, isEmpty);
+    // "Try again" checks it right away instead of waiting.
+    await tapText(tester, 'Try again');
+    expect(store.restores, 1);
   });
 
   testWidgets('a cancelled or failed purchase is finished and explained', (tester) async {
@@ -80,7 +93,9 @@ void main() {
       const StorePurchaseUpdate(status: StorePurchaseStatus.error, purchaseToken: 'tok-4', errorMessage: 'declined'),
     );
     await settle(tester);
+    expect(find.text('Purchase not completed'), findsOneWidget);
     expect(find.text('The purchase didn’t go through. You haven’t been charged.'), findsOneWidget);
+    expect(find.text('Try again'), findsNothing); // the Subscribe buttons are the way to retry
     expect(store.completed, ['tok-4']);
   });
 

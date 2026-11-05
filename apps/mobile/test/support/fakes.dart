@@ -355,9 +355,13 @@ class FakeRepository implements WeblumeRepository {
     return 'ref-123';
   }
 
+  /// Set to hold verification open, to see the "confirming" state.
+  Completer<void>? verifyGate;
+
   @override
   Future<PlayVerifyResponse> verifyPlayPurchase(String purchaseToken) async {
     calls.add('verify:$purchaseToken');
+    await verifyGate?.future;
     return _ret(verifyResult);
   }
 

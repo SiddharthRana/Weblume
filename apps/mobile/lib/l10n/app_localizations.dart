@@ -1297,23 +1297,53 @@ abstract class AppLocalizations {
   /// **'Payment is charged to your Google Play account. Your subscription renews automatically until you cancel it in Google Play.'**
   String get playBillingNote;
 
+  /// No description provided for @purchasePendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for your payment'**
+  String get purchasePendingTitle;
+
   /// No description provided for @purchasePending.
   ///
   /// In en, this message translates to:
-  /// **'Waiting for your payment to complete…'**
+  /// **'Google Play is still processing your payment. Your plan updates as soon as it’s done, even if you leave this screen.'**
   String get purchasePending;
 
-  /// No description provided for @purchaseVerifying.
+  /// No description provided for @purchaseVerifyingTitle.
   ///
   /// In en, this message translates to:
-  /// **'Confirming your purchase…'**
-  String get purchaseVerifying;
+  /// **'Confirming your purchase'**
+  String get purchaseVerifyingTitle;
 
-  /// No description provided for @purchaseSuccess.
+  /// No description provided for @purchaseVerifyingBody.
   ///
   /// In en, this message translates to:
-  /// **'You’re on Starter. Thank you!'**
-  String get purchaseSuccess;
+  /// **'This usually takes a few seconds. Please keep the app open.'**
+  String get purchaseVerifyingBody;
+
+  /// No description provided for @purchaseSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re on Starter'**
+  String get purchaseSuccessTitle;
+
+  /// No description provided for @purchaseSuccessBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you! Your new limits and features are ready to use.'**
+  String get purchaseSuccessBody;
+
+  /// No description provided for @purchaseFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase not completed'**
+  String get purchaseFailedTitle;
+
+  /// No description provided for @purchaseDelayedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still confirming your purchase'**
+  String get purchaseDelayedTitle;
 
   /// No description provided for @purchaseDuplicate.
   ///
