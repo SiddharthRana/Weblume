@@ -183,8 +183,18 @@ test.describe('account subscription', () => {
       api: billingApi({ me: () => (++n < 3 ? account() : starter([webSub])) }),
     });
     await logIn(page, '?next=%2Faccount%3Fcheckout%3Dsuccess');
-    await expect(page.getByText('Your Starter plan is active. Thank you!')).toBeVisible({
-      timeout: 15_000,
-    });
+    await expect(page.getByText('You’re on Starter')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('shows a failed payment straight away when checkout returns status=failed', async ({
+    page,
+  }) => {
+    await mockBackends(page, { api: billingApi({ me: () => account() }) });
+    await logIn(page, '?next=%2Faccount%3Fcheckout%3Dsuccess%26status%3Dfailed');
+    await expect(page.getByRole('main').getByRole('alert')).toContainText(
+      'Your payment didn’t go through',
+    );
+    await expect(page.getByText(/Confirming your payment/)).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Try again' })).toHaveAttribute('href', '/pricing');
   });
 });
