@@ -9,6 +9,15 @@ export const site = {
   noindex: process.env.NEXT_PUBLIC_NOINDEX === 'true',
   /** Pre-launch production: everything except the pages below shows a "launching soon" screen. */
   comingSoon: process.env.NEXT_PUBLIC_COMING_SOON === 'true',
+  /** Store pages for the mobile apps; null shows "coming soon" instead of a link. */
+  apps: {
+    // Turn on once the app is published on Google Play (a link before then would lead nowhere).
+    android:
+      process.env.NEXT_PUBLIC_ANDROID_APP_LIVE === 'true'
+        ? 'https://play.google.com/store/apps/details?id=com.weblume.app'
+        : null,
+    ios: null as string | null,
+  },
 } as const;
 
 /**
