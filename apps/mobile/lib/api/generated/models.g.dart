@@ -30,7 +30,6 @@ enum EntitlementsMonitorFrequency {
 }
 
 enum DisplayPriceCurrency {
-  iNR('INR'),
   uSD('USD'),
   /// A value this app version doesn't know yet.
   unknown('unknown');

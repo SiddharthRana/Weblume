@@ -5,6 +5,7 @@ import type { ScanSummaryDto } from '@weblume/shared';
 import { ScanList } from '@/components/app/scan-list';
 import { FormAlert } from '@/components/auth/form-bits';
 import { api, errorMessage } from '@/lib/api';
+import { InlineLoader, ListSkeleton } from '@/components/loading';
 
 const PAGE = 20;
 
@@ -86,11 +87,7 @@ export function AccountHistory() {
         </button>
       </form>
       <FormAlert>{error}</FormAlert>
-      {!items && !error && (
-        <p role="status" className="text-fg-muted">
-          Loading…
-        </p>
-      )}
+      {!items && !error && <ListSkeleton rows={5} label="Loading your scans" />}
       {items && items.length === 0 && (
         <div className="card p-8 text-center">
           <p className="font-semibold text-fg">
@@ -106,7 +103,11 @@ export function AccountHistory() {
           disabled={loadingMore}
           className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
         >
-          {loadingMore ? 'Loading…' : 'Load more'}
+          {loadingMore ? (
+            <InlineLoader label="Loading more" className="text-inherit" />
+          ) : (
+            'Load more'
+          )}
         </button>
       )}
     </div>
