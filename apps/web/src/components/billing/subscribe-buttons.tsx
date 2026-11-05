@@ -4,16 +4,47 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
-import { useBillingConfig } from '@/lib/billing';
+import { InlineLoader } from '@/components/loading';
+import { useBillingConfigStatus } from '@/lib/billing';
+import { site } from '@/lib/site';
 
 /** Pricing-page actions for the paid plan; honest about availability. */
 export function SubscribeButtons() {
-  const config = useBillingConfig();
+  // Before launch there's no production API to ask, so don't.
+  if (site.comingSoon) return <LaunchingSoon />;
+  return <Subscribe />;
+}
+
+function LaunchingSoon() {
+  return (
+    <div className="mt-6 space-y-3">
+      <p className="rounded-md bg-surface-muted p-3 text-sm text-fg-muted">
+        Weblume launches soon. Want to try it first? Ask us for early access.
+      </p>
+      <a
+        href={`mailto:${site.supportEmail}?subject=Weblume%20early%20access`}
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-lg btn-primary px-5 text-sm font-semibold"
+      >
+        Ask for early access
+      </a>
+    </div>
+  );
+}
+
+function Subscribe() {
+  const { config, failed } = useBillingConfigStatus();
   const { user, configured } = useAuth();
   const [busy, setBusy] = useState<'monthly' | 'annual' | null>(null);
   const [error, setError] = useState<{ text: string; already?: boolean } | null>(null);
 
-  if (!config) return <p className="mt-6 text-sm text-fg-muted">Checking availability…</p>;
+  if (failed) {
+    return (
+      <p className="mt-6 rounded-md bg-surface-muted p-3 text-sm text-fg-muted">
+        We couldn’t check whether checkout is open right now. Please try again in a few minutes.
+      </p>
+    );
+  }
+  if (!config) return <InlineLoader label="Checking availability" className="mt-6" />;
   if (!config.enabled || !config.web.available) {
     return (
       <p className="mt-6 rounded-md bg-surface-muted p-3 text-sm text-fg-muted">
