@@ -114,6 +114,13 @@ jobs:
           java-version: '17'
           cache: gradle
           cache-dependency-path: apps/mobile/android/**/*.gradle*
+      # GitHub's runners for private repositories have 2 CPUs and about 7 GB of memory; the project's
+      # 8 GB Gradle heap (sized for laptops) makes them swap. Settings in ~/.gradle win over the project's.
+      - name: Size Gradle for the runner
+        if: github.ref != 'refs/heads/dev'
+        run: |
+          mkdir -p ~/.gradle
+          printf '%s\n' 'org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError' 'org.gradle.caching=true' 'org.gradle.parallel=true' > ~/.gradle/gradle.properties
       - name: Build Android release APK (64-bit ARM only, enough to prove it compiles)
         if: github.ref != 'refs/heads/dev'
         run: flutter build apk --release --target-platform android-arm64 --dart-define=API_BASE_URL=https://api.example.com
@@ -228,6 +235,12 @@ jobs:
           java-version: '17'
           cache: gradle
           cache-dependency-path: apps/mobile/android/**/*.gradle*
+      # GitHub's runners for private repositories have 2 CPUs and about 7 GB of memory; the project's
+      # 8 GB Gradle heap (sized for laptops) makes them swap. Settings in ~/.gradle win over the project's.
+      - name: Size Gradle for the runner
+        run: |
+          mkdir -p ~/.gradle
+          printf '%s\n' 'org.gradle.jvmargs=-Xmx3g -XX:MaxMetaspaceSize=1g -XX:+HeapDumpOnOutOfMemoryError' 'org.gradle.caching=true' 'org.gradle.parallel=true' > ~/.gradle/gradle.properties
       - name: Upload key (if configured)
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
