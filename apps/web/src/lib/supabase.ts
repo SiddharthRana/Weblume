@@ -46,6 +46,9 @@ export function authErrorMessage(
 ): string {
   const code = err?.code ?? '';
   const msg = err?.message ?? '';
+  // Supabase's CAPTCHA protection (Turnstile) rejected or didn't receive a token.
+  if (code === 'captcha_failed' || /captcha/i.test(msg))
+    return 'The security check didn’t go through. Complete it again, then try again.';
   if (code === 'invalid_credentials' || /invalid login credentials/i.test(msg))
     return 'Incorrect email or password.';
   if (code === 'email_not_confirmed' || /email not confirmed/i.test(msg))

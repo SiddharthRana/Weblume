@@ -30,7 +30,7 @@ class FakeAuth implements AuthRepository {
   void emit(AuthEvent e) => _events.add(e);
 
   @override
-  Future<void> signIn({required String email, required String password}) async {
+  Future<void> signIn({required String email, required String password, String? captchaToken}) async {
     calls.add('signIn:$email');
     if (signInError != null) throw signInError!;
     _user = _asha;
@@ -38,13 +38,13 @@ class FakeAuth implements AuthRepository {
   }
 
   @override
-  Future<bool> signUp({required String email, required String password}) async {
+  Future<bool> signUp({required String email, required String password, String? captchaToken}) async {
     calls.add('signUp:$email');
     return !signUpNeedsConfirmation;
   }
 
   @override
-  Future<void> sendPasswordReset(String email) async => calls.add('reset:$email');
+  Future<void> sendPasswordReset(String email, {String? captchaToken}) async => calls.add('reset:$email');
 
   @override
   Future<void> updatePassword(String password) async => calls.add('updatePassword');

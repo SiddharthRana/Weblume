@@ -15,6 +15,7 @@
   "passwordLabel": "Password",
   "invalidEmail": "Enter a valid email address.",
   "enterEmailPassword": "Enter your email and password.",
+  "captchaNotReady": "Please wait for the security check above to finish, then try again.",
   "passwordHint": "At least 10 characters, with upper- and lowercase letters and a number.",
   "passwordNeeds": "Your password needs {items}.",
   "@passwordNeeds": {
