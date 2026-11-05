@@ -6,20 +6,32 @@ import { api } from './api';
 
 export type BillingConfig = Schemas['BillingConfigDtoClass'];
 
-/** Fetches whether paid plans can be bought on the web right now. Null while loading or on error. */
-export function useBillingConfig(): BillingConfig | null {
-  const [config, setConfig] = useState<BillingConfig | null>(null);
+/**
+ * Whether paid plans can be bought on the web right now. `failed` is true when the API couldn't be
+ * reached or answered with an error (for example, before the production API exists), so callers
+ * can say so instead of waiting forever. Gives up after 10 seconds.
+ */
+export function useBillingConfigStatus(): { config: BillingConfig | null; failed: boolean } {
+  const [state, setState] = useState<{ config: BillingConfig | null; failed: boolean }>({
+    config: null,
+    failed: false,
+  });
   useEffect(() => {
     let active = true;
-    api.GET('/v1/billing/config').then(
-      ({ data }) => active && data && setConfig(data),
-      () => undefined,
+    api.GET('/v1/billing/config', { signal: AbortSignal.timeout(10_000) }).then(
+      ({ data }) => active && setState({ config: data ?? null, failed: !data }),
+      () => active && setState({ config: null, failed: true }),
     );
     return () => {
       active = false;
     };
   }, []);
-  return config;
+  return state;
+}
+
+/** The billing config, or null while loading or when unavailable. */
+export function useBillingConfig(): BillingConfig | null {
+  return useBillingConfigStatus().config;
 }
 
 export const ACCESS_STATUSES = new Set(['trialing', 'active', 'grace_period', 'canceled']);
