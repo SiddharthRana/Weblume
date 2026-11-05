@@ -1093,6 +1093,48 @@ abstract class AppLocalizations {
   /// **'Legal'**
   String get legalSection;
 
+  /// No description provided for @legalOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get legalOpenInBrowser;
+
+  /// No description provided for @legalLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t load this page. Check your connection and try again.'**
+  String get legalLoadFailed;
+
+  /// No description provided for @appearanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSection;
+
+  /// No description provided for @appearanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose light or dark, or follow your phone’s setting.'**
+  String get appearanceBody;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
   /// No description provided for @accountPrivacy.
   ///
   /// In en, this message translates to:

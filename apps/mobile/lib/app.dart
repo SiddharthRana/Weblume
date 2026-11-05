@@ -6,6 +6,7 @@ import 'l10n/app_localizations.dart';
 import 'billing/billing_controller.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_mode.dart';
 
 class WeblumeApp extends ConsumerWidget {
   const WeblumeApp({super.key});
@@ -19,7 +20,7 @@ class WeblumeApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: ref.watch(routerProvider),
       localizationsDelegates: const [
         AppLocalizations.delegate,

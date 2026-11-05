@@ -223,6 +223,20 @@ abstract final class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(WlRadius.full)),
         labelStyle: text.labelLarge?.copyWith(color: scheme.onSurface),
       ),
+      // The selected segment uses the same brand tint as selected chips and the navigation bar.
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? gradient.colors[1].withValues(alpha: brightness == Brightness.dark ? 0.32 : 0.14)
+                : null,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected) ? scheme.primary : scheme.onSurface,
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: scheme.outline)),
+        ),
+      ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: gradient.colors[1],
         foregroundColor: Colors.white,
