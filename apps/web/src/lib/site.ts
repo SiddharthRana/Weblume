@@ -7,7 +7,18 @@ export const site = {
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? 'support@example.com',
   /** Non-production builds (e.g. dev.weblu.me) ask search engines to skip the whole site. */
   noindex: process.env.NEXT_PUBLIC_NOINDEX === 'true',
+  /** Pre-launch production: everything except the pages below shows a "launching soon" screen. */
+  comingSoon: process.env.NEXT_PUBLIC_COMING_SOON === 'true',
 } as const;
+
+/**
+ * Pages that stay visible in coming-soon mode: pricing, contact, the WeblumeBot page and the legal
+ * pages, which payment providers and Google Play check on the live website.
+ */
+export function visibleWhileComingSoon(pathname: string): boolean {
+  const path = pathname.replace(/\/$/, '') || '/';
+  return ['/pricing', '/contact', '/bot'].includes(path) || path.startsWith('/legal/');
+}
 
 export const mainNav = [
   { href: '/scan', label: 'Scan' },

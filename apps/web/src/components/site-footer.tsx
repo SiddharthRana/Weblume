@@ -1,9 +1,19 @@
 import Link from 'next/link';
-import { footerNav, site } from '@/lib/site';
+import { footerNav, site, visibleWhileComingSoon } from '@/lib/site';
 import { Container } from './container';
 import { Logo } from './logo';
 
 export function SiteFooter() {
+  // Before launch, only list pages that are actually visible.
+  const groups = Object.entries(footerNav)
+    .map(
+      ([heading, links]) =>
+        [
+          heading,
+          site.comingSoon ? links.filter((l) => visibleWhileComingSoon(l.href)) : links,
+        ] as const,
+    )
+    .filter(([, links]) => links.length > 0);
   return (
     <footer className="mt-24 border-t border-border bg-surface">
       <Container className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-4">
@@ -11,7 +21,7 @@ export function SiteFooter() {
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-fg-muted">{site.tagline}.</p>
         </div>
-        {Object.entries(footerNav).map(([heading, links]) => (
+        {groups.map(([heading, links]) => (
           <nav key={heading} aria-label={heading}>
             <h2 className="text-sm font-semibold text-fg">{heading}</h2>
             <ul className="mt-3 space-y-2">

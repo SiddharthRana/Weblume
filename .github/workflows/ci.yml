@@ -145,6 +145,8 @@ jobs:
           # Dev is never indexed. Production stays hidden while the environment variable NOINDEX is
           # 'true' (set it until launch day, then delete it).
           NEXT_PUBLIC_NOINDEX: ${{ (github.ref == 'refs/heads/dev' || vars.NOINDEX == 'true') && 'true' || 'false' }}
+          # Production shows a "launching soon" screen while COMING_SOON is 'true'. Dev always shows the full site.
+          NEXT_PUBLIC_COMING_SOON: ${{ github.ref != 'refs/heads/dev' && vars.COMING_SOON == 'true' && 'true' || 'false' }}
           NEXT_PUBLIC_AUTH_GOOGLE_ENABLED: ${{ vars.AUTH_GOOGLE_ENABLED || 'false' }}
           NEXT_PUBLIC_SUPPORT_EMAIL: ${{ vars.SUPPORT_EMAIL }}
         run: pnpm --filter @weblume/web build
