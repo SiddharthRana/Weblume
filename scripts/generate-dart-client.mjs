@@ -301,7 +301,8 @@ function renderOp(op) {
     ? 'res.data as List<int>'
     : op.res
       ? decode(op.res, 'res.data')
-      : 'Map<String, dynamic>.from(res.data as Map)';
+      : // Untyped responses may have no body at all (e.g. 204 No Content): return an empty map.
+        'res.data is Map ? Map<String, dynamic>.from(res.data as Map) : <String, dynamic>{}';
   return `  ${op.summary ? `/// ${op.summary.split('\n')[0]}\n  ` : ''}Future<${ret}> ${op.name}(${sig}) => _call(() async {
         final res = await _dio.request<Object?>(
           '${pathExpr}',

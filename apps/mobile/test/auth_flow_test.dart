@@ -47,6 +47,18 @@ void main() {
     expect(find.text('Accounts aren’t configured'), findsOneWidget);
   });
 
+  testWidgets('Continue with Google is hidden until it’s turned on, then signs in', (tester) async {
+    await pumpApp(tester, auth: FakeAuth());
+    expect(find.text('Continue with Google'), findsNothing);
+
+    final auth = FakeAuth()..googleEnabled = true;
+    await pumpApp(tester, auth: auth);
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pumpAndSettle();
+    expect(auth.calls, ['google']);
+    expect(find.text('Continue with Google'), findsNothing);
+  });
+
   testWidgets('log in: validation, wrong credentials, then success to the dashboard', (tester) async {
     final auth = FakeAuth();
     await pumpApp(tester, auth: auth);

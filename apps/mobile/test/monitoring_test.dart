@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:weblume/api/generated/api.g.dart';
 import 'package:weblume/api/generated/models.g.dart';
@@ -21,7 +22,7 @@ void main() {
         fastest: 'daily',
       );
     await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
-    await scrollTo(tester, find.text('Manage on the website'));
+    await scrollTo(tester, find.text('Monitor a site'));
 
     expect(find.text('Monitoring'), findsOneWidget);
     expect(find.text('2 of 5 monitored'), findsOneWidget);
@@ -32,10 +33,57 @@ void main() {
     expect(repo.calls, contains('monitors'));
   });
 
-  testWidgets('dashboard invites free users to set up monitoring on the web', (tester) async {
-    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: FakeRepository());
-    await scrollTo(tester, find.text('Set up on the website'));
+  testWidgets('adds a monitored site from the dashboard', (tester) async {
+    final repo = FakeRepository();
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await scrollTo(tester, find.text('Monitor a site'));
     expect(find.textContaining('Scheduled scans don’t use your monthly scans'), findsOneWidget);
+
+    await tapText(tester, 'Monitor a site');
+    // Free plan: weekly at most, so daily isn't offered.
+    expect(find.text('Every week'), findsOneWidget);
+    expect(find.text('Every month'), findsOneWidget);
+    expect(find.text('Every day'), findsNothing);
+
+    await tapText(tester, 'Start monitoring');
+    expect(find.text('Enter a website address, for example example.com.'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).last, 'shop.example.com');
+    await tapText(tester, 'New issues appear');
+    await tapText(tester, 'Start monitoring');
+    expect(repo.calls, contains('createMonitor:shop.example.com:weekly:new_findings'));
+    expect(find.text('Monitoring started. We’ll email you when something changes.'), findsOneWidget);
+    expect(find.text('shop.example.com'), findsOneWidget);
+    // The free plan's one slot is now used.
+    await scrollTo(tester, find.text('Your plan’s monitored site is in use. Stop it to add a different one.'));
+  });
+
+  testWidgets('changes, pauses and stops a monitored site', (tester) async {
+    final repo = FakeRepository()
+      ..monitorsResult = monitors([monitorJson('m1', lastScan: summaryJson('s1'))], limit: 5, fastest: 'daily');
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await scrollTo(tester, find.text('https://example.com/').last);
+    await tester.tap(find.text('https://example.com/').last);
+    await settle(tester);
+    expect(find.text('Monitoring settings'), findsOneWidget);
+
+    await tapText(tester, 'Every day');
+    expect(repo.calls, contains('updateMonitor:m1::daily:'));
+
+    await tapText(tester, 'Pause');
+    expect(repo.calls, contains('updateMonitor:m1:false::'));
+    expect(find.text('No scans or emails while paused.'), findsOneWidget);
+
+    await tapText(tester, 'Stop monitoring');
+    expect(find.text('Stop monitoring this site?'), findsOneWidget);
+    await tapText(tester, 'Cancel');
+    expect(repo.calls.where((c) => c.startsWith('removeMonitor')), isEmpty);
+
+    await tapText(tester, 'Stop monitoring');
+    await tester.tap(find.widgetWithText(FilledButton, 'Stop monitoring'));
+    await settle(tester);
+    expect(repo.calls, contains('removeMonitor:m1'));
+    expect(find.text('Monitoring settings'), findsNothing);
   });
 
   testWidgets('monitoring stays hidden for plans without it and when it fails to load', (tester) async {

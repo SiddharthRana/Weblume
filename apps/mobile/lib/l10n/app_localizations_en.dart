@@ -72,6 +72,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Log in';
 
   @override
+  String get googleButton => 'Continue with Google';
+
+  @override
+  String get googleOpening => 'Opening Google…';
+
+  @override
+  String get orDivider => 'or';
+
+  @override
   String get loggingIn => 'Logging in…';
 
   @override
@@ -535,12 +544,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dataSection => 'Your data';
 
   @override
-  String get exportOnWeb => 'You can download a copy of all your data from Account settings on the Weblume website.';
-
-  @override
-  String get openWebsite => 'Open account settings on the website';
-
-  @override
   String get logOut => 'Log out';
 
   @override
@@ -667,13 +670,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'We couldn’t confirm your purchase yet. It will be checked again automatically, and you won’t be charged twice.';
 
   @override
-  String get subscribedOnWeb => 'You’re subscribed through the Weblume website. Manage or cancel it there.';
+  String get subscribedOnWeb =>
+      'You’re subscribed through the Weblume website. You can update your payment details or cancel with our payment partner.';
 
   @override
   String get subscribedOnPlay => 'You’re subscribed through Google Play.';
 
   @override
-  String get manageOnWeb => 'Manage on the website';
+  String get manageOnWeb => 'Manage subscription';
 
   @override
   String get manageInPlay => 'Manage in Google Play';
@@ -895,12 +899,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Get an email when new issues appear on your site or its scores change. Scheduled scans don’t use your monthly scans.';
 
   @override
-  String get monitoringSetUp => 'Set up on the website';
-
-  @override
-  String get monitoringManage => 'Manage on the website';
-
-  @override
   String get monitoringPaused => 'Paused';
 
   @override
@@ -930,4 +928,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get monitoringSkipBusy => 'The last run was skipped because the one before was still going.';
+
+  @override
+  String get monitoringAddButton => 'Monitor a site';
+
+  @override
+  String get monitoringAddBody =>
+      'We’ll re-scan it automatically and email you a short summary when something changes. Scheduled scans don’t use your monthly scans.';
+
+  @override
+  String get monitoringFrequencyLabel => 'How often';
+
+  @override
+  String get monitoringAlertLabel => 'Email me when';
+
+  @override
+  String get alertAnyChange => 'Anything changes';
+
+  @override
+  String get alertNewFindings => 'New issues appear';
+
+  @override
+  String get alertScoreDrop => 'A score drops';
+
+  @override
+  String get alertNone => 'Never (just scan)';
+
+  @override
+  String get monitoringStart => 'Start monitoring';
+
+  @override
+  String get monitoringStarting => 'Starting…';
+
+  @override
+  String get monitoringStarted => 'Monitoring started. We’ll email you when something changes.';
+
+  @override
+  String get monitoringSettingsTitle => 'Monitoring settings';
+
+  @override
+  String get monitoringPause => 'Pause';
+
+  @override
+  String get monitoringResume => 'Resume';
+
+  @override
+  String get monitoringPausedNote => 'No scans or emails while paused.';
+
+  @override
+  String get monitoringOpenLatest => 'Open the latest report';
+
+  @override
+  String get monitoringStop => 'Stop monitoring';
+
+  @override
+  String get monitoringStopConfirmTitle => 'Stop monitoring this site?';
+
+  @override
+  String monitoringStopConfirmBody(String url) {
+    return 'Scheduled scans and emails for $url will end. Its past reports are kept.';
+  }
+
+  @override
+  String monitoringFull(int limit) {
+    String _temp0 = intl.Intl.pluralLogic(
+      limit,
+      locale: localeName,
+      other: 'All $limit monitored sites are in use. Stop one to add another.',
+      one: 'Your plan’s monitored site is in use. Stop it to add a different one.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get monitoringThisSite => 'Monitor this site';
+
+  @override
+  String monitoringActive(String frequency) {
+    return 'Monitored · $frequency';
+  }
+
+  @override
+  String get monitoringSaved => 'Saved.';
+
+  @override
+  String get exportBody =>
+      'Download a copy of everything Weblume holds about your account (your profile, plan, saved reports and monitored sites) as a JSON file.';
+
+  @override
+  String get exportDownload => 'Download my data';
+
+  @override
+  String get exportShare => 'Share my data';
+
+  @override
+  String get exportSaved => 'Your data was saved.';
+
+  @override
+  String get exportFailed => 'Couldn’t save the file on this device. Try Share my data instead.';
+
+  @override
+  String get portalOpening => 'Opening…';
 }

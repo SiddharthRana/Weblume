@@ -15,6 +15,7 @@ import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/usage_meter.dart';
 import '../../theme/tokens.g.dart';
+import 'data_export_actions.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
   const AccountScreen({super.key});
@@ -212,13 +213,9 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         ),
                     ]),
                     section(l10n.dataSection, icon: Icons.download_outlined, [
-                      Text(l10n.exportOnWeb, style: muted),
+                      Text(l10n.exportBody, style: muted),
                       const SizedBox(height: WlSpace.s2),
-                      OutlinedButton.icon(
-                        onPressed: () => _open('/account'),
-                        icon: const Icon(Icons.open_in_new),
-                        label: Text(l10n.openWebsite),
-                      ),
+                      const DataExportActions(),
                     ]),
                     section(l10n.legalSection, icon: Icons.gavel_outlined, [
                       ListTile(

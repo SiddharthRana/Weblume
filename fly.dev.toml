@@ -28,7 +28,11 @@ kill_timeout = "30s"
   SCAN_BLOCKED_HOSTS = "api-dev.weblu.me,weblume-api-dev.fly.dev"
   EMAIL_FROM = "Weblume Dev <support@weblu.me>"
   SENTRY_ENVIRONMENT = "dev"
-  WEB_PAYMENT_PROVIDER = "none" # switch to "dodo" (test mode) once Dodo is set up
+  # Dodo test mode. DODO_API_KEY and DODO_WEBHOOK_SECRET are Fly secrets.
+  WEB_PAYMENT_PROVIDER = "dodo"
+  DODO_ENV = "test"
+  DODO_PRODUCT_STARTER_MONTHLY = "pdt_0NrIFjOJXGG70nt1l4OkN"
+  DODO_PRODUCT_STARTER_ANNUAL = "pdt_0NrIG1pGibrBFgrlwP72y"
 
 [http_service]
   internal_port = 4000

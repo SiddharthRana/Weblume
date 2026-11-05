@@ -1,9 +1,14 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import type { Schemas } from '@weblume/api-client-ts';
 import { UsageMeter } from '@/components/app/usage-meter';
 import { SubscriptionPanel } from '@/components/billing/subscription-panel';
+import {
+  CheckoutStatus,
+  checkoutFailed,
+  type CheckoutState,
+} from '@/components/billing/checkout-status';
 import { Field, FormAlert } from '@/components/auth/form-bits';
 import { API_URL, api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
@@ -57,11 +62,12 @@ export function AccountView() {
   }, []);
 
   // After checkout the provider's webhook may land a few seconds after the redirect: poll briefly.
-  const [checkout, setCheckout] = useState<'idle' | 'confirming' | 'active' | 'pending'>('idle');
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('checkout') !== 'success') return;
+  // A checkout that didn't go through comes back with ?status=failed (or cancelled) instead.
+  const [checkout, setCheckout] = useState<CheckoutState | null>(null);
+  const pollTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const pollForPlan = useCallback(() => {
+    clearTimeout(pollTimer.current);
     let tries = 0;
-    let timer: ReturnType<typeof setTimeout>;
     const poll = async () => {
       setCheckout('confirming');
       const { data } = await api.GET('/v1/me').catch(() => ({ data: undefined }));
@@ -69,14 +75,28 @@ export function AccountView() {
         setAccount(data);
         setCheckout('active');
       } else if (++tries < 10) {
-        timer = setTimeout(poll, 3_000);
+        pollTimer.current = setTimeout(poll, 3_000);
       } else {
         setCheckout('pending');
       }
     };
-    timer = setTimeout(poll, 0);
-    return () => clearTimeout(timer);
+    pollTimer.current = setTimeout(poll, 0);
   }, []);
+  const returnParams = useRef<URLSearchParams>(undefined);
+  useEffect(() => {
+    // Kept in a ref: the address is cleaned below, and React may run this effect twice.
+    returnParams.current ??= new URLSearchParams(window.location.search);
+    const params = returnParams.current;
+    if (!params.has('checkout')) return;
+    // Drop the provider's parameters so a refresh or a shared link doesn't replay the result.
+    window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+    if (checkoutFailed(params.get('status'))) {
+      pollTimer.current = setTimeout(() => setCheckout('failed'), 0);
+    } else {
+      pollForPlan();
+    }
+    return () => clearTimeout(pollTimer.current);
+  }, [pollForPlan]);
 
   async function saveName(e: FormEvent) {
     e.preventDefault();
@@ -132,17 +152,13 @@ export function AccountView() {
 
   return (
     <div className="space-y-6">
-      {checkout === 'confirming' && (
-        <FormAlert tone="success">Thanks! We’re confirming your payment…</FormAlert>
-      )}
-      {checkout === 'active' && (
-        <FormAlert tone="success">Your {account.plan.name} plan is active. Thank you!</FormAlert>
-      )}
-      {checkout === 'pending' && (
-        <FormAlert tone="success">
-          Your payment is being processed. Your plan will update shortly; refresh this page in a
-          minute.
-        </FormAlert>
+      {checkout && account && (
+        <CheckoutStatus
+          state={checkout}
+          planName={account.plan.name}
+          onCheckAgain={pollForPlan}
+          onDismiss={() => setCheckout(null)}
+        />
       )}
       <Section id="profile" title="Profile">
         <p className="text-sm text-fg-muted">

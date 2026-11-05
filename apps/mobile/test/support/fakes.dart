@@ -50,6 +50,16 @@ class FakeAuth implements AuthRepository {
   Future<void> updatePassword(String password) async => calls.add('updatePassword');
 
   @override
+  bool googleEnabled = false;
+
+  @override
+  Future<void> signInWithGoogle() async {
+    calls.add('google');
+    _user = _asha;
+    emit(AuthEvent.signedIn);
+  }
+
+  @override
   Future<void> signOut() async {
     calls.add('signOut');
     _user = null;
@@ -199,6 +209,83 @@ class FakeRepository implements WeblumeRepository {
   Future<Loaded<MonitorListResponse>> monitors() async {
     calls.add('monitors');
     return _ret(monitorsResult);
+  }
+
+  /// The current monitor list (from [monitorsResult]) with [change] applied, saved back.
+  MonitorListResponse _editMonitors(List<Map<String, dynamic>> Function(List<Map<String, dynamic>> items) change) {
+    final current = (monitorsResult as Loaded<MonitorListResponse>).data;
+    final next = MonitorListResponse.fromJson({
+      ...current.toJson(),
+      'items': change([for (final m in current.items) m.toJson()]),
+    });
+    monitorsResult = Loaded(next);
+    return next;
+  }
+
+  /// Set to make createMonitor fail (e.g. the plan's limit is reached).
+  Object? createMonitorError;
+
+  @override
+  Future<Monitor> createMonitor(String url, {EntitlementsMonitorFrequency? frequency, MonitorAlert? alert}) async {
+    calls.add('createMonitor:$url:${frequency?.value}:${alert?.value}');
+    if (createMonitorError != null) throw createMonitorError!;
+    final json = {
+      ...monitorJson('m${DateTime.now().microsecondsSinceEpoch}', url: url, frequency: frequency?.value ?? 'weekly'),
+      'alert': alert?.value ?? 'any_change',
+    };
+    _editMonitors((items) => [...items, json]);
+    return Monitor.fromJson(json);
+  }
+
+  @override
+  Future<Monitor> updateMonitor(
+    String id, {
+    bool? enabled,
+    EntitlementsMonitorFrequency? frequency,
+    MonitorAlert? alert,
+  }) async {
+    calls.add('updateMonitor:$id:${enabled ?? ''}:${frequency?.value ?? ''}:${alert?.value ?? ''}');
+    late Map<String, dynamic> updated;
+    _editMonitors(
+      (items) => [
+        for (final m in items)
+          if (m['id'] == id)
+            updated = {
+              ...m,
+              'enabled': ?enabled,
+              if (frequency != null) 'frequency': frequency.value,
+              if (alert != null) 'alert': alert.value,
+            }
+          else
+            m,
+      ],
+    );
+    return Monitor.fromJson(updated);
+  }
+
+  @override
+  Future<void> removeMonitor(String id) async {
+    calls.add('removeMonitor:$id');
+    _editMonitors(
+      (items) => [
+        for (final m in items)
+          if (m['id'] != id) m,
+      ],
+    );
+  }
+
+  Map<String, dynamic> exportResult = {'format': 'weblume-export', 'version': 1, 'reports': <Object>[]};
+
+  @override
+  Future<Map<String, dynamic>> exportData() async {
+    calls.add('export');
+    return exportResult;
+  }
+
+  @override
+  Future<String> billingPortalUrl() async {
+    calls.add('portal');
+    return 'https://portal.example/session';
   }
 
   @override

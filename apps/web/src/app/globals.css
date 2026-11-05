@@ -61,6 +61,30 @@
     font-family: var(--font-sans);
     line-height: 1.5;
   }
+  /* Tailwind v4 gives buttons the default arrow; show the hand on everything clickable. */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  [role='tab'],
+  [role='menuitem'],
+  [role='option'],
+  [role='switch'],
+  summary,
+  label[for],
+  select:not(:disabled),
+  input:is(
+      [type='checkbox'],
+      [type='radio'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset']
+    ):not(:disabled) {
+    cursor: pointer;
+  }
+  :is(button, select, input):disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
   :focus-visible {
     outline: 2px solid var(--wl-focus);
     outline-offset: 2px;
@@ -295,6 +319,22 @@
       animation: wl-pop 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
       transform-origin: top;
     }
+    /* Checkout result: the badge pops in, its check or cross draws itself, a failure shakes once. */
+    .checkout-badge-in {
+      animation: wl-badge-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .checkout-draw {
+      stroke-dasharray: 1;
+      animation: wl-draw 0.4s ease-out 0.25s both;
+    }
+    .checkout-shake {
+      animation:
+        wl-badge-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+        wl-shake 0.5s ease-in-out 0.5s;
+    }
+    .checkout-tick {
+      animation: wl-spin 6s linear infinite;
+    }
     .scan-beam {
       animation: wl-scan-beam 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
     }
@@ -420,6 +460,30 @@
     opacity: 0;
     scale: 0.97;
     translate: 0 -4px;
+  }
+}
+@keyframes wl-badge-in {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+}
+@keyframes wl-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes wl-shake {
+  20%,
+  60% {
+    translate: -4px 0;
+  }
+  40%,
+  80% {
+    translate: 4px 0;
   }
 }
 @keyframes wl-scan-beam {

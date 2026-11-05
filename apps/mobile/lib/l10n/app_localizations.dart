@@ -211,6 +211,24 @@ abstract class AppLocalizations {
   /// **'Log in'**
   String get loginButton;
 
+  /// No description provided for @googleButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get googleButton;
+
+  /// No description provided for @googleOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening Google…'**
+  String get googleOpening;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orDivider;
+
   /// No description provided for @loggingIn.
   ///
   /// In en, this message translates to:
@@ -1063,18 +1081,6 @@ abstract class AppLocalizations {
   /// **'Your data'**
   String get dataSection;
 
-  /// No description provided for @exportOnWeb.
-  ///
-  /// In en, this message translates to:
-  /// **'You can download a copy of all your data from Account settings on the Weblume website.'**
-  String get exportOnWeb;
-
-  /// No description provided for @openWebsite.
-  ///
-  /// In en, this message translates to:
-  /// **'Open account settings on the website'**
-  String get openWebsite;
-
   /// No description provided for @logOut.
   ///
   /// In en, this message translates to:
@@ -1294,7 +1300,7 @@ abstract class AppLocalizations {
   /// No description provided for @subscribedOnWeb.
   ///
   /// In en, this message translates to:
-  /// **'You’re subscribed through the Weblume website. Manage or cancel it there.'**
+  /// **'You’re subscribed through the Weblume website. You can update your payment details or cancel with our payment partner.'**
   String get subscribedOnWeb;
 
   /// No description provided for @subscribedOnPlay.
@@ -1306,7 +1312,7 @@ abstract class AppLocalizations {
   /// No description provided for @manageOnWeb.
   ///
   /// In en, this message translates to:
-  /// **'Manage on the website'**
+  /// **'Manage subscription'**
   String get manageOnWeb;
 
   /// No description provided for @manageInPlay.
@@ -1693,18 +1699,6 @@ abstract class AppLocalizations {
   /// **'Get an email when new issues appear on your site or its scores change. Scheduled scans don’t use your monthly scans.'**
   String get monitoringEmpty;
 
-  /// No description provided for @monitoringSetUp.
-  ///
-  /// In en, this message translates to:
-  /// **'Set up on the website'**
-  String get monitoringSetUp;
-
-  /// No description provided for @monitoringManage.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage on the website'**
-  String get monitoringManage;
-
   /// No description provided for @monitoringPaused.
   ///
   /// In en, this message translates to:
@@ -1758,6 +1752,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The last run was skipped because the one before was still going.'**
   String get monitoringSkipBusy;
+
+  /// No description provided for @monitoringAddButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor a site'**
+  String get monitoringAddButton;
+
+  /// No description provided for @monitoringAddBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We’ll re-scan it automatically and email you a short summary when something changes. Scheduled scans don’t use your monthly scans.'**
+  String get monitoringAddBody;
+
+  /// No description provided for @monitoringFrequencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'How often'**
+  String get monitoringFrequencyLabel;
+
+  /// No description provided for @monitoringAlertLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me when'**
+  String get monitoringAlertLabel;
+
+  /// No description provided for @alertAnyChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything changes'**
+  String get alertAnyChange;
+
+  /// No description provided for @alertNewFindings.
+  ///
+  /// In en, this message translates to:
+  /// **'New issues appear'**
+  String get alertNewFindings;
+
+  /// No description provided for @alertScoreDrop.
+  ///
+  /// In en, this message translates to:
+  /// **'A score drops'**
+  String get alertScoreDrop;
+
+  /// No description provided for @alertNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Never (just scan)'**
+  String get alertNone;
+
+  /// No description provided for @monitoringStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start monitoring'**
+  String get monitoringStart;
+
+  /// No description provided for @monitoringStarting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get monitoringStarting;
+
+  /// No description provided for @monitoringStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring started. We’ll email you when something changes.'**
+  String get monitoringStarted;
+
+  /// No description provided for @monitoringSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitoring settings'**
+  String get monitoringSettingsTitle;
+
+  /// No description provided for @monitoringPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get monitoringPause;
+
+  /// No description provided for @monitoringResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get monitoringResume;
+
+  /// No description provided for @monitoringPausedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'No scans or emails while paused.'**
+  String get monitoringPausedNote;
+
+  /// No description provided for @monitoringOpenLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the latest report'**
+  String get monitoringOpenLatest;
+
+  /// No description provided for @monitoringStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop monitoring'**
+  String get monitoringStop;
+
+  /// No description provided for @monitoringStopConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop monitoring this site?'**
+  String get monitoringStopConfirmTitle;
+
+  /// No description provided for @monitoringStopConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled scans and emails for {url} will end. Its past reports are kept.'**
+  String monitoringStopConfirmBody(String url);
+
+  /// No description provided for @monitoringFull.
+  ///
+  /// In en, this message translates to:
+  /// **'{limit, plural, =1{Your plan’s monitored site is in use. Stop it to add a different one.} other{All {limit} monitored sites are in use. Stop one to add another.}}'**
+  String monitoringFull(int limit);
+
+  /// No description provided for @monitoringThisSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitor this site'**
+  String get monitoringThisSite;
+
+  /// No description provided for @monitoringActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Monitored · {frequency}'**
+  String monitoringActive(String frequency);
+
+  /// No description provided for @monitoringSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved.'**
+  String get monitoringSaved;
+
+  /// No description provided for @exportBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Download a copy of everything Weblume holds about your account (your profile, plan, saved reports and monitored sites) as a JSON file.'**
+  String get exportBody;
+
+  /// No description provided for @exportDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download my data'**
+  String get exportDownload;
+
+  /// No description provided for @exportShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my data'**
+  String get exportShare;
+
+  /// No description provided for @exportSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data was saved.'**
+  String get exportSaved;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t save the file on this device. Try Share my data instead.'**
+  String get exportFailed;
+
+  /// No description provided for @portalOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening…'**
+  String get portalOpening;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
