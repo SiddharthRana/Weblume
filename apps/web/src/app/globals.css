@@ -71,7 +71,14 @@
   summary,
   label[for],
   select:not(:disabled),
-  input:is([type='checkbox'], [type='radio'], [type='file'], [type='submit'], [type='button'], [type='reset']):not(:disabled) {
+  input:is(
+      [type='checkbox'],
+      [type='radio'],
+      [type='file'],
+      [type='submit'],
+      [type='button'],
+      [type='reset']
+    ):not(:disabled) {
     cursor: pointer;
   }
   :is(button, select, input):disabled,
