@@ -107,7 +107,8 @@ jobs:
     # `main` deploys weblu.me (environment `web`); `dev` deploys dev.weblu.me (environment `web-dev`,
     # its own Pages project and settings, hidden from search engines).
     name: Deploy website (Cloudflare Pages, ${{ github.ref == 'refs/heads/dev' && 'dev' || 'production' }})
-    needs: [typescript, database, flutter]
+    # Flutter isn't a dependency: the site doesn't use the app, and the app job still runs (and must pass) in parallel.
+    needs: [typescript, database]
     # Skipped (not failed) until the Pages project and environment exist; see docs/deployment.md.
     if: >-
       github.event_name == 'push' && (
