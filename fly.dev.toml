@@ -15,7 +15,7 @@ kill_timeout = "30s"
 # Non-secret settings. NODE_ENV=production and PORT=4000 come from the Dockerfile.
 [env]
   LOG_LEVEL = "info"
-  SUPABASE_URL = "https://CHANGE-ME.supabase.co" # the weblume-dev project URL
+  SUPABASE_URL = "https://rcvtksjmwzmjekpemhyg.supabase.co" # the weblume-dev project
   CORS_ORIGINS = "https://dev.weblu.me"
   PUBLIC_SITE_URL = "https://dev.weblu.me"
   BILLING_RETURN_URL = "https://dev.weblu.me/account?checkout=success"
