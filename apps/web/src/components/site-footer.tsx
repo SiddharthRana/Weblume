@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { footerNav, site, visibleWhileComingSoon } from '@/lib/site';
 import { Container } from './container';
+import { AppLinks } from './app-links';
 import { Logo } from './logo';
 
 export function SiteFooter() {
@@ -20,6 +21,10 @@ export function SiteFooter() {
         <div>
           <Logo />
           <p className="mt-3 max-w-xs text-sm text-fg-muted">{site.tagline}.</p>
+          <h2 className="mt-6 text-sm font-semibold text-fg">Get the app</h2>
+          <div className="mt-3">
+            <AppLinks size="sm" />
+          </div>
         </div>
         {groups.map(([heading, links]) => (
           <nav key={heading} aria-label={heading}>

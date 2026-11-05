@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:weblume/app.dart';
 import 'package:weblume/billing/billing_controller.dart';
 import 'package:weblume/data/providers.dart';
+import 'package:weblume/theme/theme_mode.dart';
 
 import 'fakes.dart';
 
@@ -12,6 +13,7 @@ Future<void> pumpApp(
   required FakeAuth auth,
   FakeRepository? repo,
   FakeBillingGateway? billing,
+  FakeThemeModeStore? themeStore,
   Size size = const Size(400, 900),
   Brightness brightness = Brightness.light,
 }) async {
@@ -27,6 +29,7 @@ Future<void> pumpApp(
         authRepositoryProvider.overrideWithValue(auth),
         repositoryProvider.overrideWithValue(repo ?? FakeRepository()),
         billingGatewayProvider.overrideWithValue(billing ?? FakeBillingGateway()),
+        themeModeStoreProvider.overrideWithValue(themeStore ?? FakeThemeModeStore()),
       ],
       child: const WeblumeApp(),
     ),

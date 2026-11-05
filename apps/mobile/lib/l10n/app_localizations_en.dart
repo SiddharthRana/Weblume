@@ -550,6 +550,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legalSection => 'Legal';
 
   @override
+  String get legalOpenInBrowser => 'Open in browser';
+
+  @override
+  String get legalLoadFailed => 'We couldn’t load this page. Check your connection and try again.';
+
+  @override
+  String get appearanceSection => 'Appearance';
+
+  @override
+  String get appearanceBody => 'Choose light or dark, or follow your phone’s setting.';
+
+  @override
+  String get themeSystem => 'Phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get accountPrivacy => 'Privacy policy';
 
   @override
@@ -953,6 +974,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertNone => 'Never (just scan)';
+
+  @override
+  String get alertAnyChangeHint =>
+      'We email you when a scan finds new issues, finds that issues were fixed, or a score moves by 5 points or more. We also tell you if a scan can’t reach your site.';
+
+  @override
+  String get alertNewFindingsHint =>
+      'We email you only when a scan finds an issue that wasn’t there last time. We also tell you if a scan can’t reach your site.';
+
+  @override
+  String get alertScoreDropHint =>
+      'We email you only when a Performance, Accessibility, SEO or Best practices score falls by 5 points or more. We also tell you if a scan can’t reach your site.';
+
+  @override
+  String get alertNoneHint =>
+      'We keep scanning on schedule and save every report, but never email you. Check the latest report on your dashboard.';
 
   @override
   String get monitoringStart => 'Start monitoring';

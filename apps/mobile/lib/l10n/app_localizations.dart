@@ -1093,6 +1093,48 @@ abstract class AppLocalizations {
   /// **'Legal'**
   String get legalSection;
 
+  /// No description provided for @legalOpenInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in browser'**
+  String get legalOpenInBrowser;
+
+  /// No description provided for @legalLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t load this page. Check your connection and try again.'**
+  String get legalLoadFailed;
+
+  /// No description provided for @appearanceSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceSection;
+
+  /// No description provided for @appearanceBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose light or dark, or follow your phone’s setting.'**
+  String get appearanceBody;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
   /// No description provided for @accountPrivacy.
   ///
   /// In en, this message translates to:
@@ -1800,6 +1842,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Never (just scan)'**
   String get alertNone;
+
+  /// No description provided for @alertAnyChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you when a scan finds new issues, finds that issues were fixed, or a score moves by 5 points or more. We also tell you if a scan can’t reach your site.'**
+  String get alertAnyChangeHint;
+
+  /// No description provided for @alertNewFindingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you only when a scan finds an issue that wasn’t there last time. We also tell you if a scan can’t reach your site.'**
+  String get alertNewFindingsHint;
+
+  /// No description provided for @alertScoreDropHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you only when a Performance, Accessibility, SEO or Best practices score falls by 5 points or more. We also tell you if a scan can’t reach your site.'**
+  String get alertScoreDropHint;
+
+  /// No description provided for @alertNoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We keep scanning on schedule and save every report, but never email you. Check the latest report on your dashboard.'**
+  String get alertNoneHint;
 
   /// No description provided for @monitoringStart.
   ///

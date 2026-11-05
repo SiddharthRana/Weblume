@@ -150,7 +150,7 @@ export function Select<T extends string | number>({
         aria-labelledby={labelId}
         tabIndex={-1}
         hidden={!open}
-        className="animate-pop absolute left-0 z-30 mt-1.5 max-h-64 min-w-full overflow-auto rounded-lg border border-border bg-surface p-1 shadow-lg"
+        className="animate-pop absolute left-0 z-30 mt-1.5 max-h-72 w-max min-w-full max-w-[calc(100vw-2rem)] space-y-0.5 overflow-auto rounded-xl border border-border bg-surface p-1.5 shadow-lg"
       >
         {options.map((o, i) => {
           const isSelected = i === selected;
@@ -164,7 +164,7 @@ export function Select<T extends string | number>({
               onPointerEnter={() => setActive(i)}
               onPointerDown={(e) => e.preventDefault()} // keep focus on the combobox
               onClick={() => choose(i)}
-              className="flex min-h-10 cursor-pointer items-center justify-between gap-4 rounded-md px-2.5 text-sm text-fg transition-colors data-active:bg-primary/10 data-active:text-primary aria-selected:font-semibold"
+              className="flex min-h-10 cursor-pointer items-center justify-between gap-6 rounded-lg px-3 py-2 text-sm leading-snug text-fg transition-colors data-active:bg-primary/10 data-active:text-primary aria-selected:font-semibold"
             >
               {o.label}
               <svg

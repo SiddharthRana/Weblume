@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/generated/models.g.dart';
 import '../../config/app_config.dart';
@@ -15,6 +14,8 @@ import '../../shared/labels.dart';
 import '../../shared/widgets/status_views.dart';
 import '../../shared/widgets/usage_meter.dart';
 import '../../theme/tokens.g.dart';
+import '../../theme/theme_mode.dart';
+import '../legal/legal_screen.dart';
 import 'data_export_actions.dart';
 
 class AccountScreen extends ConsumerStatefulWidget {
@@ -39,9 +40,6 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     _confirm.dispose();
     super.dispose();
   }
-
-  Future<void> _open(String path) =>
-      launchUrl(Uri.parse('${AppConfig.siteUrl}$path'), mode: LaunchMode.externalApplication);
 
   Future<void> _saveName() async {
     final l10n = AppLocalizations.of(context);
@@ -192,7 +190,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       const SizedBox(height: WlSpace.s3),
                       UsageMeter(used: a.usage.used, limit: a.usage.limit, resetsAt: a.usage.resetsAt),
                       const SizedBox(height: WlSpace.s3),
-                      for (final sub in a.subscriptions) SubscriptionStatusTile(subscription: sub),
+                      for (final sub in a.subscriptions.where(isCurrent)) SubscriptionStatusTile(subscription: sub),
                       if (a.subscriptions.where(grantsAccess).isEmpty)
                         ref
                             .watch(billingConfigProvider)
@@ -217,20 +215,46 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       const SizedBox(height: WlSpace.s2),
                       const DataExportActions(),
                     ]),
+                    section(l10n.appearanceSection, icon: Icons.contrast, [
+                      Text(l10n.appearanceBody, style: muted),
+                      const SizedBox(height: WlSpace.s3),
+                      SegmentedButton<ThemeMode>(
+                        showSelectedIcon: false,
+                        segments: [
+                          ButtonSegment(
+                            value: ThemeMode.system,
+                            icon: const Icon(Icons.brightness_auto_outlined),
+                            label: Text(l10n.themeSystem),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            icon: const Icon(Icons.light_mode_outlined),
+                            label: Text(l10n.themeLight),
+                          ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            icon: const Icon(Icons.dark_mode_outlined),
+                            label: Text(l10n.themeDark),
+                          ),
+                        ],
+                        selected: {ref.watch(themeModeProvider)},
+                        onSelectionChanged: (s) => ref.read(themeModeProvider.notifier).set(s.single),
+                      ),
+                    ]),
                     section(l10n.legalSection, icon: Icons.gavel_outlined, [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.privacy_tip_outlined),
                         title: Text(l10n.accountPrivacy),
-                        trailing: const Icon(Icons.open_in_new, size: 18),
-                        onTap: () => _open('/legal/privacy'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.legal(LegalPage.privacy)),
                       ),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.description_outlined),
                         title: Text(l10n.accountTerms),
-                        trailing: const Icon(Icons.open_in_new, size: 18),
-                        onTap: () => _open('/legal/terms'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => context.push(Routes.legal(LegalPage.terms)),
                       ),
                     ]),
                     OutlinedButton.icon(onPressed: _logOut, icon: const Icon(Icons.logout), label: Text(l10n.logOut)),

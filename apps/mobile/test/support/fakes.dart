@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart' show ThemeMode;
+
 import 'package:weblume/api/generated/api.g.dart';
 import 'package:weblume/api/generated/models.g.dart';
 import 'package:weblume/auth/auth_repository.dart';
 import 'package:weblume/billing/billing_gateway.dart';
 import 'package:weblume/data/weblume_repository.dart';
+import 'package:weblume/theme/theme_mode.dart';
 
 class FakeAuth implements AuthRepository {
   FakeAuth({this.configured = true, bool signedIn = false}) : _user = signedIn ? _asha : null;
@@ -531,3 +534,13 @@ Map<String, dynamic> monitorJson(
   'lastScan': lastScan,
   'createdAt': '2026-10-29T10:00:00.000Z',
 };
+
+/// In memory instead of the phone's storage.
+class FakeThemeModeStore implements ThemeModeStore {
+  FakeThemeModeStore([this.saved = ThemeMode.system]);
+  ThemeMode saved;
+  @override
+  Future<ThemeMode> read() async => saved;
+  @override
+  Future<void> write(ThemeMode mode) async => saved = mode;
+}

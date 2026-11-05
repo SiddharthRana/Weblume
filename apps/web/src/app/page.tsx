@@ -1,3 +1,4 @@
+import { AppLinks } from '@/components/app-links';
 import { Suspense, type CSSProperties } from 'react';
 import { AccountDeletedNotice } from '@/components/account-deleted-notice';
 import { ButtonLink } from '@/components/button-link';
@@ -149,6 +150,26 @@ export default function HomePage() {
                 <p className="mt-2 text-fg-muted">{a.body}</p>
               </div>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      <section className="border-y border-border bg-surface py-16 sm:py-20" aria-labelledby="apps">
+        <Container className="grid items-center gap-8 md:grid-cols-[1fr_auto]">
+          <div className="max-w-2xl">
+            <h2
+              id="apps"
+              className="text-gradient reveal pb-1 text-3xl font-semibold tracking-tight"
+            >
+              Take Weblume with you
+            </h2>
+            <p className="mt-4 text-lg text-fg-muted">
+              Run scans, read reports, save PDFs and manage monitored sites from your phone. Same
+              account, same plan: everything you do in the app shows up here too.
+            </p>
+          </div>
+          <div className="reveal">
+            <AppLinks />
           </div>
         </Container>
       </section>
