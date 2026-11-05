@@ -153,6 +153,19 @@ test.describe('account subscription', () => {
     );
   });
 
+  test('lists only current subscriptions, not declined or ended checkout attempts', async ({
+    page,
+  }) => {
+    const ended = { ...webSub, provider: 'dodo', status: 'expired' };
+    await mockBackends(page, {
+      api: billingApi({ me: () => starter([ended, ended, { ...webSub, provider: 'dodo' }]) }),
+    });
+    await logIn(page, '?next=%2Faccount');
+    await expect(page.getByText('Starter · Web')).toHaveCount(1);
+    await expect(page.getByText(/Active · renews/)).toBeVisible();
+    await expect(page.getByText('Ended')).toHaveCount(0);
+  });
+
   test('links Google Play subscriptions to Play and warns about double subscriptions', async ({
     page,
   }) => {

@@ -43,6 +43,15 @@ export function grantsAccess(s: { status: string; currentPeriodEnd: string | nul
   return ACCESS_STATUSES.has(s.status);
 }
 
+/**
+ * Subscriptions worth showing: ones that give access, plus on hold or paused ones the person may act
+ * on. Ended ones (including declined checkout attempts, which the provider records as subscriptions
+ * that never started) stay in the data export but aren't listed.
+ */
+export function isCurrent(s: { status: string; currentPeriodEnd: string | null }): boolean {
+  return grantsAccess(s) || s.status === 'on_hold' || s.status === 'paused';
+}
+
 export function playManageUrl(packageName: string, subscriptionId: string): string {
   return `https://play.google.com/store/account/subscriptions?sku=${encodeURIComponent(subscriptionId)}&package=${encodeURIComponent(packageName)}`;
 }
