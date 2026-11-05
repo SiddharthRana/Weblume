@@ -1801,6 +1801,30 @@ abstract class AppLocalizations {
   /// **'Never (just scan)'**
   String get alertNone;
 
+  /// No description provided for @alertAnyChangeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you when a scan finds new issues, finds that issues were fixed, or a score moves by 5 points or more. We also tell you if a scan can’t reach your site.'**
+  String get alertAnyChangeHint;
+
+  /// No description provided for @alertNewFindingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you only when a scan finds an issue that wasn’t there last time. We also tell you if a scan can’t reach your site.'**
+  String get alertNewFindingsHint;
+
+  /// No description provided for @alertScoreDropHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We email you only when a Performance, Accessibility, SEO or Best practices score falls by 5 points or more. We also tell you if a scan can’t reach your site.'**
+  String get alertScoreDropHint;
+
+  /// No description provided for @alertNoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'We keep scanning on schedule and save every report, but never email you. Check the latest report on your dashboard.'**
+  String get alertNoneHint;
+
   /// No description provided for @monitoringStart.
   ///
   /// In en, this message translates to:

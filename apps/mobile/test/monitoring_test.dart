@@ -49,7 +49,12 @@ void main() {
     expect(find.text('Enter a website address, for example example.com.'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).last, 'shop.example.com');
+    // Each email choice is explained under the options.
+    expect(find.textContaining('a score moves by 5 points or more'), findsOneWidget);
+    await tapText(tester, 'Never (just scan)');
+    expect(find.textContaining('but never email you'), findsOneWidget);
     await tapText(tester, 'New issues appear');
+    expect(find.textContaining('an issue that wasn’t there last time'), findsOneWidget);
     await tapText(tester, 'Start monitoring');
     expect(repo.calls, contains('createMonitor:shop.example.com:weekly:new_findings'));
     expect(find.text('Monitoring started. We’ll email you when something changes.'), findsOneWidget);

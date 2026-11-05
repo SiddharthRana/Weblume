@@ -305,6 +305,7 @@ class _AlertChoice extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return _Choice(
       label: l10n.monitoringAlertLabel,
+      hint: l10n.alertHint(selected),
       children: [
         for (final a in _alerts)
           ChoiceChip(
@@ -318,10 +319,13 @@ class _AlertChoice extends StatelessWidget {
 }
 
 class _Choice extends StatelessWidget {
-  const _Choice({required this.label, required this.children});
+  const _Choice({required this.label, required this.children, this.hint});
 
   final String label;
   final List<Widget> children;
+
+  /// Explains the current choice, under the options.
+  final String? hint;
 
   @override
   Widget build(BuildContext context) => Column(
@@ -330,6 +334,17 @@ class _Choice extends StatelessWidget {
       Text(label, style: Theme.of(context).textTheme.labelLarge),
       const SizedBox(height: WlSpace.s2),
       Wrap(spacing: WlSpace.s2, runSpacing: WlSpace.s2, children: children),
+      if (hint != null) ...[
+        const SizedBox(height: WlSpace.s2),
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            hint!,
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+        ),
+      ],
     ],
   );
 }

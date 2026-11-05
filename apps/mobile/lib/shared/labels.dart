@@ -34,6 +34,14 @@ extension Labels on AppLocalizations {
     _ => alertAnyChange,
   };
 
+  /// What each email choice means, shown under the choices.
+  String alertHint(MonitorAlert a) => switch (a) {
+    MonitorAlert.newFindings => alertNewFindingsHint,
+    MonitorAlert.scoreDrop => alertScoreDropHint,
+    MonitorAlert.none => alertNoneHint,
+    _ => alertAnyChangeHint,
+  };
+
   String? monitorSkip(String? reason) => switch (reason) {
     'plan' => monitoringSkipPlan,
     'plan_limit' => monitoringSkipLimit,

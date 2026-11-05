@@ -118,8 +118,11 @@ test.describe('monitoring', () => {
     // The Free plan's one site is used: no more add form.
     await expect(section.getByLabel('Monitor another site')).toHaveCount(0);
 
+    // Each email choice is explained under the settings.
+    await expect(section.getByText(/a score moves by 5 points or more/)).toBeVisible();
     await section.getByRole('combobox', { name: 'Email me when' }).click();
     await page.getByRole('option', { name: 'New issues appear' }).click();
+    await expect(section.getByText(/an issue that wasn’t there last time/)).toBeVisible();
     await expect
       .poll(() => calls.api.filter((c) => c.method === 'PATCH').at(-1)?.body)
       .toEqual({
