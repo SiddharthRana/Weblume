@@ -13,8 +13,11 @@ class AppUser {
 enum AuthEvent { signedIn, signedOut, passwordRecovery, other }
 
 class AuthFailure implements Exception {
-  AuthFailure(this.message);
+  AuthFailure(this.message, {this.captcha = false});
   final String message;
+
+  /// The Turnstile security check was missing or rejected (Supabase CAPTCHA protection).
+  final bool captcha;
   @override
   String toString() => message;
 }
@@ -26,11 +29,12 @@ abstract class AuthRepository {
   String? get accessToken;
   Stream<AuthEvent> get events;
 
-  Future<void> signIn({required String email, required String password});
+  /// [captchaToken] is the Turnstile token, required once CAPTCHA protection is on in Supabase.
+  Future<void> signIn({required String email, required String password, String? captchaToken});
 
   /// Returns true if the account is ready to use, false if email confirmation is required.
-  Future<bool> signUp({required String email, required String password});
-  Future<void> sendPasswordReset(String email);
+  Future<bool> signUp({required String email, required String password, String? captchaToken});
+  Future<void> sendPasswordReset(String email, {String? captchaToken});
   Future<void> updatePassword(String password);
   Future<void> signOut();
 }
@@ -67,25 +71,31 @@ class SupabaseAuthRepository implements AuthRepository {
     try {
       return await fn();
     } on sb.AuthException catch (e) {
-      throw AuthFailure(describeAuthError(e.code, e.message, e.statusCode));
+      throw AuthFailure(describeAuthError(e.code, e.message, e.statusCode), captcha: isCaptchaError(e.code, e.message));
     } catch (_) {
       throw AuthFailure('We couldn’t reach the server. Check your connection and try again.');
     }
   }
 
   @override
-  Future<void> signIn({required String email, required String password}) =>
-      _guard(() => _auth.signInWithPassword(email: email, password: password));
+  Future<void> signIn({required String email, required String password, String? captchaToken}) =>
+      _guard(() => _auth.signInWithPassword(email: email, password: password, captchaToken: captchaToken));
 
   @override
-  Future<bool> signUp({required String email, required String password}) => _guard(() async {
-    final res = await _auth.signUp(email: email, password: password, emailRedirectTo: AppConfig.authRedirectUrl);
+  Future<bool> signUp({required String email, required String password, String? captchaToken}) => _guard(() async {
+    final res = await _auth.signUp(
+      email: email,
+      password: password,
+      emailRedirectTo: AppConfig.authRedirectUrl,
+      captchaToken: captchaToken,
+    );
     return res.session != null;
   });
 
   @override
-  Future<void> sendPasswordReset(String email) =>
-      _guard(() => _auth.resetPasswordForEmail(email, redirectTo: AppConfig.authRedirectUrl));
+  Future<void> sendPasswordReset(String email, {String? captchaToken}) => _guard(
+    () => _auth.resetPasswordForEmail(email, redirectTo: AppConfig.authRedirectUrl, captchaToken: captchaToken),
+  );
 
   @override
   Future<void> updatePassword(String password) => _guard(() => _auth.updateUser(sb.UserAttributes(password: password)));
@@ -106,11 +116,11 @@ class UnconfiguredAuthRepository implements AuthRepository {
   Stream<AuthEvent> get events => const Stream.empty();
   Never _fail() => throw AuthFailure('Accounts aren’t configured for this build.');
   @override
-  Future<void> signIn({required String email, required String password}) async => _fail();
+  Future<void> signIn({required String email, required String password, String? captchaToken}) async => _fail();
   @override
-  Future<bool> signUp({required String email, required String password}) async => _fail();
+  Future<bool> signUp({required String email, required String password, String? captchaToken}) async => _fail();
   @override
-  Future<void> sendPasswordReset(String email) async => _fail();
+  Future<void> sendPasswordReset(String email, {String? captchaToken}) async => _fail();
   @override
   Future<void> updatePassword(String password) async => _fail();
   @override
@@ -118,8 +128,14 @@ class UnconfiguredAuthRepository implements AuthRepository {
 }
 
 /// Friendly messages that never reveal whether an account exists. Mirrors apps/web/src/lib/supabase.ts.
+bool isCaptchaError(String? code, String message) =>
+    code == 'captcha_failed' || RegExp('captcha', caseSensitive: false).hasMatch(message);
+
 String describeAuthError(String? code, String message, String? status) {
   final c = code ?? '';
+  if (isCaptchaError(code, message)) {
+    return 'The security check didn’t go through. Complete it again, then try again.';
+  }
   if (c == 'invalid_credentials' || RegExp('invalid login credentials', caseSensitive: false).hasMatch(message)) {
     return 'Incorrect email or password.';
   }

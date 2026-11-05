@@ -55,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterEmailPassword => 'Enter your email and password.';
 
   @override
+  String get captchaNotReady => 'Please wait for the security check above to finish, then try again.';
+
+  @override
   String get passwordHint => 'At least 10 characters, with upper- and lowercase letters and a number.';
 
   @override

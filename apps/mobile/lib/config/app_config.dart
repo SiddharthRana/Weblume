@@ -20,5 +20,8 @@ abstract final class AppConfig {
   static const sentryDsn = String.fromEnvironment('SENTRY_DSN');
   static const sentryEnvironment = String.fromEnvironment('SENTRY_ENVIRONMENT', defaultValue: 'production');
 
+  /// Cloudflare Turnstile site key for sign-up, sign-in and password reset. Empty turns the check off.
+  static const turnstileSiteKey = String.fromEnvironment('TURNSTILE_SITE_KEY');
+
   static bool get authConfigured => supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
 }

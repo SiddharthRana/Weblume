@@ -135,7 +135,14 @@ The API is `api-dev`, not `api.dev`: Cloudflare's free certificate covers one le
 3. **API:** deploy the same image as a second Fly app with the dev environment: `CORS_ORIGINS=https://dev.weblu.me`, `PUBLIC_SITE_URL=https://dev.weblu.me`, the dev `DATABASE_URL` and `SUPABASE_URL`, `WEB_PAYMENT_PROVIDER=dodo` with `DODO_ENV=test`, its own `GUEST_HASH_SECRET` and `MONITOR_LINK_SECRET`, and `EMAIL_FROM=Weblume Dev <dev@weblu.me>`. Add `api-dev.weblu.me` as a Fly certificate and a DNS-only CNAME in Cloudflare.
 4. **Supabase (dev project):** Site URL `https://dev.weblu.me`; redirect URLs `https://dev.weblu.me/auth/callback`, `https://dev.weblu.me/auth/reset-password` and `weblume://auth-callback`. Apply migrations with `supabase link --project-ref <dev-ref>` then `supabase db push`.
 5. **Android:** build a dev APK with `--dart-define=API_BASE_URL=https://api-dev.weblu.me --dart-define=SITE_URL=https://dev.weblu.me` plus the dev Supabase values, and `--dart-define=SENTRY_ENVIRONMENT=dev` if Sentry is set.
-6. **Flow:** branch from `dev`, merge into `dev` to try it on dev.weblu.me, then merge `dev` into `main` to release.
+6. **API deploys from GitHub:** every push to `dev` runs `flyctl deploy --config fly.dev.toml` after the TypeScript and database checks, then checks `/ready`. Set up once:
+   - Create a deploy token: `fly tokens create deploy --app weblume-api-dev --expiry 8760h`.
+   - Create a GitHub environment `api-dev` (deployment branch `dev`) with the secret `FLY_API_TOKEN` set to that token.
+   - Set the repository variable `DEPLOY_API_DEV=true`.
+   - Database migrations aren't run by CI: apply them with `supabase db push` (linked to the dev project) before merging code that needs them.
+7. **Android dev builds from GitHub:** every push to `dev` builds the app for the dev environment (job "Build Android app (dev)"); download it from the run's **Artifacts**. See `apps/mobile/README.md` for the upload-key secrets.
+8. **Turnstile on sign-up, sign-in and reset:** the website and the app send a Turnstile token when `TURNSTILE_SITE_KEY` is set (website: the environment variable; app: the build setting). After both are deployed, turn on Supabase → Authentication → Bot and Abuse Protection → **Enable CAPTCHA protection**, choose Cloudflare Turnstile and paste the Turnstile secret key. Older app builds without the check can no longer sign in after that.
+9. **Flow:** branch from `dev`, merge into `dev` to try it on dev.weblu.me, then merge `dev` into `main` to release.
 
 ## Updating
 

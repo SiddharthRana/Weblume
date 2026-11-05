@@ -211,7 +211,7 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
    - Share and compare flows.
    - TalkBack and large fonts.
 6. **Harden Supabase Auth.** Code side done: `supabase/config.toml` and the README steps. Remaining (owner, in the dashboard): password policy, leaked-password protection (Pro), rate limits and SMTP, per README "Supabase Auth setup".
-   - **CAPTCHA needs code first.** Turning on Supabase CAPTCHA requires a token on every password sign-up, sign-in and reset. Add `captchaToken` to the web auth forms (Turnstile widget, as on `/scan`) and a Turnstile flow to the Android app (e.g. a WebView), then enable it.
+   - **CAPTCHA: code done (2026-11-05).** The web sign-up, sign-in and reset forms and the Android app (Cloudflare's widget in a `webview_flutter` page loaded as the site's hostname) send a Turnstile token. Remaining (owner): once both are deployed, enable it in Supabase → Authentication → Bot and Abuse Protection with the Turnstile secret key.
 7. **Pricing decisions.**
    - Paddle's fixed $0.50 fee takes ~28% of a ₹149 monthly payment (`docs/unit-economics.md`). Decide INR monthly price, provider, or an annual-first plan.
    - Decide tax-inclusive display.

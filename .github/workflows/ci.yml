@@ -7,7 +7,9 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Newer pushes cancel older runs on feature branches, but never on dev or main, where a run may be
+  # halfway through deploying.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/dev' && github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read
@@ -161,3 +163,102 @@ jobs:
         run: >-
           pnpm --filter @weblume/web exec wrangler pages deploy out
           --project-name "$PAGES_PROJECT" --branch main --commit-hash "$GITHUB_SHA"
+
+  deploy-api:
+    # `dev` deploys api-dev.weblu.me (fly.dev.toml). Production gets its own config at launch.
+    name: Deploy API (Fly.io, dev)
+    needs: [typescript, database]
+    # Skipped (not failed) until the `api-dev` environment and DEPLOY_API_DEV exist; see docs/deployment.md.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev' && vars.DEPLOY_API_DEV == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment:
+      name: api-dev
+      url: https://api-dev.weblu.me
+    concurrency:
+      group: deploy-api-dev
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      # Fly builds the image on its own builders from apps/api/Dockerfile, then replaces the machine.
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: flyctl deploy --config fly.dev.toml --remote-only --ha=false
+      - name: Check the API is healthy
+        run: curl --fail --silent --show-error --retry 12 --retry-delay 5 --retry-all-errors https://api-dev.weblu.me/ready
+
+  build-android-dev:
+    # An installable app pointed at the dev environment, on every push to `dev`. Download it from the
+    # run's Artifacts. Signed with the upload key when the ANDROID_* repository secrets exist (needed
+    # for Google Play and for installing updates over older builds); otherwise with a throwaway key.
+    name: Build Android app (dev)
+    needs: [flutter]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Reuses the dev website's public settings (API and site addresses, Supabase, Turnstile site key).
+    environment: web-dev
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v5
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Upload key (if configured)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No upload key configured: the app will be signed with a throwaway key."
+            exit 0
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          {
+            echo "storeFile=$RUNNER_TEMP/upload.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > android/key.properties
+      - name: Build
+        env:
+          API_URL: ${{ vars.API_URL }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+        run: |
+          DEFINES=(
+            --dart-define=API_BASE_URL="$API_URL"
+            --dart-define=SITE_URL="$SITE_URL"
+            --dart-define=SUPABASE_URL="$SUPABASE_URL"
+            --dart-define=SUPABASE_PUBLISHABLE_KEY="$SUPABASE_PUBLISHABLE_KEY"
+            --dart-define=TURNSTILE_SITE_KEY="$TURNSTILE_SITE_KEY"
+            --dart-define=SENTRY_ENVIRONMENT=dev
+            --dart-define=APP_VERSION=0.1.0-dev.${{ github.run_number }}
+          )
+          # The run number becomes the version code, so every build can install over the previous one.
+          flutter build apk --release --build-number=${{ github.run_number }} "${DEFINES[@]}"
+          if [ -f android/key.properties ]; then
+            flutter build appbundle --release --build-number=${{ github.run_number }} "${DEFINES[@]}"
+          fi
+      - name: Keep the app files
+        uses: actions/upload-artifact@v4
+        with:
+          name: weblume-dev-${{ github.run_number }}
+          path: |
+            apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+            apps/mobile/build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: warn
+          retention-days: 30

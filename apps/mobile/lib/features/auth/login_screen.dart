@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +9,7 @@ import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../shared/widgets/status_views.dart';
 import 'auth_scaffold.dart';
+import 'auth_captcha.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key, this.notice});
@@ -23,11 +26,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _password = TextEditingController();
   String? _error;
   bool _busy = false;
+  final _captcha = AuthCaptchaController();
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
@@ -38,13 +43,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       setState(() => _error = l10n.enterEmailPassword);
       return;
     }
+    if (!_captcha.ready) return setState(() => _error = l10n.captchaNotReady);
     setState(() => _busy = true);
     try {
-      await ref.read(authRepositoryProvider).signIn(email: _email.text.trim(), password: _password.text);
+      await ref
+          .read(authRepositoryProvider)
+          .signIn(email: _email.text.trim(), password: _password.text, captchaToken: _captcha.token);
       // The router redirects once the auth state changes.
     } on AuthFailure catch (e) {
       if (mounted) setState(() => _error = e.message);
     } finally {
+      unawaited(_captcha.reset());
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -73,6 +82,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           onSubmitted: (_) => _submit(),
         ),
         gap,
+        AuthCaptcha(controller: _captcha),
         FilledButton(onPressed: _busy ? null : _submit, child: Text(_busy ? l10n.loggingIn : l10n.loginButton)),
         TextButton(onPressed: () => context.push('/forgot-password'), child: Text(l10n.forgotPasswordLink)),
         const Divider(height: 32),

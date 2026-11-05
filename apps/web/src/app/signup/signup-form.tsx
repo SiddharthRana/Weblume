@@ -11,6 +11,7 @@ import {
   safeNext,
   SubmitButton,
 } from '@/components/auth/form-bits';
+import { CAPTCHA_NOT_READY, useAuthCaptcha } from '@/components/auth/captcha';
 import { GoogleButton } from '@/components/auth/google-button';
 import { authConfigured, authErrorMessage, getSupabase, passwordProblems } from '@/lib/supabase';
 
@@ -22,6 +23,7 @@ export function SignupForm() {
   const [pwError, setPwError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const captcha = useAuthCaptcha();
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -36,15 +38,21 @@ export function SignupForm() {
       setPwError(`Your password needs ${problems.join(', ')}.`);
       return;
     }
+    if (!captcha.ready) {
+      setError(CAPTCHA_NOT_READY);
+      return;
+    }
     setBusy(true);
     const { data, error: err } = await getSupabase()!.auth.signUp({
       email: email.trim(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        captchaToken: captcha.token,
       },
     });
     setBusy(false);
+    captcha.reset();
     if (err) {
       setError(authErrorMessage(err));
       return;
@@ -107,6 +115,7 @@ export function SignupForm() {
               error={pwError}
               required
             />
+            {captcha.widget}
             <SubmitButton busy={busy}>{busy ? 'Creating account…' : 'Create account'}</SubmitButton>
             <p className="text-xs text-fg-muted">
               By creating an account you agree to the{' '}
