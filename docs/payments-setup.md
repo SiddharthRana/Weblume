@@ -35,9 +35,12 @@ Set `WEB_PAYMENT_PROVIDER=paddle` or `dodo` in the API env. Only one web provide
 ## 1. Plans and prices
 
 - **Plan limits** live in `packages/shared/src/plans.ts`.
-- **Prices** live in each provider's dashboard. Create, per provider:
-  - **Starter monthly**: ₹149 / $3.99 (use the provider's per-country or localised pricing for INR vs USD)
-  - **Starter annual**: ₹1,199 / $29.99
+- **Prices** live in each provider's dashboard. The website shows **US dollars only** (decided 2026-11-05, to appeal to international customers). Create, per provider:
+  - **Starter monthly**: $3.99
+  - **Starter annual**: $29.99
+- **Local currencies:**
+  - **Dodo:** price the products in USD and turn on **Adaptive Currency**, so customers can pay in about 90 local currencies, INR included. The conversion fee is 4% under $500, paid by the customer unless **Fees Inclusive** is on. For a cheaper price in specific countries, use **Localized Pricing** (an exact price per country) or **Purchasing Power Parity** (automatic discounts by country).
+  - **Google Play:** set each base plan's price in USD. Play converts it for every country, and you can override any country's price (for example India) in the base plan's price table.
 - Put the resulting IDs in the API env:
   - **Paddle:** `PADDLE_PRICE_STARTER_MONTHLY` and `PADDLE_PRICE_STARTER_ANNUAL` (price IDs, `pri_…`)
   - **Dodo:** `DODO_PRODUCT_STARTER_MONTHLY` and `DODO_PRODUCT_STARTER_ANNUAL` (product IDs)

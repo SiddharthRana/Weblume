@@ -27,7 +27,7 @@ export class EntitlementsDto {
 }
 
 export class DisplayPriceDto {
-  @ApiProperty({ enum: ['INR', 'USD'] }) currency: 'INR' | 'USD';
+  @ApiProperty({ enum: ['USD'] }) currency: 'USD';
   @ApiProperty({ type: 'integer', description: 'Monthly price in minor units (paise/cents)' })
   monthly: number;
   @ApiProperty({ type: 'integer', description: 'Annual price in minor units (paise/cents)' })
