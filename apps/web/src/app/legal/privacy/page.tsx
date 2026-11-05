@@ -44,8 +44,9 @@ export default function PrivacyPage() {
       <p>
         Supabase (database and authentication), Google PageSpeed Insights (the URL you submit is
         sent to Google for measurement), our payment providers (a merchant of record for web
-        payments and Google Play for Android), an email delivery provider, and optionally an
-        error-monitoring provider. A full list will be maintained here.
+        payments and Google Play for Android), an email delivery provider, Cloudflare (hosting, bot
+        checks and cookieless page-view statistics), and optionally an error-monitoring provider. A
+        full list will be maintained here.
       </p>
       <h2>Retention</h2>
       <p>

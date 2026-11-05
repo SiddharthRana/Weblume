@@ -77,21 +77,22 @@ Domains: `weblu.me` for the web app and `api.weblu.me` for the API (dev: `dev.we
    - Create an API token (My Profile → API Tokens → Create token) with **Account → Cloudflare Pages → Edit**. Copy your account ID from the dashboard sidebar.
    - In GitHub, create a `web` environment (Settings → Environments; add yourself as a required reviewer to get an approval step, and limit it to `main`). The `Deploy website` job in `.github/workflows/ci.yml` runs on pushes to `main` once the repository variable `DEPLOY_WEB` is `true`:
 
-     | Kind     | Name                       | Value                                            |
-     | -------- | -------------------------- | ------------------------------------------------ |
-     | secret   | `CLOUDFLARE_API_TOKEN`     | The token                                        |
-     | variable | `CLOUDFLARE_ACCOUNT_ID`    | Account ID                                       |
-     | variable | `CLOUDFLARE_PAGES_PROJECT` | Project name, if not `weblume`                   |
-     | variable | `SITE_URL`                 | `https://weblu.me`                               |
-     | variable | `API_URL`                  | `https://api.weblu.me`                           |
-     | variable | `SUPABASE_URL`             | `https://<ref>.supabase.co`                      |
-     | variable | `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` (public by design)            |
-     | variable | `TURNSTILE_SITE_KEY`       | Turnstile site key (public by design)            |
-     | variable | `PADDLE_CLIENT_TOKEN`      | Paddle client-side token (public by design)      |
-     | variable | `PADDLE_ENV`               | `sandbox` or `production`                        |
-     | variable | `WEB_SENTRY_DSN`           | Optional                                         |
-     | variable | `AUTH_GOOGLE_ENABLED`      | `true` once Google sign-in is set up in Supabase |
-     | variable | `SUPPORT_EMAIL`            | Shown on the contact and legal pages             |
+     | Kind     | Name                       | Value                                                                          |
+     | -------- | -------------------------- | ------------------------------------------------------------------------------ |
+     | secret   | `CLOUDFLARE_API_TOKEN`     | The token                                                                      |
+     | variable | `CLOUDFLARE_ACCOUNT_ID`    | Account ID                                                                     |
+     | variable | `CLOUDFLARE_PAGES_PROJECT` | Project name, if not `weblume`                                                 |
+     | variable | `NOINDEX`                  | `true` until launch day (keeps the site out of search results), then delete it |
+     | variable | `SITE_URL`                 | `https://weblu.me`                                                             |
+     | variable | `API_URL`                  | `https://api.weblu.me`                                                         |
+     | variable | `SUPABASE_URL`             | `https://<ref>.supabase.co`                                                    |
+     | variable | `SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_…` (public by design)                                          |
+     | variable | `TURNSTILE_SITE_KEY`       | Turnstile site key (public by design)                                          |
+     | variable | `PADDLE_CLIENT_TOKEN`      | Paddle client-side token (public by design)                                    |
+     | variable | `PADDLE_ENV`               | `sandbox` or `production`                                                      |
+     | variable | `WEB_SENTRY_DSN`           | Optional                                                                       |
+     | variable | `AUTH_GOOGLE_ENABLED`      | `true` once Google sign-in is set up in Supabase                               |
+     | variable | `SUPPORT_EMAIL`            | Shown on the contact and legal pages                                           |
 
    - These become the `NEXT_PUBLIC_*` values from [`apps/web/.env.example`](../apps/web/.env.example), **inlined at build time**: redeploy after changing them. The Content-Security-Policy is built from the same values (API, Supabase, Sentry origins).
    - Check that the CSP allows Turnstile and Paddle in your real configuration. The automated tests run without them: open `/scan` signed out and the Paddle checkout page, and look for "Refused to…" errors in the browser console.

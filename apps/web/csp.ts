@@ -17,14 +17,34 @@ export function buildCsp(env: NodeJS.ProcessEnv = process.env): string {
   const supabase = origin(env.NEXT_PUBLIC_SUPABASE_URL);
   const sentry = origin(env.NEXT_PUBLIC_SENTRY_DSN?.replace(/\/\/[^@]*@/, '//'));
   const turnstile = 'https://challenges.cloudflare.com';
+  // Cloudflare Web Analytics, injected by Pages: cookieless page-view counts.
+  const cfAnalytics = {
+    script: 'https://static.cloudflareinsights.com',
+    beacon: 'https://cloudflareinsights.com',
+  };
   const paddle = ['https://cdn.paddle.com', 'https://*.paddle.com'];
 
-  const connect = ["'self'", api, supabase, supabase?.replace(/^http/, 'ws'), sentry, ...paddle];
+  const connect = [
+    "'self'",
+    api,
+    supabase,
+    supabase?.replace(/^http/, 'ws'),
+    sentry,
+    cfAnalytics.beacon,
+    ...paddle,
+  ];
   if (dev) connect.push('ws:', 'wss:');
 
   const directives: Record<string, (string | null | undefined)[]> = {
     'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-inline'", dev ? "'unsafe-eval'" : null, turnstile, ...paddle],
+    'script-src': [
+      "'self'",
+      "'unsafe-inline'",
+      dev ? "'unsafe-eval'" : null,
+      turnstile,
+      cfAnalytics.script,
+      ...paddle,
+    ],
     'style-src': ["'self'", "'unsafe-inline'"],
     'img-src': ["'self'", 'data:', 'blob:'],
     'font-src': ["'self'", 'data:'],
