@@ -140,7 +140,7 @@ The API is `api-dev`, not `api.dev`: Cloudflare's free certificate covers one le
    - Create a GitHub environment `api-dev` (deployment branch `dev`) with the secret `FLY_API_TOKEN` set to that token.
    - Set the repository variable `DEPLOY_API_DEV=true`.
    - Database migrations aren't run by CI: apply them with `supabase db push` (linked to the dev project) before merging code that needs them.
-7. **Android dev builds from GitHub:** every push to `dev` builds the app for the dev environment (job "Build Android app (dev)"); download it from the run's **Artifacts**. See `apps/mobile/README.md` for the upload-key secrets.
+7. **Android dev builds from GitHub:** every push to `dev` builds the app for the dev environment (job "Build Android app (dev)"); download it from the run's **Artifacts**. For the Google Play bundle, start the workflow by hand (**Actions → CI → Run workflow** on `dev`). See `apps/mobile/README.md` for the upload-key secrets.
 8. **Turnstile on sign-up, sign-in and reset:** the website and the app send a Turnstile token when `TURNSTILE_SITE_KEY` is set (website: the environment variable; app: the build setting). After both are deployed, turn on Supabase → Authentication → Bot and Abuse Protection → **Enable CAPTCHA protection**, choose Cloudflare Turnstile and paste the Turnstile secret key. Older app builds without the check can no longer sign in after that.
 9. **Flow:** branch from `dev`, merge into `dev` to try it on dev.weblu.me, then merge `dev` into `main` to release.
 

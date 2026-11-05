@@ -1,9 +1,17 @@
 name: CI
 
 on:
+  # Feature branches are checked through their pull request; pushing to them as well ran everything twice.
   push:
-    branches: ['**']
+    branches: [dev, main]
   pull_request:
+  # "Run workflow" on the dev branch builds the Google Play bundle (.aab) as well as the test APK.
+  workflow_dispatch:
+    inputs:
+      play_bundle:
+        description: Also build the Google Play bundle (.aab)
+        type: boolean
+        default: true
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -98,12 +106,17 @@ jobs:
       - run: flutter analyze
       - run: flutter test
       # GitHub's Ubuntu runners include the Android SDK; this verifies the Android release build compiles.
-      - uses: actions/setup-java@v5
+      # Pushes to dev skip this: the dev app build right after it compiles the same thing.
+      - if: github.ref != 'refs/heads/dev'
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
-      - name: Build Android release APK (debug-signed unless a keystore is configured)
-        run: flutter build apk --release --dart-define=API_BASE_URL=https://api.example.com
+          cache: gradle
+          cache-dependency-path: apps/mobile/android/**/*.gradle*
+      - name: Build Android release APK (64-bit ARM only, enough to prove it compiles)
+        if: github.ref != 'refs/heads/dev'
+        run: flutter build apk --release --target-platform android-arm64 --dart-define=API_BASE_URL=https://api.example.com
 
   deploy-web:
     # `main` deploys weblu.me (environment `web`); `dev` deploys dev.weblu.me (environment `web-dev`,
@@ -195,7 +208,7 @@ jobs:
     # for Google Play and for installing updates over older builds); otherwise with a throwaway key.
     name: Build Android app (dev)
     needs: [flutter]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # Reuses the dev website's public settings (API and site addresses, Supabase, Turnstile site key).
@@ -213,6 +226,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
+          cache-dependency-path: apps/mobile/android/**/*.gradle*
       - name: Upload key (if configured)
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -239,6 +254,7 @@ jobs:
           SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
           TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
           AUTH_GOOGLE_ENABLED: ${{ vars.AUTH_GOOGLE_ENABLED || 'false' }}
+          PLAY_BUNDLE: ${{ github.event_name == 'workflow_dispatch' && inputs.play_bundle }}
         run: |
           DEFINES=(
             --dart-define=API_BASE_URL="$API_URL"
@@ -251,8 +267,11 @@ jobs:
             --dart-define=APP_VERSION=0.1.0-dev.${{ github.run_number }}
           )
           # The run number becomes the version code, so every build can install over the previous one.
-          flutter build apk --release --build-number=${{ github.run_number }} "${DEFINES[@]}"
-          if [ -f android/key.properties ]; then
+          # The test APK is 64-bit ARM only (every phone the app supports, not emulators): about a third
+          # of the size of an APK for all three CPU types, and quicker to build.
+          flutter build apk --release --target-platform android-arm64 --build-number=${{ github.run_number }} "${DEFINES[@]}"
+          # The Play bundle has every CPU type (Play sends each phone only its own), so it's built only on request.
+          if [ "$PLAY_BUNDLE" = "true" ] && [ -f android/key.properties ]; then
             flutter build appbundle --release --build-number=${{ github.run_number }} "${DEFINES[@]}"
           fi
       - name: Keep the app files
