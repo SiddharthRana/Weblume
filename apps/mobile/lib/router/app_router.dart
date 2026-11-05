@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../api/generated/models.g.dart';
 import '../auth/auth_repository.dart';
 import '../data/providers.dart';
+import '../features/legal/legal_screen.dart';
 import '../features/account/account_screen.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/password_screens.dart';
@@ -33,6 +34,7 @@ abstract final class Routes {
   static const resetPassword = '/reset-password';
   static const notConfigured = '/not-configured';
   static const subscription = '/subscription';
+  static String legal(LegalPage page) => '/legal/${page.name}';
 }
 
 const _publicRoutes = {Routes.login, Routes.signup, Routes.forgotPassword};
@@ -71,6 +73,8 @@ String? authRedirect({
 }) {
   if (!configured) return location == Routes.notConfigured ? null : Routes.notConfigured;
   if (recovering) return location == Routes.resetPassword ? null : Routes.resetPassword;
+  // Privacy and terms are open to everyone, signed in or not.
+  if (location.startsWith('/legal/')) return null;
   final isPublic = _publicRoutes.contains(location);
   if (!signedIn) return isPublic ? null : Routes.login;
   if (isPublic || location == Routes.notConfigured) return Routes.dashboard;
@@ -113,6 +117,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: Routes.notConfigured, builder: (_, _) => const AuthNotConfiguredScreen()),
       GoRoute(path: Routes.subscription, builder: (_, _) => const SubscriptionScreen()),
+      GoRoute(
+        path: '/legal/:page',
+        redirect: (_, state) => LegalPage.fromPath(state.pathParameters['page']) == null ? Routes.dashboard : null,
+        builder: (_, state) => LegalScreen(page: LegalPage.fromPath(state.pathParameters['page'])!),
+      ),
       GoRoute(
         path: '/scan/:id',
         builder: (_, state) =>

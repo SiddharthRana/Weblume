@@ -550,6 +550,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legalSection => 'Legal';
 
   @override
+  String get legalOpenInBrowser => 'Open in browser';
+
+  @override
+  String get legalLoadFailed => 'We couldn’t load this page. Check your connection and try again.';
+
+  @override
+  String get appearanceSection => 'Appearance';
+
+  @override
+  String get appearanceBody => 'Choose light or dark, or follow your phone’s setting.';
+
+  @override
+  String get themeSystem => 'Phone';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
   String get accountPrivacy => 'Privacy policy';
 
   @override
