@@ -668,13 +668,29 @@ class AppLocalizationsEn extends AppLocalizations {
       'Payment is charged to your Google Play account. Your subscription renews automatically until you cancel it in Google Play.';
 
   @override
-  String get purchasePending => 'Waiting for your payment to complete…';
+  String get purchasePendingTitle => 'Waiting for your payment';
 
   @override
-  String get purchaseVerifying => 'Confirming your purchase…';
+  String get purchasePending =>
+      'Google Play is still processing your payment. Your plan updates as soon as it’s done, even if you leave this screen.';
 
   @override
-  String get purchaseSuccess => 'You’re on Starter. Thank you!';
+  String get purchaseVerifyingTitle => 'Confirming your purchase';
+
+  @override
+  String get purchaseVerifyingBody => 'This usually takes a few seconds. Please keep the app open.';
+
+  @override
+  String get purchaseSuccessTitle => 'You’re on Starter';
+
+  @override
+  String get purchaseSuccessBody => 'Thank you! Your new limits and features are ready to use.';
+
+  @override
+  String get purchaseFailedTitle => 'Purchase not completed';
+
+  @override
+  String get purchaseDelayedTitle => 'Still confirming your purchase';
 
   @override
   String get purchaseDuplicate =>
