@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import type { ReactNode } from 'react';
+import { ComingSoonGate } from '@/components/coming-soon-gate';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { ErrorMonitoring } from '@/components/error-monitoring';
@@ -58,7 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <SiteHeader />
           <main id="main" className="flex-1">
-            {children}
+            <ComingSoonGate>{children}</ComingSoonGate>
           </main>
           <SiteFooter />
         </AuthProvider>
