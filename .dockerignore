@@ -14,3 +14,6 @@ docs
 supabase
 **/.env
 **/.env.*
+# Local tooling (Claude worktrees can be several GB), never part of the image.
+.claude
+**/.wrangler
