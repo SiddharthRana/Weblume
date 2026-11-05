@@ -5,6 +5,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { MONITOR_ALERTS, type MonitorAlert, type MonitorFrequency } from '@weblume/shared';
 import { api, errorMessage } from '@/lib/api';
 import {
+  ALERT_DESCRIPTIONS,
   ALERT_LABELS,
   allowedFrequencies,
   FREQUENCY_LABELS,
@@ -248,6 +249,9 @@ function MonitorRow({
           Stop monitoring<span className="sr-only"> {m.normalizedUrl}</span>
         </button>
       </div>
+      <p aria-live="polite" className="text-sm text-fg-muted">
+        {ALERT_DESCRIPTIONS[m.alert]}
+      </p>
     </li>
   );
 }
