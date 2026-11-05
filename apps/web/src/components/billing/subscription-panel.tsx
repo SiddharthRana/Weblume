@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import type { Schemas } from '@weblume/api-client-ts';
 import { api, errorMessage } from '@/lib/api';
-import { grantsAccess, playManageUrl, useBillingConfig } from '@/lib/billing';
+import { grantsAccess, isCurrent, playManageUrl, useBillingConfig } from '@/lib/billing';
 
 type Account = Schemas['AccountDtoClass'];
 
@@ -24,7 +24,10 @@ export function SubscriptionPanel({ account }: { account: Account }) {
   const config = useBillingConfig();
   const [error, setError] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
-  const subs = account.subscriptions;
+  // Ones that give access first.
+  const subs = account.subscriptions
+    .filter(isCurrent)
+    .sort((a, b) => Number(grantsAccess(b)) - Number(grantsAccess(a)));
   const active = subs.filter(grantsAccess);
   const playPkg = config?.googlePlay.packageName ?? 'com.weblume.app';
   const playSub = config?.googlePlay.subscriptionId ?? 'weblume_starter';

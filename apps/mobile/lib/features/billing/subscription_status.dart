@@ -13,6 +13,11 @@ bool grantsAccess(AccountSubscription s) => switch (s.status) {
   _ => false,
 };
 
+/// Subscriptions worth showing: ones that give access, plus on hold or paused ones the person may act
+/// on. Ended ones (including declined checkout attempts) stay in the data export but aren't listed.
+bool isCurrent(AccountSubscription s) =>
+    grantsAccess(s) || s.status == AccountSubscriptionStatus.onHold || s.status == AccountSubscriptionStatus.paused;
+
 Uri playManageUri(BillingConfig cfg) => Uri.https('play.google.com', '/store/account/subscriptions', {
   'sku': cfg.googlePlay.subscriptionId,
   'package': cfg.googlePlay.packageName,

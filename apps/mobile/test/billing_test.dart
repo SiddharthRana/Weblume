@@ -138,4 +138,20 @@ void main() {
     expect(find.widgetWithText(FilledButton, 'Subscribe'), findsNothing);
     expect(store.bought, isEmpty);
   });
+
+  testWidgets('lists only current subscriptions, not declined or ended attempts', (tester) async {
+    final repo = FakeRepository()
+      ..accountResult = Loaded(
+        accountWithSubs([
+          subscriptionJson(provider: 'dodo', status: 'expired'),
+          subscriptionJson(provider: 'dodo', status: 'expired'),
+          subscriptionJson(provider: 'dodo'),
+        ]),
+      );
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Account')));
+    await settle(tester);
+    expect(find.textContaining('Web · Active'), findsOneWidget);
+    expect(find.textContaining('Ended'), findsNothing);
+  });
 }

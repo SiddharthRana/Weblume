@@ -192,7 +192,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       const SizedBox(height: WlSpace.s3),
                       UsageMeter(used: a.usage.used, limit: a.usage.limit, resetsAt: a.usage.resetsAt),
                       const SizedBox(height: WlSpace.s3),
-                      for (final sub in a.subscriptions) SubscriptionStatusTile(subscription: sub),
+                      for (final sub in a.subscriptions.where(isCurrent)) SubscriptionStatusTile(subscription: sub),
                       if (a.subscriptions.where(grantsAccess).isEmpty)
                         ref
                             .watch(billingConfigProvider)
