@@ -4,8 +4,8 @@ Paste this file, or point the new chat at it, to continue in a fresh conversatio
 
 ## 1. Where things stand
 
-- **Repo:** `siddharthrana/weblume`. **Default branch: `main`** (all work is merged; CI green on commit `9e3dc12`, including the Android release APK).
-- **Working branch** used so far: `claude/practical-gates-8p8fxp` (same commit as `main`). Start new work from `main` on a new branch.
+- **Repo:** `SiddharthRana/Weblume` (public since 2026-11-06). **Default branch: `dev`.**
+- **Branch flow:** start new work on a feature branch from `dev`, open a PR into `dev` (deploys dev.weblu.me), then a PR from `dev` into `main` (deploys weblu.me). `dev` and `main` are protected from deletion and force-pushes; merged feature branches are deleted automatically.
 - **Status:** all 6 build phases are complete, and the Linear-style redesign is done on web and Android.
   - **Nothing is deployed.** No real Supabase cloud project, payment provider, Google Play listing or PSI key has been used yet.
   - Every external service has only been tested against fakes.
@@ -183,4 +183,4 @@ Results at handover: API 305, shared 86, design tokens 42, TS client 2, web Play
 
 ## 8. Suggested first message for the new chat
 
-> I'm continuing Weblume (repo siddharthrana/weblume, branch main). Read docs/HANDOVER.md first, then docs/PROGRESS.md. I'm about to test the Android app on a real phone against a local Supabase + API on my computer. Help me set it up, then I'll report what I find; fix issues on a new branch off main, keep the tests passing, and update PROGRESS.md.
+> I'm continuing Weblume (repo siddharthrana/weblume, branch main). Read docs/HANDOVER.md first, then docs/PROGRESS.md. I'm about to test the Android app on a real phone against a local Supabase + API on my computer. Help me set it up, then I'll report what I find; fix issues on a new branch off dev, keep the tests passing, and update PROGRESS.md.
