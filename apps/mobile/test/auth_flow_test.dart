@@ -59,6 +59,31 @@ void main() {
     expect(find.text('Continue with Google'), findsNothing);
   });
 
+  testWidgets('a Google sign-in that comes back with an error says why and can be retried', (tester) async {
+    final auth = FakeAuth()
+      ..googleEnabled = true
+      ..googleError = 'Google sign-in was cancelled.';
+    await pumpApp(tester, auth: auth);
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pumpAndSettle();
+    expect(find.text('Google sign-in was cancelled.'), findsOneWidget);
+    expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Continue with Google')).enabled, isTrue);
+
+    auth.googleError = null;
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pumpAndSettle();
+    expect(find.text('Continue with Google'), findsNothing);
+  });
+
+  test('Google sign-in errors read plainly', () {
+    expect(describeGoogleError('access_denied', 'User cancelled'), 'Google sign-in was cancelled.');
+    expect(
+      describeGoogleError('access_denied', 'Signups not allowed for this instance'),
+      'New accounts can’t be created right now. Log in with an existing account instead.',
+    );
+    expect(describeGoogleError(null, 'invalid flow state'), 'Google sign-in didn’t finish. Please try again.');
+  });
+
   testWidgets('log in: validation, wrong credentials, then success to the dashboard', (tester) async {
     final auth = FakeAuth();
     await pumpApp(tester, auth: auth);
