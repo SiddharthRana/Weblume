@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,15 +22,21 @@ class GoogleSignInButton extends ConsumerStatefulWidget {
 
 class _GoogleSignInButtonState extends ConsumerState<GoogleSignInButton> with WidgetsBindingObserver {
   bool _busy = false;
+  late final StreamSubscription<String> _errors;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _errors = ref.read(authRepositoryProvider).googleErrors.listen((message) {
+      widget.onError(message);
+      if (mounted) setState(() => _busy = false);
+    });
   }
 
   @override
   void dispose() {
+    _errors.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }

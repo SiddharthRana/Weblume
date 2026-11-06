@@ -42,15 +42,35 @@ abstract class AuthRepository {
   /// Opens Google's sign-in page in the browser. It returns to the app through the
   /// weblume://auth-callback deep link, and [events] reports signedIn when it's done.
   Future<void> signInWithGoogle();
+
+  /// Why a Google sign-in failed after Google sent the person back to the app (cancelled,
+  /// sign-ups closed, an expired link), as a message to show on the sign-in screen.
+  Stream<String> get googleErrors;
   Future<void> updatePassword(String password);
   Future<void> signOut();
 }
 
 /// Supabase Auth with PKCE; email links return to the app via the weblume://auth-callback deep link.
 class SupabaseAuthRepository implements AuthRepository {
-  SupabaseAuthRepository(this._auth);
+  SupabaseAuthRepository(this._auth) {
+    // Supabase reports a failed return from Google as an error on the auth stream. Only errors that
+    // arrive while a Google sign-in is under way are shown: the stream also carries token-refresh
+    // failures, which aren't the person's to act on.
+    _auth.onAuthStateChange.listen(
+      (s) {
+        if (s.event == sb.AuthChangeEvent.signedIn) _googlePending = false;
+      },
+      onError: (Object e) {
+        if (!_googlePending || e is! sb.AuthException) return;
+        _googlePending = false;
+        _googleErrors.add(describeGoogleError(e.code, e.message));
+      },
+    );
+  }
 
   final sb.GoTrueClient _auth;
+  final _googleErrors = StreamController<String>.broadcast();
+  bool _googlePending = false;
 
   @override
   bool get configured => true;
@@ -65,14 +85,16 @@ class SupabaseAuthRepository implements AuthRepository {
   String? get accessToken => _auth.currentSession?.accessToken;
 
   @override
-  Stream<AuthEvent> get events => _auth.onAuthStateChange.map(
-    (s) => switch (s.event) {
-      sb.AuthChangeEvent.signedIn => AuthEvent.signedIn,
-      sb.AuthChangeEvent.signedOut => AuthEvent.signedOut,
-      sb.AuthChangeEvent.passwordRecovery => AuthEvent.passwordRecovery,
-      _ => AuthEvent.other,
-    },
-  );
+  Stream<AuthEvent> get events => _auth.onAuthStateChange
+      .handleError((Object _) {})
+      .map(
+        (s) => switch (s.event) {
+          sb.AuthChangeEvent.signedIn => AuthEvent.signedIn,
+          sb.AuthChangeEvent.signedOut => AuthEvent.signedOut,
+          sb.AuthChangeEvent.passwordRecovery => AuthEvent.passwordRecovery,
+          _ => AuthEvent.other,
+        },
+      );
 
   Future<T> _guard<T>(Future<T> Function() fn) async {
     try {
@@ -108,13 +130,20 @@ class SupabaseAuthRepository implements AuthRepository {
   bool get googleEnabled => AppConfig.googleSignInEnabled;
 
   @override
+  Stream<String> get googleErrors => _googleErrors.stream;
+
+  @override
   Future<void> signInWithGoogle() => _guard(() async {
+    _googlePending = true;
     final opened = await _auth.signInWithOAuth(
       sb.OAuthProvider.google,
       redirectTo: AppConfig.authRedirectUrl,
       authScreenLaunchMode: sb.LaunchMode.externalApplication,
     );
-    if (!opened) throw AuthFailure('We couldn’t open Google sign-in. Please try again.');
+    if (!opened) {
+      _googlePending = false;
+      throw AuthFailure('We couldn’t open Google sign-in. Please try again.');
+    }
   });
 
   @override
@@ -148,6 +177,8 @@ class UnconfiguredAuthRepository implements AuthRepository {
   @override
   Future<void> signInWithGoogle() async => _fail();
   @override
+  Stream<String> get googleErrors => const Stream.empty();
+  @override
   Future<void> signOut() async {}
 }
 
@@ -170,6 +201,16 @@ String describeAuthError(String? code, String message, String? status) {
   if (c.startsWith('over_') || status == '429') return 'Too many attempts. Please wait a few minutes and try again.';
   if (c == 'same_password') return 'Choose a password different from your current one.';
   return 'Something went wrong. Please try again.';
+}
+
+/// Messages for a Google sign-in that came back with an error ([code] is the OAuth error, such as
+/// access_denied when the person cancels on Google's page).
+String describeGoogleError(String? code, String message) {
+  if (RegExp('signups? not allowed', caseSensitive: false).hasMatch(message)) {
+    return 'New accounts can’t be created right now. Log in with an existing account instead.';
+  }
+  if (code == 'access_denied') return 'Google sign-in was cancelled.';
+  return 'Google sign-in didn’t finish. Please try again.';
 }
 
 /// Password rules matching supabase/config.toml and the web form.
