@@ -46,6 +46,24 @@ final recentScansProvider = FutureProvider.autoDispose<Loaded<ScanListResponse>>
   (ref) => ref.watch(repositoryProvider).scans(limit: 5),
 );
 
+/// Counts changes to the user's scans (one started or finished). Screens that keep their own copy of
+/// the list, like History (whose tab stays alive between visits), reload when it changes.
+final scansChangedProvider = NotifierProvider<ScansChanged, int>(ScansChanged.new);
+
+class ScansChanged extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void bump() => state++;
+}
+
+/// Call after a scan starts or finishes: refreshes the dashboard's list and usage, and History.
+void onScansChanged(WidgetRef ref) {
+  ref.invalidate(recentScansProvider);
+  ref.invalidate(accountProvider);
+  ref.read(scansChangedProvider.notifier).bump();
+}
+
 final monitorsProvider = FutureProvider.autoDispose<Loaded<MonitorListResponse>>(
   (ref) => ref.watch(repositoryProvider).monitors(),
 );

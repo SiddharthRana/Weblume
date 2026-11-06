@@ -39,8 +39,7 @@ class _NewScanScreenState extends ConsumerState<NewScanScreen> {
     });
     try {
       final res = await ref.read(repositoryProvider).createScan(check.url!);
-      ref.invalidate(recentScansProvider);
-      ref.invalidate(accountProvider);
+      onScansChanged(ref);
       if (!mounted) return;
       _url.clear();
       await context.push('/scan/${res.scan.id}');

@@ -85,6 +85,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // This tab stays alive between visits: reload when a scan starts or finishes elsewhere.
+    // The current list stays on screen until the new one arrives.
+    ref.listen(scansChangedProvider, (_, _) => _load());
     final l10n = AppLocalizations.of(context);
     Widget content;
     if (_error != null && _items == null) {

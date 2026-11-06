@@ -173,6 +173,50 @@ void main() {
     expect(repo.calls.last, 'scans:q=shop:before=');
   });
 
+  testWidgets('history shows a new scan without restarting the app', (tester) async {
+    final repo = FakeRepository()..reports['s1'] = [loadedReport('s1', status: 'running'), loadedReport('s1')];
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await goToTab(tester, 'History');
+    expect(find.text('No saved scans yet'), findsOneWidget);
+
+    // The scan exists on the server from now on.
+    repo.scansResult = Loaded(
+      ScanListResponse.fromJson({
+        'items': [summaryJson('s1', url: 'https://shop.example.com/')],
+        'nextCursor': null,
+      }),
+    );
+    await goToTab(tester, 'New scan');
+    await tester.enterText(find.byType(TextField), 'shop.example.com');
+    await tester.tap(find.text('Scan website'));
+    await settle(tester);
+    await tester.pump(ScanScreen.pollInterval);
+    await settle(tester);
+
+    await tester.pageBack();
+    await settle(tester);
+    await goToTab(tester, 'History');
+    expect(find.text('https://shop.example.com/'), findsOneWidget);
+  });
+
+  testWidgets('opening an old report doesn’t reload history', (tester) async {
+    final repo = FakeRepository()
+      ..scansResult = Loaded(
+        ScanListResponse.fromJson({
+          'items': [summaryJson('s2')],
+          'nextCursor': null,
+        }),
+      )
+      ..reports['s2'] = [loadedReport('s2')];
+    await pumpApp(tester, auth: FakeAuth(signedIn: true), repo: repo);
+    await goToTab(tester, 'History');
+    final loads = repo.calls.where((c) => c == 'scans:q=:before=').length;
+    await tapText(tester, 'https://example.com/');
+    await tester.pageBack();
+    await settle(tester);
+    expect(repo.calls.where((c) => c == 'scans:q=:before=').length, loads);
+  });
+
   testWidgets('account: saves the name, requires DELETE, deletes and signs out', (tester) async {
     final auth = FakeAuth(signedIn: true);
     final repo = FakeRepository();
