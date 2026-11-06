@@ -57,6 +57,9 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     super.dispose();
   }
 
+  static bool _finishedRecently(ScanReport r) =>
+      r.completedAt != null && DateTime.now().difference(r.completedAt!) < const Duration(minutes: 2);
+
   bool get _running =>
       _report != null && (_report!.status == ScanSummaryStatus.queued || _report!.status == ScanSummaryStatus.running);
 
@@ -65,6 +68,8 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
     try {
       final loaded = await ref.read(repositoryProvider).report(widget.scanId);
       if (!mounted) return;
+      final wasRunning = _running;
+      final firstLoad = _report == null;
       setState(() {
         _report = loaded.data;
         _fromCache = loaded.fromCache;
@@ -76,10 +81,10 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
         } else {
           _timer = Timer(ScanScreen.pollInterval, _load);
         }
-      } else {
-        // A finished scan changes usage and the recent list.
-        ref.invalidate(recentScansProvider);
-        ref.invalidate(accountProvider);
+      } else if (wasRunning || (firstLoad && _finishedRecently(loaded.data))) {
+        // The scan just finished (or did so before this screen first loaded it): that changes
+        // usage, the recent list and History. Opening an old report doesn't.
+        onScansChanged(ref);
       }
     } on ApiException catch (e) {
       if (!mounted) return;
