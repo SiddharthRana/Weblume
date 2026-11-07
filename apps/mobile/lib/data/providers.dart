@@ -6,6 +6,7 @@ import '../api/generated/api.g.dart';
 import '../api/generated/models.g.dart';
 import '../auth/auth_repository.dart';
 import '../config/app_config.dart';
+import 'auth_interceptor.dart';
 import 'local_cache.dart';
 import 'weblume_repository.dart';
 
@@ -24,15 +25,7 @@ final dioProvider = Provider<Dio>((ref) {
       headers: {'Accept': 'application/json'},
     ),
   );
-  dio.interceptors.add(
-    InterceptorsWrapper(
-      onRequest: (options, handler) {
-        final token = auth.accessToken;
-        if (token != null) options.headers['Authorization'] = 'Bearer $token';
-        handler.next(options);
-      },
-    ),
-  );
+  dio.interceptors.add(AuthInterceptor(auth, dio));
   return dio;
 });
 

@@ -26,7 +26,9 @@ class FakeAuth implements AuthRepository {
   @override
   AppUser? get currentUser => _user;
   @override
-  String? get accessToken => _user == null ? null : 'token';
+  Future<String?> accessToken() async => _user == null ? null : 'token';
+  @override
+  Future<String?> refreshAccessToken() async => _user == null ? null : 'token';
   @override
   Stream<AuthEvent> get events => _events.stream;
 
@@ -55,9 +57,17 @@ class FakeAuth implements AuthRepository {
   @override
   bool googleEnabled = false;
 
+  /// Set to make the next Google sign-in come back with this error instead of signing in.
+  String? googleError;
+  final _googleErrors = StreamController<String>.broadcast();
+
+  @override
+  Stream<String> get googleErrors => _googleErrors.stream;
+
   @override
   Future<void> signInWithGoogle() async {
     calls.add('google');
+    if (googleError != null) return _googleErrors.add(googleError!);
     _user = _asha;
     emit(AuthEvent.signedIn);
   }
