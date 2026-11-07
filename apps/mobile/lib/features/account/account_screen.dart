@@ -192,10 +192,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                         ),
                         autofillHints: const [AutofillHints.name],
                       ),
-                      if (_nameError != null) ...[
-                        FormMessage(text: _nameError!),
-                        const SizedBox(height: WlSpace.s2),
-                      ],
+                      if (_nameError != null) ...[FormMessage(text: _nameError!), const SizedBox(height: WlSpace.s2)],
                       OutlinedButton(
                         onPressed: loaded.fromCache || _nameSave == _NameSave.saving ? null : _saveName,
                         child: Text(l10n.saveName),
@@ -330,16 +327,16 @@ class _NameSaveIndicator extends StatelessWidget {
     final child = switch (state) {
       _NameSave.idle => const SizedBox.shrink(key: ValueKey('idle')),
       _NameSave.saving => const Padding(
-          key: ValueKey('saving'),
-          padding: EdgeInsets.all(14),
-          child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-        ),
+        key: ValueKey('saving'),
+        padding: EdgeInsets.all(14),
+        child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+      ),
       _NameSave.saved => Semantics(
-          key: const ValueKey('saved'),
-          liveRegion: true,
-          label: savedLabel,
-          child: Icon(Icons.check_circle, color: dark ? WlColorsDark.success : WlColorsLight.success),
-        ),
+        key: const ValueKey('saved'),
+        liveRegion: true,
+        label: savedLabel,
+        child: Icon(Icons.check_circle, color: dark ? WlColorsDark.success : WlColorsLight.success),
+      ),
     };
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
