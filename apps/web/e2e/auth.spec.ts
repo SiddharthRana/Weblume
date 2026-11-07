@@ -183,7 +183,7 @@ test.describe('account settings', () => {
     await expect(page.getByText('5 scans per period')).toBeVisible();
     await page.getByLabel('Display name').fill('Asha');
     await page.getByRole('button', { name: 'Save name' }).click();
-    await expect(page.getByRole('main').getByText('Saved.')).toBeVisible();
+    await expect(page.getByRole('img', { name: 'Saved' })).toBeVisible();
     const r = await (
       await axe(page)
     )

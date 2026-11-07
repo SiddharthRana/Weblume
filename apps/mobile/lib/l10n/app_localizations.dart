@@ -385,6 +385,12 @@ abstract class AppLocalizations {
   /// **'Welcome back'**
   String get dashboardWelcome;
 
+  /// No description provided for @dashboardWelcomeNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Weblume'**
+  String get dashboardWelcomeNew;
+
   /// No description provided for @dashboardGreeting.
   ///
   /// In en, this message translates to:

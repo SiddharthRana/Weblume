@@ -63,6 +63,7 @@
   "authNotConfiguredTitle": "Accounts aren’t configured",
   "authNotConfiguredBody": "This build of the app has no account server configured, so you can’t sign in. You can still run a free scan on the Weblume website.",
   "dashboardWelcome": "Welcome back",
+  "dashboardWelcomeNew": "Welcome to Weblume",
   "dashboardGreeting": "Hi, {name}",
   "@dashboardGreeting": {
     "placeholders": {
