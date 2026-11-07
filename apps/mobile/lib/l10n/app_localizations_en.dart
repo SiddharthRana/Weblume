@@ -163,6 +163,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardWelcome => 'Welcome back';
 
   @override
+  String get dashboardWelcomeNew => 'Welcome to Weblume';
+
+  @override
   String dashboardGreeting(String name) {
     return 'Hi, $name';
   }

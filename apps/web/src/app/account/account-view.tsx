@@ -13,7 +13,7 @@ import { Field, FormAlert } from '@/components/auth/form-bits';
 import { API_URL, api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
 import { currentAccessToken } from '@/lib/supabase';
-import { AccountSkeleton } from '@/components/loading';
+import { AccountSkeleton, Spinner } from '@/components/loading';
 
 type Account = Schemas['AccountDtoClass'];
 
@@ -43,7 +43,8 @@ export function AccountView() {
   const [account, setAccount] = useState<Account | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState('');
-  const [nameMsg, setNameMsg] = useState<{ tone: 'error' | 'success'; text: string } | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [nameSave, setNameSave] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [exportMsg, setExportMsg] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [confirm, setConfirm] = useState('');
@@ -100,13 +101,19 @@ export function AccountView() {
 
   async function saveName(e: FormEvent) {
     e.preventDefault();
-    setNameMsg(null);
-    const { data, error } = await api.PATCH('/v1/me', {
-      body: { displayName: name.trim() || null },
-    });
-    if (!data) return setNameMsg({ tone: 'error', text: errorMessage(error) });
-    setAccount(data);
-    setNameMsg({ tone: 'success', text: 'Saved.' });
+    setNameError(null);
+    setNameSave('saving');
+    try {
+      const { data, error } = await api.PATCH('/v1/me', {
+        body: { displayName: name.trim() || null },
+      });
+      if (!data) throw error;
+      setAccount(data);
+      setNameSave('saved');
+    } catch (error) {
+      setNameSave('idle');
+      setNameError(errorMessage(error));
+    }
   }
 
   async function exportData() {
@@ -172,12 +179,17 @@ export function AccountView() {
             value={name}
             maxLength={100}
             autoComplete="name"
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setNameSave('idle');
+            }}
+            trailing={<NameSaveIndicator state={nameSave} />}
           />
-          {nameMsg && <FormAlert tone={nameMsg.tone}>{nameMsg.text}</FormAlert>}
+          {nameError && <FormAlert>{nameError}</FormAlert>}
           <button
             type="submit"
-            className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold"
+            disabled={nameSave === 'saving'}
+            className="min-h-11 rounded-lg btn-secondary px-5 text-sm font-semibold disabled:opacity-70"
           >
             Save name
           </button>
@@ -263,5 +275,35 @@ export function AccountView() {
         </form>
       </section>
     </div>
+  );
+}
+
+/** Spinner inside the name field while saving, then a green check once saved. */
+function NameSaveIndicator({ state }: { state: 'idle' | 'saving' | 'saved' }) {
+  return (
+    <span role="status" className="flex items-center">
+      {state === 'saving' && (
+        <>
+          <Spinner className="size-5" />
+          <span className="sr-only">Saving…</span>
+        </>
+      )}
+      {state === 'saved' && (
+        <svg
+          role="img"
+          aria-label="Saved"
+          viewBox="0 0 24 24"
+          className="checkout-badge-in size-6 text-success"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="m7.5 12.5 3 3 6-6.5" pathLength={1} className="checkout-draw" />
+        </svg>
+      )}
+    </span>
   );
 }

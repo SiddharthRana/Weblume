@@ -227,7 +227,12 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Display name'), 'Asha');
     await tapText(tester, 'Save name');
     expect(repo.calls, contains('name:Asha'));
-    expect(find.text('Saved.'), findsOneWidget);
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    expect(find.bySemanticsLabel('Saved.'), findsOneWidget);
+    // Editing the name again clears the check.
+    await tester.enterText(find.widgetWithText(TextField, 'Display name'), 'Asha R');
+    await settle(tester);
+    expect(find.byIcon(Icons.check_circle), findsNothing);
 
     // Data export happens in the app (file saved or shared), not on the website.
     await scrollTo(tester, find.text('Download my data'));
