@@ -29,10 +29,19 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
   final _name = TextEditingController();
   final _confirm = TextEditingController();
   bool _nameLoaded = false;
-  String? _nameMessage;
-  bool _nameError = false;
+  String? _nameError;
+  _NameSave _nameSave = _NameSave.idle;
   String? _deleteError;
   bool _deleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Editing the name again means it is no longer the saved one.
+    _name.addListener(() {
+      if (_nameSave == _NameSave.saved) setState(() => _nameSave = _NameSave.idle);
+    });
+  }
 
   @override
   void dispose() {
@@ -43,19 +52,23 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
 
   Future<void> _saveName() async {
     final l10n = AppLocalizations.of(context);
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _nameSave = _NameSave.saving;
+      _nameError = null;
+    });
     try {
       final trimmed = _name.text.trim();
       await ref.read(repositoryProvider).updateDisplayName(trimmed.isEmpty ? null : trimmed);
       ref.invalidate(accountProvider);
-      setState(() {
-        _nameMessage = l10n.saved;
-        _nameError = false;
-      });
+      if (mounted) setState(() => _nameSave = _NameSave.saved);
     } catch (e) {
-      setState(() {
-        _nameMessage = l10n.apiError(e);
-        _nameError = true;
-      });
+      if (mounted) {
+        setState(() {
+          _nameSave = _NameSave.idle;
+          _nameError = l10n.apiError(e);
+        });
+      }
     }
   }
 
@@ -173,14 +186,20 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                       TextField(
                         controller: _name,
                         maxLength: 100,
-                        decoration: InputDecoration(labelText: l10n.displayNameLabel),
+                        decoration: InputDecoration(
+                          labelText: l10n.displayNameLabel,
+                          suffixIcon: _NameSaveIndicator(state: _nameSave, savedLabel: l10n.saved),
+                        ),
                         autofillHints: const [AutofillHints.name],
                       ),
-                      if (_nameMessage != null) ...[
-                        FormMessage(text: _nameMessage!, isError: _nameError),
+                      if (_nameError != null) ...[
+                        FormMessage(text: _nameError!),
                         const SizedBox(height: WlSpace.s2),
                       ],
-                      OutlinedButton(onPressed: loaded.fromCache ? null : _saveName, child: Text(l10n.saveName)),
+                      OutlinedButton(
+                        onPressed: loaded.fromCache || _nameSave == _NameSave.saving ? null : _saveName,
+                        child: Text(l10n.saveName),
+                      ),
                     ]),
                     section(l10n.planSection, icon: Icons.bolt_outlined, [
                       Text(
@@ -292,6 +311,40 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           );
         },
       ),
+    );
+  }
+}
+
+enum _NameSave { idle, saving, saved }
+
+/// Spinner inside the name field while saving, then a green check once saved.
+class _NameSaveIndicator extends StatelessWidget {
+  const _NameSaveIndicator({required this.state, required this.savedLabel});
+
+  final _NameSave state;
+  final String savedLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    final child = switch (state) {
+      _NameSave.idle => const SizedBox.shrink(key: ValueKey('idle')),
+      _NameSave.saving => const Padding(
+          key: ValueKey('saving'),
+          padding: EdgeInsets.all(14),
+          child: SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+        ),
+      _NameSave.saved => Semantics(
+          key: const ValueKey('saved'),
+          liveRegion: true,
+          label: savedLabel,
+          child: Icon(Icons.check_circle, color: dark ? WlColorsDark.success : WlColorsLight.success),
+        ),
+    };
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      transitionBuilder: (c, a) => ScaleTransition(scale: a, child: c),
+      child: child,
     );
   }
 }

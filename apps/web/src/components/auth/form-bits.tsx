@@ -26,12 +26,15 @@ export function Field({
   label,
   hint,
   error,
+  trailing,
   ...input
 }: {
   id: string;
   label: string;
   hint?: ReactNode;
   error?: string | null;
+  /** Shown inside the field on the right, for example a saving spinner or a check. */
+  trailing?: ReactNode;
 } & InputHTMLAttributes<HTMLInputElement>) {
   const hintId = hint ? `${id}-hint` : undefined;
   const errorId = error ? `${id}-error` : undefined;
@@ -40,13 +43,20 @@ export function Field({
       <label htmlFor={id} className="block text-sm font-semibold text-fg">
         {label}
       </label>
-      <input
-        id={id}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={[hintId, errorId].filter(Boolean).join(' ') || undefined}
-        className="min-h-12 w-full rounded-md border border-border bg-bg px-4 text-base text-fg"
-        {...input}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={[hintId, errorId].filter(Boolean).join(' ') || undefined}
+          className={`min-h-12 w-full rounded-md border border-border bg-bg px-4 text-base text-fg ${trailing ? 'pr-11' : ''}`}
+          {...input}
+        />
+        {trailing && (
+          <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+            {trailing}
+          </span>
+        )}
+      </div>
       {hint && (
         <p id={hintId} className="text-sm text-fg-muted">
           {hint}

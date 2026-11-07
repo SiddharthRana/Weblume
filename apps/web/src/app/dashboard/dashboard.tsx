@@ -46,9 +46,7 @@ export function Dashboard() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-primary">Dashboard</p>
-          <h1 className="mt-1 text-3xl font-bold text-fg">
-            {account?.displayName ? `Hi, ${account.displayName}` : 'Welcome back'}
-          </h1>
+          <h1 className="mt-1 text-3xl font-bold text-fg">{greeting(account)}</h1>
         </div>
         <Link
           href="/scan"
@@ -111,4 +109,17 @@ export function Dashboard() {
       )}
     </div>
   );
+}
+
+const NEW_ACCOUNT_MS = 60 * 60 * 1000;
+
+/** A brand-new account hasn't been here before, so it isn't "back" yet. */
+function greeting(
+  account: { displayName: string | null; createdAt: string } | null,
+  now = Date.now(),
+): string {
+  if (account?.displayName) return `Hi, ${account.displayName}`;
+  if (!account) return 'Welcome';
+  const isNew = now - new Date(account.createdAt).getTime() < NEW_ACCOUNT_MS;
+  return isNew ? 'Welcome to Weblume' : 'Welcome back';
 }

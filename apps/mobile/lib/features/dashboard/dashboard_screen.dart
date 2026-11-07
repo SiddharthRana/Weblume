@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../api/generated/models.g.dart';
 import '../../data/providers.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router/app_router.dart';
@@ -62,7 +63,7 @@ class DashboardScreen extends ConsumerWidget {
                     children: [
                       FadeSlideIn(
                         child: Text(
-                          a.displayName != null ? l10n.dashboardGreeting(a.displayName!) : l10n.dashboardWelcome,
+                          dashboardGreeting(l10n, a),
                           style: theme.textTheme.headlineMedium?.copyWith(letterSpacing: -0.5),
                         ),
                       ),
@@ -160,4 +161,12 @@ class DashboardScreen extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// A brand-new account hasn't been here before, so it isn't "back" yet.
+String dashboardGreeting(AppLocalizations l10n, Account a, {DateTime? now}) {
+  final name = a.displayName;
+  if (name != null && name.isNotEmpty) return l10n.dashboardGreeting(name);
+  final age = (now ?? DateTime.now()).difference(a.createdAt);
+  return age < const Duration(hours: 1) ? l10n.dashboardWelcomeNew : l10n.dashboardWelcome;
 }
