@@ -26,7 +26,9 @@ class FakeAuth implements AuthRepository {
   @override
   AppUser? get currentUser => _user;
   @override
-  String? get accessToken => _user == null ? null : 'token';
+  Future<String?> accessToken() async => _user == null ? null : 'token';
+  @override
+  Future<String?> refreshAccessToken() async => _user == null ? null : 'token';
   @override
   Stream<AuthEvent> get events => _events.stream;
 
