@@ -52,7 +52,7 @@ class DashboardScreen extends ConsumerWidget {
           Expanded(
             child: account.when(
               loading: () => const LoadingView(),
-              error: (e, _) => ErrorView(message: l10n.apiError(e), onRetry: () => ref.invalidate(accountProvider)),
+              error: (e, _) => ErrorView(message: l10n.apiError(e), onRetry: refresh),
               data: (loaded) {
                 final a = loaded.data;
                 return RefreshIndicator(

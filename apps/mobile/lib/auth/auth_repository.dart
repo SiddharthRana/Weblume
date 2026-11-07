@@ -26,7 +26,14 @@ class AuthFailure implements Exception {
 abstract class AuthRepository {
   bool get configured;
   AppUser? get currentUser;
-  String? get accessToken;
+
+  /// The access token for API calls, refreshed first if it has expired (as it has when Android
+  /// reopens the app after closing it in the background). Throws [AuthFailure] when it has expired
+  /// and can't be refreshed right now, for example while offline.
+  Future<String?> accessToken();
+
+  /// A new access token after the API rejected the current one, or null if there's none.
+  Future<String?> refreshAccessToken();
   Stream<AuthEvent> get events;
 
   /// [captchaToken] is the Turnstile token, required once CAPTCHA protection is on in Supabase.
@@ -82,7 +89,23 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
-  String? get accessToken => _auth.currentSession?.accessToken;
+  Future<String?> accessToken() async {
+    try {
+      return (await _auth.getSession())?.accessToken;
+    } on sb.AuthException catch (e) {
+      throw AuthFailure(e.message);
+    }
+  }
+
+  @override
+  Future<String?> refreshAccessToken() async {
+    if (_auth.currentSession == null) return null;
+    try {
+      return (await _auth.refreshSession()).session?.accessToken;
+    } on sb.AuthException {
+      return null;
+    }
+  }
 
   @override
   Stream<AuthEvent> get events => _auth.onAuthStateChange
@@ -160,7 +183,9 @@ class UnconfiguredAuthRepository implements AuthRepository {
   @override
   AppUser? get currentUser => null;
   @override
-  String? get accessToken => null;
+  Future<String?> accessToken() async => null;
+  @override
+  Future<String?> refreshAccessToken() async => null;
   @override
   Stream<AuthEvent> get events => const Stream.empty();
   Never _fail() => throw AuthFailure('Accounts aren’t configured for this build.');
