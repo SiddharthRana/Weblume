@@ -43,7 +43,7 @@ A self-review of the code against the build prompt (`docs/BUILD_PROMPT.md` §5, 
 
 6. **The Dodo Payments adapter isn't verified against Dodo's live API** (see `payments-setup.md`). Paddle, Play and Pub/Sub were only tested against fakes.
 7. **No MFA** for user accounts. Supabase supports TOTP; it isn't wired into the UI.
-8. **No third-party penetration test** and no legal review of the privacy policy and terms (still marked DRAFT).
+8. **No third-party penetration test** and no lawyer's review yet of the privacy policy and terms.
 9. **Supabase settings live in the dashboard**: password policy, redirect URLs, SMTP and leaked-password protection. They must be set by hand; see the README.
 
 ## Checklist for each release
