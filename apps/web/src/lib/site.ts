@@ -9,6 +9,12 @@ export const site = {
   noindex: process.env.NEXT_PUBLIC_NOINDEX === 'true',
   /** Pre-launch production: everything except the pages below shows a "launching soon" screen. */
   comingSoon: process.env.NEXT_PUBLIC_COMING_SOON === 'true',
+  /** Who runs Weblume, as named in the legal pages. */
+  owner: {
+    name: 'Siddharth Rana',
+    location: 'Dehradun, Uttarakhand, India',
+    courts: 'Dehradun, Uttarakhand',
+  },
   /** Store pages for the mobile apps; null shows "coming soon" instead of a link. */
   apps: {
     // Turn on once the app is published on Google Play (a link before then would lead nowhere).
@@ -54,7 +60,7 @@ export const footerNav = {
   Legal: [
     { href: '/legal/privacy', label: 'Privacy policy' },
     { href: '/legal/terms', label: 'Terms of service' },
-    { href: '/legal/refunds', label: 'Refund policy' },
+    { href: '/legal/refunds', label: 'Refunds and cancellation' },
     { href: '/legal/account-deletion', label: 'Delete your account' },
   ],
 } as const;

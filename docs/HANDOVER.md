@@ -178,7 +178,7 @@ Results at handover: API 305, shared 86, design tokens 42, TS client 2, web Play
   - No crash reporting in the app.
   - PDFs are web-only.
 - **Web:** the CSP allows inline scripts, and it hasn't been checked with real Turnstile or Paddle keys.
-- **Legal pages** are DRAFT and need review.
+- **Legal pages** are written for launch; a lawyer's review is still recommended. Keep them in sync with `docs/privacy-data-map.md`.
 - **Manual accessibility checks** (screen readers, zoom) haven't been done (`docs/quality-review.md`).
 
 ## 8. Suggested first message for the new chat

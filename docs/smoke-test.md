@@ -20,7 +20,7 @@ Run this before each release, against staging first and then production. It take
 - [ ] `robots.txt` disallows `/r/`, `/scan/`, `/compare`, `/history`, `/dashboard`, `/account`.
 - [ ] `sitemap.xml` lists only public pages.
 - [ ] Pricing shows the correct prices, and "coming soon" if billing is off.
-- [ ] Legal pages load; check whether the DRAFT banner is still intended.
+- [ ] Legal pages load and show the right owner, support email and payment provider.
 
 ## 2. Guest scan (signed out)
 

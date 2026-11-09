@@ -15,7 +15,7 @@ const pages = [
   { path: '/bot', h1: /WeblumeBot/ },
   { path: '/legal/privacy', h1: /Privacy policy/ },
   { path: '/legal/terms', h1: /Terms of service/ },
-  { path: '/legal/refunds', h1: /Refund policy/ },
+  { path: '/legal/refunds', h1: /Refund and cancellation policy/ },
   { path: '/legal/account-deletion', h1: /Delete your Weblume account/ },
 ];
 
@@ -45,10 +45,18 @@ for (const { path, h1 } of pages) {
   });
 }
 
-test('legal pages are clearly marked as drafts', async ({ page }) => {
+test('legal pages are final and name who runs Weblume', async ({ page }) => {
   for (const path of ['/legal/privacy', '/legal/terms', '/legal/refunds']) {
     await page.goto(path);
-    await expect(page.getByText('DRAFT: requires legal review.')).toBeVisible();
+    await expect(page.getByText('DRAFT', { exact: false })).toHaveCount(0);
+    if (path !== '/legal/refunds') {
+      await expect(
+        page
+          .getByRole('main')
+          .getByText(/Siddharth Rana/)
+          .first(),
+      ).toBeVisible();
+    }
   }
 });
 
