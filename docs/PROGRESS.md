@@ -205,7 +205,7 @@ Monorepo, design tokens, shared package, initial schema with RLS, NestJS foundat
    - Run one test-mode purchase end to end (`docs/payments-setup.md` §3). The adapter was checked against Dodo's API reference; the purchase confirms it for real, including whether checkout metadata reaches the subscription (an email fallback covers it if not).
 2. **Test with a real PageSpeed Insights key.** Run scans and compare with pagespeed.web.dev; so far the mapper is tested only against a hand-built fixture.
 3. **Deploy a staging environment.** Follow `docs/deployment.md` and run `docs/smoke-test.md`. That includes the CSP with real Turnstile and Paddle keys, email delivery, and the Android build against staging.
-4. **Get a legal review** of the privacy policy, terms and refund policy (all marked DRAFT), and fill in the Play data safety form from `docs/privacy-data-map.md`.
+4. **Legal pages** (privacy, terms, refunds) are written for launch (owner: Siddharth Rana, Dehradun; Dodo Payments; 7-day first-payment refund; Dehradun courts). A lawyer's review is still recommended. Fill in the Play data safety form from `docs/privacy-data-map.md`.
 5. **Device-test Android.**
    - Play Billing on an internal track with license testers (purchase, renewal, cancel, refund via RTDN).
    - Share and compare flows.

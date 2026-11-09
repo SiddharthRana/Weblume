@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { LegalDraft } from '@/components/legal-draft';
+import { LegalPage } from '@/components/legal-page';
 import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 // Public page required by Google Play's account-deletion policy.
 export default function AccountDeletionPage() {
   return (
-    <LegalDraft title="Delete your Weblume account" updated="29 October 2026">
+    <LegalPage title="Delete your Weblume account" updated="9 November 2026">
       <h2>In the app or on the web</h2>
       <ol>
         <li>
@@ -29,10 +29,10 @@ export default function AccountDeletionPage() {
       <h2>What gets deleted</h2>
       <p>
         Your profile, scans, findings and share links are deleted within 30 days. Payment providers
-        (our merchant of record and Google Play) keep transaction records they are legally required
-        to retain. Cancel any active Google Play subscription in Google Play, because deleting your
+        (Dodo Payments and Google Play) keep transaction records they are legally required to
+        retain. Cancel any active Google Play subscription in Google Play, because deleting your
         account doesn’t cancel it automatically.
       </p>
-    </LegalDraft>
+    </LegalPage>
   );
 }
