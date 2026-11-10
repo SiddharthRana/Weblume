@@ -199,6 +199,28 @@ test.describe('account subscription', () => {
     await expect(page.getByText('You’re on Starter')).toBeVisible({ timeout: 15_000 });
   });
 
+  test('keeps checking after a slow confirmation and updates by itself', async ({ page }) => {
+    let paid = false;
+    await page.clock.install();
+    await mockBackends(page, {
+      api: billingApi({ me: () => (paid ? starter([webSub]) : account()) }),
+    });
+    await logIn(page, '?next=%2Faccount%3Fcheckout%3Dsuccess');
+    await expect(page.getByText(/Confirming your payment/)).toBeVisible();
+    // Each check waits for a reply before scheduling the next, so move the clock in steps.
+    const advance = async (ms: number) => {
+      await page.clock.runFor(ms);
+      await page.waitForTimeout(100);
+    };
+    for (let i = 0; i < 11; i++) await advance(3_000);
+    await expect(page.getByText('Still confirming your payment')).toBeVisible();
+    await expect(page.getByText(/Please don’t pay again/)).toBeVisible();
+    // Confirmed minutes later: the card switches without a click.
+    paid = true;
+    await advance(16_000);
+    await expect(page.getByText('You’re on Starter')).toBeVisible();
+  });
+
   test('shows a failed payment straight away when checkout returns status=failed', async ({
     page,
   }) => {

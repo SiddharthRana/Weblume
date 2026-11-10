@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { site } from '@/lib/site';
 import { LogoMark } from '../logo';
 
 export type CheckoutState = 'confirming' | 'active' | 'pending' | 'failed';
@@ -74,8 +75,17 @@ export function CheckoutStatus({
         <Card tone="warning" badge={<PendingBadge />} live="polite">
           <Title>Still confirming your payment</Title>
           <Body>
-            The payment provider hasn’t confirmed it yet, which can take a minute or two. Your plan
-            updates as soon as it does.
+            Our payment provider hasn’t confirmed it to us yet. It’s usually quick, but it can take
+            up to 10 minutes. Please don’t pay again.
+          </Body>
+          <Body>
+            You can leave this page: your plan switches on automatically once it’s confirmed, and
+            the receipt is emailed to you. We’ll keep checking here too. If your plan hasn’t updated
+            after 15 minutes, email{' '}
+            <a href={`mailto:${site.supportEmail}`} className="font-medium underline">
+              {site.supportEmail}
+            </a>
+            .
           </Body>
           <Actions>
             <button

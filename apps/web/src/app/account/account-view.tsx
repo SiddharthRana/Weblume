@@ -38,6 +38,12 @@ function Section({
   );
 }
 
+/** Checking for the new plan after checkout: every 3 s for 30 s, then every 15 s up to 15 minutes. */
+const FAST_CHECKS = 10;
+const FAST_CHECK_MS = 3_000;
+const SLOW_CHECK_MS = 15_000;
+const MAX_WAIT_MS = 15 * 60_000;
+
 export function AccountView() {
   const { user, signOut } = useAuth();
   const [account, setAccount] = useState<Account | null>(null);
@@ -62,26 +68,50 @@ export function AccountView() {
     );
   }, []);
 
-  // After checkout the provider's webhook may land a few seconds after the redirect: poll briefly.
-  // A checkout that didn't go through comes back with ?status=failed (or cancelled) instead.
+  // After checkout the provider's webhook may land a few seconds after the redirect, or several
+  // minutes later: check quickly at first, then quietly in the background, and straight away when
+  // the visitor comes back to the tab. A checkout that didn't go through comes back with
+  // ?status=failed (or cancelled) instead.
   const [checkout, setCheckout] = useState<CheckoutState | null>(null);
   const pollTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const pollNow = useRef<(() => void) | null>(null);
+  const stopPolling = useCallback(() => {
+    clearTimeout(pollTimer.current);
+    pollNow.current = null;
+  }, []);
   const pollForPlan = useCallback(() => {
     clearTimeout(pollTimer.current);
+    const started = Date.now();
     let tries = 0;
     const poll = async () => {
-      setCheckout('confirming');
+      clearTimeout(pollTimer.current);
+      if (tries < FAST_CHECKS) setCheckout('confirming');
       const { data } = await api.GET('/v1/me').catch(() => ({ data: undefined }));
+      if (pollNow.current !== poll) return; // stopped, or restarted by "Check again"
       if (data?.plan.paid) {
+        stopPolling();
         setAccount(data);
         setCheckout('active');
-      } else if (++tries < 10) {
-        pollTimer.current = setTimeout(poll, 3_000);
+      } else if (++tries < FAST_CHECKS) {
+        pollTimer.current = setTimeout(poll, FAST_CHECK_MS);
       } else {
         setCheckout('pending');
+        if (Date.now() - started < MAX_WAIT_MS) {
+          pollTimer.current = setTimeout(poll, SLOW_CHECK_MS);
+        } else {
+          pollNow.current = null;
+        }
       }
     };
+    pollNow.current = poll;
     pollTimer.current = setTimeout(poll, 0);
+  }, [stopPolling]);
+  useEffect(() => {
+    const onReturn = () => {
+      if (document.visibilityState === 'visible') pollNow.current?.();
+    };
+    document.addEventListener('visibilitychange', onReturn);
+    return () => document.removeEventListener('visibilitychange', onReturn);
   }, []);
   const returnParams = useRef<URLSearchParams>(undefined);
   useEffect(() => {
@@ -96,8 +126,8 @@ export function AccountView() {
     } else {
       pollForPlan();
     }
-    return () => clearTimeout(pollTimer.current);
-  }, [pollForPlan]);
+    return stopPolling;
+  }, [pollForPlan, stopPolling]);
 
   async function saveName(e: FormEvent) {
     e.preventDefault();
@@ -164,7 +194,10 @@ export function AccountView() {
           state={checkout}
           planName={account.plan.name}
           onCheckAgain={pollForPlan}
-          onDismiss={() => setCheckout(null)}
+          onDismiss={() => {
+            stopPolling();
+            setCheckout(null);
+          }}
         />
       )}
       <Section id="profile" title="Profile">
