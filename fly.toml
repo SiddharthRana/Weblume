@@ -1,0 +1,54 @@
+# Fly.io config for the PRODUCTION API (api.weblu.me). Deployed by CI on pushes to `main`; by hand:
+#   fly deploy --config fly.toml
+# Secrets (database, Supabase, Resend, Turnstile, PSI, Dodo…) are set with `fly secrets set`, never here.
+app = "weblume-api"
+primary_region = "sin" # Singapore: Fly's closest region to India (no Mumbai region).
+# Give running scans time to finish on deploys and restarts (pg-boss stops taking jobs on SIGTERM).
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+# The Dockerfile copies the monorepo, so the build context is the repository root.
+[build]
+  dockerfile = "apps/api/Dockerfile"
+
+# Non-secret settings. NODE_ENV=production and PORT=4000 come from the Dockerfile.
+[env]
+  LOG_LEVEL = "info"
+  SUPABASE_URL = "https://cyaionjbkdcnjjbnpmeo.supabase.co" # the weblume-prod project
+  CORS_ORIGINS = "https://weblu.me"
+  PUBLIC_SITE_URL = "https://weblu.me"
+  BILLING_RETURN_URL = "https://weblu.me/account?checkout=success"
+  # Fly's proxy is one hop in front of the app (api.weblu.me is DNS-only in Cloudflare).
+  TRUST_PROXY_HOPS = "1"
+  # The scan worker and the monitoring scheduler run in this same process.
+  WORKER_ENABLED = "true"
+  RATE_LIMIT_STORE = "postgres"
+  # Never let the scanner fetch our own API.
+  SCAN_BLOCKED_HOSTS = "api.weblu.me,weblume-api.fly.dev"
+  EMAIL_FROM = "Weblume <alerts@weblu.me>"
+  SENTRY_ENVIRONMENT = "production"
+  # Dodo live mode. DODO_API_KEY, DODO_WEBHOOK_SECRET and the two live product IDs
+  # (DODO_PRODUCT_STARTER_MONTHLY, DODO_PRODUCT_STARTER_ANNUAL) are Fly secrets.
+  # Google Play billing stays off here until the Android app is published.
+  WEB_PAYMENT_PROVIDER = "dodo"
+  DODO_ENV = "live"
+
+[http_service]
+  internal_port = 4000
+  force_https = true
+  # Must stay running: the worker processes scans and the scheduler queues monitoring runs.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpus = 1
+  cpu_kind = "shared"
