@@ -20,6 +20,17 @@ export function botUserAgent(siteUrl: string): string {
   return `WeblumeBot/1.0 (+${siteUrl.replace(/\/$/, '')}/bot)`;
 }
 
+/**
+ * Hosts the scanner must never fetch: our Supabase project and our own API hosts
+ * (SCAN_BLOCKED_HOSTS). Our public website (PUBLIC_SITE_URL) is a static site anyone can visit, so
+ * people may scan it like any other site.
+ */
+export function scannerBlockedHosts(
+  env: Pick<Env, 'SUPABASE_URL' | 'SCAN_BLOCKED_HOSTS'>,
+): string[] {
+  return [new URL(env.SUPABASE_URL).hostname, ...env.SCAN_BLOCKED_HOSTS];
+}
+
 @Module({
   controllers: [ScansController],
   exports: [ScansService, ScanHooks, SCAN_QUEUE],
@@ -34,10 +45,9 @@ export function botUserAgent(siteUrl: string): string {
       provide: GUARDED_CLIENT,
       inject: [ENV],
       useFactory: (env: Env) => {
-        const ownHosts = [env.PUBLIC_SITE_URL, env.SUPABASE_URL].map((u) => new URL(u).hostname);
         return new GuardedHttpClient({
           userAgent: botUserAgent(env.PUBLIC_SITE_URL),
-          blockedHosts: [...ownHosts, ...env.SCAN_BLOCKED_HOSTS],
+          blockedHosts: scannerBlockedHosts(env),
         });
       },
     },
