@@ -115,6 +115,21 @@ Domains: `weblu.me` for the web app and `api.weblu.me` for the API (dev: `dev.we
 6. **Payments**: follow [`payments-setup.md`](payments-setup.md), sandbox first.
 7. **Smoke test**: run [`smoke-test.md`](smoke-test.md) against production, then turn on monitoring ([`monitoring.md`](monitoring.md)).
 
+## Production API (api.weblu.me)
+
+Fly app `weblume-api`, configured by [`fly.toml`](../fly.toml) (Singapore, one 512 MB machine, worker in the same process, Dodo live mode, Google Play billing off until the app is published). Every push to `main` deploys it (job "Deploy API (Fly.io, production)") once it is set up:
+
+1. `fly apps create weblume-api`
+2. Set the secrets (values never go in `fly.toml` or chat):
+   ```bash
+   fly secrets set --app weblume-api --stage DATABASE_URL=... SUPABASE_SECRET_KEY=... GUEST_HASH_SECRET=$(openssl rand -hex 32) MONITOR_LINK_SECRET=$(openssl rand -hex 32) RESEND_API_KEY=... TURNSTILE_SECRET_KEY=... PSI_API_KEY=... SENTRY_DSN=... DODO_API_KEY=... DODO_WEBHOOK_SECRET=... DODO_PRODUCT_STARTER_MONTHLY=... DODO_PRODUCT_STARTER_ANNUAL=...
+   ```
+   `DATABASE_URL` is the production Supabase **session pooler** string (port 5432).
+3. First deploy from the repository root: `fly deploy --config fly.toml --ha=false`, then check `https://weblume-api.fly.dev/ready`.
+4. Domain: `fly certs add api.weblu.me --app weblume-api`, then a **DNS-only** (grey cloud) CNAME `api` → `weblume-api.fly.dev` in Cloudflare.
+5. CI: `fly tokens create deploy --app weblume-api --expiry 8760h`; create the GitHub environment `api` (deployment branch `main`, optionally a required reviewer) with secret `FLY_API_TOKEN`; set the repository variable `DEPLOY_API=true`.
+6. Billing: `update public.feature_flags set enabled = true where key = 'billing';` in the production database once Dodo live is set up.
+
 ## Dev environment (dev.weblu.me)
 
 A full second copy for testing before production. It shares nothing with production except the Cloudflare account and the Resend domain, so a broken dev deploy or a test purchase can't touch real users.
